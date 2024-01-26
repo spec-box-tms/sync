@@ -9,8 +9,9 @@ export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
   command: "upload-stat",
   handler: async (args) => {
     console.log("Upload Jest stat");
+    const { config, prjversion: version } = args;
 
-    const { api, jest, projectPath } = await loadConfig(args.config);
+    const { api, jest, projectPath } = await loadConfig(config);
 
     if (!jest) {
       console.log("Jest settings are not specified");
@@ -19,6 +20,6 @@ export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
 
     const jestReport = await loadJestReport(jest.reportPath, projectPath);
 
-    await uploadJestStat(jestReport, api);
+    await uploadJestStat(jestReport, api, version);
   },
 };

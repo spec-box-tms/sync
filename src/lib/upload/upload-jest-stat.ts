@@ -1,14 +1,15 @@
 import {
   SpecBoxWebApi,
   SpecBoxWebApiModelStatAutotestsStatUploadData,
-} from "../../api";
-import { ApiConfig } from "../config/models";
-import { JestReport } from "../jest/models";
-import { DEFAULT_API_OPTIONS } from "../utils";
+} from '../../api';
+import { ApiConfig } from '../config/models';
+import { JestReport } from '../jest/models';
+import { DEFAULT_API_OPTIONS } from '../utils';
 
 export const uploadJestStat = async (
   jestReport: JestReport,
-  config: ApiConfig
+  config: ApiConfig,
+  version?: string
 ) => {
   const { host, project } = config;
   const { startTime, numTotalTests, testResults } = jestReport;
@@ -28,5 +29,5 @@ export const uploadJestStat = async (
     duration: totalDuration,
   };
 
-  await client.statUploadAutotests({ project, body });
+  await client.statUploadAutotests({ project, version, body });
 };
