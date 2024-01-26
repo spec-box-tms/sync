@@ -81,7 +81,8 @@ const mapTree = ({
 
 export const uploadEntities = async (
   { features, attributes = [], trees = [] }: ProjectData,
-  config: ApiConfig
+  config: ApiConfig,
+  version?: string
 ) => {
   const { host, project } = config;
 
@@ -93,5 +94,5 @@ export const uploadEntities = async (
     trees: trees?.map(mapTree),
   };
 
-  await client.exportUpload({ project, body });
+  await client.exportUploadProject(project, { body, version });
 };

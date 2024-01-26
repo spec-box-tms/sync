@@ -12,6 +12,7 @@ export const DEFAULT_API_OPTIONS: SpecBoxWebApiOptionalParams = {
 
 export interface CommonOptions {
   config?: string;
+  prjversion?: string;
 }
 
 export const CWD = process.cwd();

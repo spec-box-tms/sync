@@ -13,8 +13,9 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
   command: 'sync',
   handler: async (args) => {
     console.log('SYNC');
+    const { config, prjversion: version } = args;
     const validationContext = new Validator();
-    const { yml, api, jest, projectPath } = await loadConfig(args.config);
+    const { yml, api, jest, projectPath } = await loadConfig(config);
 
     const meta = await loadMeta(validationContext, yml.metaPath, projectPath);
     const files = await glob(yml.files, { cwd: projectPath });
@@ -39,6 +40,8 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
       throw Error('Выгрузка невозможна из-за наличия критических ошибок');
     }
 
-    await uploadEntities(projectData, api);
+    console.log(`Загрузка проекта ${api.project} версия ${version}`);
+    await uploadEntities(projectData, api, version);
+    console.log(`Загрузка завершена успешно`);
   },
 };
