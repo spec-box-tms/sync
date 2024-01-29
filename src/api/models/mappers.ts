@@ -61,11 +61,11 @@ export const SpecBoxWebApiModelUploadData: coreClient.CompositeMapper = {
           },
         },
       },
-      title: {
-        serializedName: "title",
-        nullable: true,
+      project: {
+        serializedName: "project",
         type: {
-          name: "String",
+          name: "Composite",
+          className: "SpecBoxWebApiModelUploadProjectModel",
         },
       },
     },
@@ -320,6 +320,37 @@ export const SpecBoxWebApiModelUploadTreeModel: coreClient.CompositeMapper = {
   },
 };
 
+export const SpecBoxWebApiModelUploadProjectModel: coreClient.CompositeMapper =
+  {
+    type: {
+      name: "Composite",
+      className: "SpecBoxWebApiModelUploadProjectModel",
+      modelProperties: {
+        title: {
+          serializedName: "title",
+          nullable: true,
+          type: {
+            name: "String",
+          },
+        },
+        description: {
+          serializedName: "description",
+          nullable: true,
+          type: {
+            name: "String",
+          },
+        },
+        repositoryUrl: {
+          serializedName: "repositoryUrl",
+          nullable: true,
+          type: {
+            name: "String",
+          },
+        },
+      },
+    },
+  };
+
 export const SpecBoxWebApiModelCommonProjectModel: coreClient.CompositeMapper =
   {
     type: {
@@ -360,11 +391,16 @@ export const SpecBoxWebApiModelCommonProjectModel: coreClient.CompositeMapper =
             name: "String",
           },
         },
-        version: {
-          serializedName: "version",
-          nullable: true,
+        versions: {
+          serializedName: "versions",
+          required: true,
           type: {
-            name: "String",
+            name: "Sequence",
+            element: {
+              type: {
+                name: "String",
+              },
+            },
           },
         },
       },
@@ -553,7 +589,7 @@ export const SpecBoxWebApiModelProjectStructureModel: coreClient.CompositeMapper
           serializedName: "project",
           type: {
             name: "Composite",
-            className: "SpecBoxWebApiModelCommonProjectModel",
+            className: "SpecBoxWebApiModelCommonProjectVersionModel",
           },
         },
         tree: {
@@ -567,6 +603,57 @@ export const SpecBoxWebApiModelProjectStructureModel: coreClient.CompositeMapper
                 className: "SpecBoxWebApiModelProjectTreeNodeModel",
               },
             },
+          },
+        },
+      },
+    },
+  };
+
+export const SpecBoxWebApiModelCommonProjectVersionModel: coreClient.CompositeMapper =
+  {
+    type: {
+      name: "Composite",
+      className: "SpecBoxWebApiModelCommonProjectVersionModel",
+      modelProperties: {
+        code: {
+          constraints: {
+            MinLength: 1,
+          },
+          serializedName: "code",
+          required: true,
+          type: {
+            name: "String",
+          },
+        },
+        title: {
+          constraints: {
+            MinLength: 1,
+          },
+          serializedName: "title",
+          required: true,
+          type: {
+            name: "String",
+          },
+        },
+        description: {
+          serializedName: "description",
+          nullable: true,
+          type: {
+            name: "String",
+          },
+        },
+        repositoryUrl: {
+          serializedName: "repositoryUrl",
+          nullable: true,
+          type: {
+            name: "String",
+          },
+        },
+        version: {
+          serializedName: "version",
+          nullable: true,
+          type: {
+            name: "String",
           },
         },
       },
@@ -704,7 +791,7 @@ export const SpecBoxWebApiModelStatModel: coreClient.CompositeMapper = {
         serializedName: "project",
         type: {
           name: "Composite",
-          className: "SpecBoxWebApiModelCommonProjectModel",
+          className: "SpecBoxWebApiModelCommonProjectVersionModel",
         },
       },
       assertions: {

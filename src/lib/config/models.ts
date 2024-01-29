@@ -20,6 +20,9 @@ export const treeDecoder = d.struct({
 });
 
 export const metaDecoder = d.partial({
+  title: d.string,
+  description: d.string,
+  repositry: d.string,
   attributes: d.array(attributeDecoder),
   trees: d.array(treeDecoder),
 });

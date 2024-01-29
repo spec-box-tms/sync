@@ -38,8 +38,15 @@ export interface Tree {
   attributes: string[];
 }
 
+export interface ProjectInfo {
+  title?: string;
+  description?: string;
+  repository?: string;
+}
+
 export interface ProjectData {
   features: Feature[];
+  project: ProjectInfo;
 
   attributes?: Attribute[];
   trees?: Tree[];

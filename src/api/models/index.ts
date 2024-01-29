@@ -8,7 +8,7 @@ export interface SpecBoxWebApiModelUploadData {
   features: SpecBoxWebApiModelUploadFeatureModel[];
   attributes: SpecBoxWebApiModelUploadAttributeModel[];
   trees: SpecBoxWebApiModelUploadTreeModel[];
-  title?: string;
+  project: SpecBoxWebApiModelUploadProjectModel;
 }
 
 export interface SpecBoxWebApiModelUploadFeatureModel {
@@ -49,12 +49,18 @@ export interface SpecBoxWebApiModelUploadTreeModel {
   attributes: string[];
 }
 
+export interface SpecBoxWebApiModelUploadProjectModel {
+  title?: string;
+  description?: string;
+  repositoryUrl?: string;
+}
+
 export interface SpecBoxWebApiModelCommonProjectModel {
   code: string;
   title: string;
   description?: string;
   repositoryUrl?: string;
-  version?: string;
+  versions: string[];
 }
 
 export interface SpecBoxWebApiModelProjectFeatureModel {
@@ -89,8 +95,16 @@ export interface MicrosoftAspNetCoreMvcProblemDetails {
 }
 
 export interface SpecBoxWebApiModelProjectStructureModel {
-  project: SpecBoxWebApiModelCommonProjectModel;
+  project: SpecBoxWebApiModelCommonProjectVersionModel;
   tree: SpecBoxWebApiModelProjectTreeNodeModel[];
+}
+
+export interface SpecBoxWebApiModelCommonProjectVersionModel {
+  code: string;
+  title: string;
+  description?: string;
+  repositoryUrl?: string;
+  version?: string;
 }
 
 export interface SpecBoxWebApiModelProjectTreeNodeModel {
@@ -115,7 +129,7 @@ export interface SpecBoxWebApiModelStatAutotestsStatUploadData {
 }
 
 export interface SpecBoxWebApiModelStatModel {
-  project: SpecBoxWebApiModelCommonProjectModel;
+  project: SpecBoxWebApiModelCommonProjectVersionModel;
   assertions: SpecBoxWebApiModelStatAssertionsStatModel[];
   autotests: SpecBoxWebApiModelStatAutotestsStatModel[];
 }
