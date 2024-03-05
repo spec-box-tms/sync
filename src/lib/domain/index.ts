@@ -81,9 +81,9 @@ export const processYamlFiles = (
   files: YamlFile[],
   config: { filePath: string; meta: Meta }
 ): ProjectData => {
-  const { title, description, repositry } = config.meta;
+  const { title, description, repository } = config.meta;
 
-  const project = { title, description, repositry };
+  const project = { title, description, repository };
   const features = files.map(mapFeature);
   const attributes = config.meta.attributes?.map(mapAttribute);
   const trees = config.meta.trees?.map(mapTree);
