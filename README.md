@@ -4,9 +4,9 @@
 
 ## Быстрый старт
 
-1. Установите пакет @spec-box/sync из внешнего npm
+1. Установите пакет @ugpa/spec-box-sync из реестра ЮгПА npm
    ```sh
-   npm i @spec-box/sync --registry=https://registry.npmjs.org -D
+   npm i @ugpa/spec-box-sync --registry=https://gitlab.ugpa.ru/api/v4/projects/10/packages/npm/ -g
    ```
 2. Создайте конфигурационный файл `.tms.json`:
    ```js
