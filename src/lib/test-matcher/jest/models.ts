@@ -39,4 +39,5 @@ export const jestReportDecoder = d.struct({
 });
 
 export type JestReport = d.TypeOf<typeof jestReportDecoder>;
+export type JestTestResult = d.TypeOf<typeof jestTestResultDecoder>;
 export type JestAssertionStatus = d.TypeOf<typeof jestAssertionStatusDecoder>;

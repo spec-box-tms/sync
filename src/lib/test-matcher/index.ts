@@ -1,35 +1,32 @@
 import {
   AssertionContext,
-  ProjectData,
   getAttributesContext,
   getKey,
+  ProjectData,
 } from '../domain';
-import { parseObject, readTextFile } from '../utils';
 import { Validator } from '../validators';
-import { JestAssertionStatus, JestReport, jestReportDecoder } from './models';
+import { AssertionStatus, TestReport } from './models';
 
-export const getFullName = (...parts: string[]) => parts.join(' / ');
+export const getFullName = (...parts: string[]) => parts.join(' ');
 
-export const ignoredStatuses = new Set<JestAssertionStatus>(['pending', 'todo', 'skipped']);
+export const ignoredStatuses = new Set<AssertionStatus>([
+  'pending',
+  'todo',
+  'skipped',
+]);
 
-export const applyJestReport = (
+export const applyTestReport = (
   validationContext: Validator,
   { features, attributes }: ProjectData,
-  report: JestReport,
+  report: TestReport,
   keyParts: string[]
 ) => {
   const names = new Map<string, string[]>();
 
-  // формируем список ключей тест-кейсов из отчета jest
-  for (let { assertionResults, name: path } of report.testResults) {
-    const assertions = assertionResults.filter(a => !ignoredStatuses.has(a.status));
-
-    for (let { title, ancestorTitles } of assertions) {
-      const name = getFullName(...ancestorTitles, title);
-      const pathes = names.get(name) || [];
-      pathes.push(path);
-      names.set(name, pathes);
-    }
+  for (let { name, filePath } of report.testResults) {
+    const paths = names.get(name) || [];
+    paths.push(filePath || '');
+    names.set(name, paths);
   }
 
   const attributesCtx = getAttributesContext(attributes);
@@ -60,24 +57,14 @@ export const applyJestReport = (
         const fullName = getFullName(...parts);
 
         assertion.isAutomated = names.has(fullName);
-
         names.delete(fullName);
       }
     }
   }
   Array.from(names.keys()).forEach((name) => {
-    const pathes = names.get(name);
-    pathes?.forEach((path) =>
+    const paths = names.get(name);
+    paths?.forEach((path) =>
       validationContext.registerJestUnusedTests(name, path)
     );
   });
-};
-
-export const loadJestReport = async (path: string, basePath?: string) => {
-  const json = await readTextFile(path, basePath);
-  const data: unknown = JSON.parse(json);
-
-  const entity = parseObject(data, jestReportDecoder);
-
-  return entity;
 };

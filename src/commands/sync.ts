@@ -5,9 +5,11 @@ import { CommonOptions } from '../lib/utils';
 import { loadConfig, loadMeta } from '../lib/config';
 import { YamlFile, loadYaml } from '../lib/yaml';
 import { uploadEntities } from '../lib/upload/upload-entities';
-import { applyJestReport, loadJestReport } from '../lib/jest';
+import { loadJestReport } from '../lib/test-matcher/jest';
 import { processYamlFiles } from '../lib/domain';
 import { Validator } from '../lib/validators';
+import { applyTestReport } from '../lib/test-matcher';
+import { loadJUnitReport } from '../lib/test-matcher/junit';
 
 export const cmdSync: CommandModule<{}, CommonOptions> = {
   command: 'sync',
@@ -15,7 +17,7 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
     console.log('SYNC');
     const { config, prjversion: version } = args;
     const validationContext = new Validator();
-    const { yml, api, jest, projectPath } = await loadConfig(config);
+    const { yml, api, jest, JUnit, projectPath } = await loadConfig(config);
 
     const meta = await loadMeta(validationContext, yml.metaPath, projectPath);
     const files = await glob(yml.files, { cwd: projectPath });
@@ -32,7 +34,13 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
     if (jest) {
       const jestReport = await loadJestReport(jest.reportPath, projectPath);
 
-      applyJestReport(validationContext, projectData, jestReport, jest.keys);
+      applyTestReport(validationContext, projectData, jestReport, jest.keys);
+    }
+
+    if (JUnit) {
+      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath);
+
+      applyTestReport(validationContext, projectData, junitReport, JUnit.keys);
     }
 
     validationContext.printReport();
