@@ -1,25 +1,34 @@
-import { CommandModule } from "yargs";
+import { CommandModule } from 'yargs';
 
-import { CommonOptions } from "../lib/utils";
-import { loadConfig } from "../lib/config";
-import { uploadJestStat } from "../lib/upload/upload-jest-stat";
-import { loadJestReport } from "../lib/jest";
+import { CommonOptions } from '../lib/utils';
+import { loadConfig } from '../lib/config';
+import { uploadTestStat } from '../lib/upload/upload-jest-stat';
+import { loadJestReport } from '../lib/test-matcher/jest';
+import { loadJUnitReport } from '../lib/test-matcher/junit';
 
 export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
-  command: "upload-stat",
+  command: 'upload-stat',
   handler: async (args) => {
-    console.log("Upload Jest stat");
+    console.log('Upload Jest stat');
     const { config, prjversion: version } = args;
 
-    const { api, jest, projectPath } = await loadConfig(config);
+    const { api, jest, JUnit, projectPath } = await loadConfig(config);
 
-    if (!jest) {
-      console.log("Jest settings are not specified");
+    if (!jest && !JUnit) {
+      console.log('Jest settings are not specified');
       process.exit(1);
     }
 
-    const jestReport = await loadJestReport(jest.reportPath, projectPath);
+    if (jest) {
+      const jestReport = await loadJestReport(jest.reportPath, projectPath);
 
-    await uploadJestStat(jestReport, api, version);
+      await uploadTestStat(jestReport, api, version);
+    }
+
+    if (JUnit) {
+      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath);
+
+      await uploadTestStat(junitReport, api, version);
+    }
   },
 };

@@ -6,14 +6,16 @@ import { Validator } from '../lib/validators';
 import { glob } from 'fast-glob';
 import { YamlFile, loadYaml } from '../lib/yaml';
 import { processYamlFiles } from '../lib/domain';
-import { applyJestReport, loadJestReport } from '../lib/jest';
+import { loadJestReport } from '../lib/test-matcher/jest';
+import { applyTestReport } from '../lib/test-matcher';
+import { loadJUnitReport } from '../lib/test-matcher/junit';
 
 export const cmdValidateOnly: CommandModule<{}, CommonOptions> = {
   command: 'validate',
   handler: async (args) => {
     console.log('VALIDATION');
 
-    const { yml, jest, projectPath } = await loadConfig(args.config);
+    const { yml, jest, JUnit, projectPath } = await loadConfig(args.config);
     const validationContext = new Validator();
     const meta = await loadMeta(validationContext, yml.metaPath, projectPath);
 
@@ -32,8 +34,15 @@ export const cmdValidateOnly: CommandModule<{}, CommonOptions> = {
     if (jest) {
       const jestReport = await loadJestReport(jest.reportPath, projectPath);
 
-      applyJestReport(validationContext, projectData, jestReport, jest.keys);
+      applyTestReport(validationContext, projectData, jestReport, jest.keys);
     }
+
+    if (JUnit) {
+      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath);
+
+      applyTestReport(validationContext, projectData, junitReport, JUnit.keys);
+    }
+
     validationContext.printReport();
   },
 };

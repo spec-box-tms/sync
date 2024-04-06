@@ -3,30 +3,23 @@ import {
   SpecBoxWebApiModelStatAutotestsStatUploadData,
 } from '../../api';
 import { ApiConfig } from '../config/models';
-import { JestReport } from '../jest/models';
+import { TestReport } from '../test-matcher/models';
 import { DEFAULT_API_OPTIONS } from '../utils';
 
-export const uploadJestStat = async (
-  jestReport: JestReport,
+export const uploadTestStat = async (
+  testReport: TestReport,
   config: ApiConfig,
   version?: string
 ) => {
   const { host, project } = config;
-  const { startTime, numTotalTests, testResults } = jestReport;
-
-  // считаем суммарную длительность всех тестов
-  // (как при выполнении в одном потоке)
-  const totalDuration = testResults.reduce(
-    (sum, { startTime, endTime }) => sum + (endTime - startTime),
-    0
-  );
+  const { startTime, total, duration } = testReport;
 
   const client = new SpecBoxWebApi(host, DEFAULT_API_OPTIONS);
 
   const body: SpecBoxWebApiModelStatAutotestsStatUploadData = {
     timestamp: new Date(startTime),
-    assertionsCount: numTotalTests,
-    duration: totalDuration,
+    assertionsCount: total,
+    duration,
   };
 
   await client.statUploadAutotests({ project, version, body });

@@ -63,7 +63,7 @@ export const attributeKeyPartDecoder = pipe(
   })
 );
 
-export const jestConfigDecoder = d.struct({
+export const testReportConfigDecoder = d.struct({
   reportPath: d.string,
   keys: d.array(d.union(literalKeyPartDecoder, attributeKeyPartDecoder)),
 });
@@ -76,14 +76,15 @@ export const configDecoder = d.intersect(
 )(
   d.partial({
     projectPath: d.string,
-    jest: jestConfigDecoder,
+    jest: testReportConfigDecoder,
+    JUnit: testReportConfigDecoder,
   })
 );
 
 export type RootConfig = d.TypeOf<typeof configDecoder>;
 export type ApiConfig = d.TypeOf<typeof apiConfigDecoder>;
 export type YmlConfig = d.TypeOf<typeof ymlConfigDecoder>;
-export type JestConfig = d.TypeOf<typeof jestConfigDecoder>;
+export type JestConfig = d.TypeOf<typeof testReportConfigDecoder>;
 
 export type Meta = d.TypeOf<typeof metaDecoder>;
 export type Tree = d.TypeOf<typeof treeDecoder>;

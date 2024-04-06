@@ -1,8 +1,11 @@
 node_modules
 swagger.json
 dist
-jest-report.json
+
+# temporal
 .spec-box-meta.yml
 .tms.json
 specs-demo
+test-results
+
 .DS_Store

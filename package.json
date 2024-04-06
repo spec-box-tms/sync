@@ -1,6 +1,6 @@
 {
     "name": "spec-box-tms-sync",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "private": false,
     "bin": {
         "spec-box": "./bin/spec-box"
@@ -22,12 +22,14 @@
     "dependencies": {
         "@azure/core-client": "^1.7.3",
         "@azure/core-rest-pipeline": "^1.11.0",
+        "@types/xml2js": "0.4.14",
         "chalk": "^4.1.0",
         "fast-glob": "^3.3.0",
         "fp-ts": "^2.16.0",
         "fs-extra": "^11.1.1",
         "io-ts": "^2.2.20",
         "tslib": "^2.6.0",
+        "xml2js": "0.6.2",
         "yaml": "^2.3.1",
         "yargs": "^17.7.2"
     },
