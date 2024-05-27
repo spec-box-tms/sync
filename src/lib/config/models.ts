@@ -43,6 +43,10 @@ export const ymlConfigDecoder = d.intersect(
   })
 );
 
+export const markdownConfigDecoder = d.struct({
+  path: d.string
+});
+
 export const literalKeyPartDecoder = d.literal(
   "featureTitle",
   "featureCode",
@@ -78,13 +82,15 @@ export const configDecoder = d.intersect(
     projectPath: d.string,
     jest: testReportConfigDecoder,
     JUnit: testReportConfigDecoder,
+    markdown: markdownConfigDecoder,
   })
 );
 
 export type RootConfig = d.TypeOf<typeof configDecoder>;
 export type ApiConfig = d.TypeOf<typeof apiConfigDecoder>;
 export type YmlConfig = d.TypeOf<typeof ymlConfigDecoder>;
-export type JestConfig = d.TypeOf<typeof testReportConfigDecoder>;
+export type MarkdownConfig = d.TypeOf<typeof markdownConfigDecoder>;
+export type TestConfig = d.TypeOf<typeof testReportConfigDecoder>;
 
 export type Meta = d.TypeOf<typeof metaDecoder>;
 export type Tree = d.TypeOf<typeof treeDecoder>;

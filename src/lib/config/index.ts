@@ -1,3 +1,4 @@
+import { glob } from 'fast-glob';
 import {
   readTextFile,
   parseObject,
@@ -8,6 +9,8 @@ import {
 import { Validator, printError } from '../validators';
 import { getLoaderError } from '../validators/validator';
 import { Meta, RootConfig, configDecoder, metaDecoder } from './models';
+import { loadYaml, YamlFile } from '../yaml';
+import { processYamlFiles } from '../domain';
 
 export type { YmlConfig, Attribute, AttributeValue, Tree } from './models';
 
@@ -44,4 +47,25 @@ export const loadMeta = async (
     printError(getLoaderError(error, filePath, 'config'));
     throw Error('Ошибка загрузки файла конфигурации');
   }
+};
+
+export const loadProject = async (
+  metaPath: string | undefined,
+  filePaths: string[],
+  projectPath: string | undefined
+) => {
+  const validationContext = new Validator();
+
+  const meta = await loadMeta(validationContext, metaPath, projectPath);
+  const files = await glob(filePaths, { cwd: projectPath });
+
+  const yamls = await Promise.all(
+    files.map((path) => loadYaml(validationContext, path, projectPath))
+  );
+  const successYamls = new Array<YamlFile>();
+  yamls.forEach((yaml) => yaml && successYamls.push(yaml));
+
+  const projectData = processYamlFiles(successYamls, meta);
+  validationContext.validate(projectData);
+  return { projectData, validationContext };
 };

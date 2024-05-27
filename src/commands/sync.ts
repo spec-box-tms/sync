@@ -1,35 +1,24 @@
 import { CommandModule } from 'yargs';
-import glob from 'fast-glob';
 
-import { CommonOptions } from '../lib/utils';
-import { loadConfig, loadMeta } from '../lib/config';
-import { YamlFile, loadYaml } from '../lib/yaml';
-import { uploadEntities } from '../lib/upload/upload-entities';
-import { loadJestReport } from '../lib/test-matcher/jest';
-import { processYamlFiles } from '../lib/domain';
-import { Validator } from '../lib/validators';
+import { loadConfig, loadProject } from '../lib/config';
 import { applyTestReport } from '../lib/test-matcher';
+import { loadJestReport } from '../lib/test-matcher/jest';
 import { loadJUnitReport } from '../lib/test-matcher/junit';
+import { uploadEntities } from '../lib/upload/upload-entities';
+import { CommonOptions } from '../lib/utils';
 
 export const cmdSync: CommandModule<{}, CommonOptions> = {
   command: 'sync',
   handler: async (args) => {
     console.log('SYNC');
     const { config, prjversion: version } = args;
-    const validationContext = new Validator();
     const { yml, api, jest, JUnit, projectPath } = await loadConfig(config);
 
-    const meta = await loadMeta(validationContext, yml.metaPath, projectPath);
-    const files = await glob(yml.files, { cwd: projectPath });
-
-    const yamls = await Promise.all(
-      files.map((path) => loadYaml(validationContext, path, projectPath))
+    const { projectData, validationContext } = await loadProject(
+      yml.metaPath,
+      yml.files,
+      projectPath
     );
-    const successYamls = new Array<YamlFile>();
-    yamls.forEach((yaml) => yaml && successYamls.push(yaml));
-
-    const projectData = processYamlFiles(successYamls, meta);
-    validationContext.validate(projectData);
 
     if (jest) {
       const jestReport = await loadJestReport(jest.reportPath, projectPath);

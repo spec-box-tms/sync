@@ -23,7 +23,7 @@ import { printError, renderStats } from './renderer';
 
 const CODE_REGEX = /^[A-Za-z][A-Za-z0-9-_]*$/;
 // named group <link> is used to capture and validate link key
-const LINK_LIKE = /\$(?<link>[A-Za-z][A-Za-z0-9-_]*)/g;
+export const LINK_LIKE = /\$(?<link>[A-Za-z][A-Za-z0-9-_]*)/g;
 
 export class Validator {
   private readonly loaderErrors = new Array<ValidationError>();
@@ -266,11 +266,11 @@ export class Validator {
         }
       }
     }
-    errors.push(...this.validateAsserions(feature));
+    errors.push(...this.validateAssertions(feature));
 
     return errors;
   }
-  private validateAsserions(feature: Feature): ValidationError[] {
+  private validateAssertions(feature: Feature): ValidationError[] {
     const errors = new Array<ValidationError>();
 
     for (const assertionGroup of feature.groups) {

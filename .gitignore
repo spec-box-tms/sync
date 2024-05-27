@@ -7,5 +7,7 @@ dist
 .tms.json
 specs-demo
 test-results
+demo-docs
+mkdocs.yml
 
 .DS_Store
