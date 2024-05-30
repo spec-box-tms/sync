@@ -28,7 +28,7 @@ export const exportMarkdown = async (
       0,
       feature.filePath.lastIndexOf('.')
     );
-    featureCodeToPath.set(`$${feature.code}`, featurePath);
+    featureCodeToPath.set(`$${feature.code}`, featurePath + '.md');
   }
 
   for (const feature of projectData.features) {
