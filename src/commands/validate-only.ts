@@ -11,12 +11,13 @@ export const cmdValidateOnly: CommandModule<{}, CommonOptions> = {
   handler: async (args) => {
     console.log('VALIDATION');
 
-    const { yml, jest, JUnit, projectPath } = await loadConfig(args.config);
+    const { yml, jest, JUnit, projectPath, validation = {} } = await loadConfig(args.config);
 
     const { projectData, validationContext } = await loadProject(
       yml.metaPath,
       yml.files,
-      projectPath
+      projectPath,
+      validation
     );
 
     if (jest) {

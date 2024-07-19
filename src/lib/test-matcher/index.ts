@@ -29,6 +29,8 @@ export const applyTestReport = (
     names.set(name, paths);
   }
 
+  const searchNames = [...names.keys()];
+
   const attributesCtx = getAttributesContext(attributes);
 
   // заполняем поле isAutomated
@@ -56,8 +58,16 @@ export const applyTestReport = (
         const parts = getKey(keyParts, assertionCtx, attributesCtx);
         const fullName = getFullName(...parts);
 
-        assertion.isAutomated = names.has(fullName);
-        names.delete(fullName);
+        const fullyEquals = names.has(fullName);
+        if (fullyEquals) {
+          assertion.isAutomated = true;
+          names.delete(fullName);
+        }
+        const partlyEquals = searchNames.find(name => name.endsWith(fullName));
+        if(partlyEquals) {
+          assertion.isAutomated = true;
+          names.delete(partlyEquals);
+        }
       }
     }
   }

@@ -84,7 +84,7 @@ export const getKeyPart = (
     case "filePath":
       return assertion.filePath;
     default:
-      return UNDEFINED;
+      return value;
   }
 };
 

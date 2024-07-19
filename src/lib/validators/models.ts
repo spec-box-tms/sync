@@ -116,9 +116,9 @@ export type ValidationError =
 
 export type ValidationErrorTypes = ValidationError['type'];
 
-export type ErrorSeverity = 'info' | 'warning' | 'error';
+export type ErrorSeverity = 'info' | 'warning' | 'error' | 'off';
 
-export const ERROR_SEVERITY: { [key in ValidationErrorTypes]: ErrorSeverity } = {
+export const DEFAULT_ERROR_SEVERITY: { [key in ValidationErrorTypes]: ErrorSeverity } = {
   'loader-error': 'error',
   'code-format-error': 'error',
   'attribute-duplicate': 'error',

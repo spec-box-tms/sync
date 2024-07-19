@@ -12,12 +12,13 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
   handler: async (args) => {
     console.log('SYNC');
     const { config, prjversion: version } = args;
-    const { yml, api, jest, JUnit, projectPath } = await loadConfig(config);
+    const { yml, api, jest, JUnit, projectPath, validation = {} } = await loadConfig(config);
 
     const { projectData, validationContext } = await loadProject(
       yml.metaPath,
       yml.files,
-      projectPath
+      projectPath,
+      validation
     );
 
     if (jest) {

@@ -44,6 +44,7 @@ const junitTestCaseDecoder = d.intersect(
 );
 
 const junitTestSuiteDecoder = d.struct({
+  name: d.string,
   timestamp: pipe(
     d.string,
     d.parse((s) => d.success(new Date(s)))
@@ -56,6 +57,7 @@ const junitTestSuiteDecoder = d.struct({
 });
 
 const junitTestSuitesDecoder = d.struct({
+  name: d.string,
   tests: pipe(
     d.string,
     d.parse((v) => d.success(Number(v)))
