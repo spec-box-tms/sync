@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { ERROR_SEVERITY, ErrorSeverity, ValidationError } from './models';
+import { ErrorSeverity, ValidationError } from './models';
 
 const renderError = (e: ValidationError): string => {
   switch (e.type) {
@@ -52,7 +52,7 @@ const errorBadge = (p: string | number) => chalk.bgRed(` ${p} `);
 const warnBadge = (p: string | number) => chalk.bgYellow(chalk.black(` ${p} `));
 const infoBadge = (p: string | number) => chalk.bgBlackBright(` ${p} `);
 
-const formatSeverity = (s: ErrorSeverity): string => {
+const formatSeverity = (s: ErrorSeverity): string | undefined => {
   switch (s) {
     case 'error':
       return errorBadge('ERROR');
@@ -63,20 +63,25 @@ const formatSeverity = (s: ErrorSeverity): string => {
   }
 };
 
-export const printError = (e: ValidationError) => {
-  const severity = formatSeverity(ERROR_SEVERITY[e.type]);
-  console.log(`${severity} ${renderError(e)}\n${path(e.filePath)}\n`);
+export const printError = (e: ValidationError, severities: Record<string, ErrorSeverity>) => {
+  const severity = severities[e.type];
+  if(severity === 'off') {
+    return;
+  }
+  const format = formatSeverity(severity);
+
+  console.log(`${format} ${renderError(e)}\n${path(e.filePath)}\n`);
 };
 
-export const renderStats = (title: string, errors: ValidationError[]) => {
+export const renderStats = (title: string, errors: ValidationError[], severities: Record<string, ErrorSeverity>) => {
   if (errors.length === 0) {
     return;
   }
   const errorsCount = errors.filter(
-    (e) => ERROR_SEVERITY[e.type] === 'error'
+    (e) => severities[e.type] === 'error'
   ).length;
   const warnsCount = errors.filter(
-    (e) => ERROR_SEVERITY[e.type] === 'warning'
+    (e) => severities[e.type] === 'warning'
   ).length;
   if(!errorsCount && !warnsCount) {
     console.log(`${chalk.green('Ошибки валидации не обнаружены')}`);

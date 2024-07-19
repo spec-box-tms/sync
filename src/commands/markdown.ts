@@ -9,12 +9,13 @@ export const cmdMarkdown: CommandModule<{}, CommonOptions> = {
   handler: async (args) => {
     console.log('Export to Markdown');
     const { config } = args;
-    const { yml, api, markdown, projectPath } = await loadConfig(config);
+    const { yml, api, markdown, projectPath, validation = {} } = await loadConfig(config);
 
     const { projectData, validationContext } = await loadProject(
       yml.metaPath,
       yml.files,
-      projectPath
+      projectPath,
+      validation
     );
     
     

@@ -1,4 +1,8 @@
-import { Attribute } from '../config/models';
+import {
+  Attribute,
+  ValidationConfig,
+  ValidationSeverity,
+} from '../config/models';
 import { Feature, ProjectData } from '../domain';
 import { Tree } from '../domain/models';
 import {
@@ -6,7 +10,7 @@ import {
   AttributeDuplicateError,
   AttributeValueDuplicateError,
   CodeError,
-  ERROR_SEVERITY,
+  DEFAULT_ERROR_SEVERITY,
   FeatureAttributeValueCodeError,
   FeatureCodeDuplicateError,
   FeatureCodeError,
@@ -32,27 +36,39 @@ export class Validator {
   private readonly jestUnusedTests = new Array<JestUnusedTestError>();
   private metaFilePath = '';
 
+  public readonly severity: Record<string, ValidationSeverity>;
+
   get hasCriticalErrors(): boolean {
     return [
       ...this.loaderErrors,
       ...this.metaErrors,
       ...this.featureErrors,
       ...this.jestUnusedTests,
-    ].some((e) => ERROR_SEVERITY[e.type] === 'error');
+    ].some((e) => this.severity[e.type] === 'error');
+  }
+
+  constructor(config: ValidationConfig) {
+    this.severity = { ...DEFAULT_ERROR_SEVERITY, ...config };
   }
 
   printReport() {
-    this.jestUnusedTests.forEach(printError);
-    this.featureErrors.forEach(printError);
-    this.metaErrors.forEach(printError);
-    this.loaderErrors.forEach(printError);
-
-    renderStats('Всего', [
-      ...this.loaderErrors,
-      ...this.metaErrors,
-      ...this.featureErrors,
+    [
       ...this.jestUnusedTests,
-    ]);
+      ...this.featureErrors,
+      ...this.metaErrors,
+      ...this.loaderErrors,
+    ].forEach((error) => printError(error, this.severity));
+
+    renderStats(
+      'Всего',
+      [
+        ...this.loaderErrors,
+        ...this.metaErrors,
+        ...this.featureErrors,
+        ...this.jestUnusedTests,
+      ],
+      this.severity
+    );
   }
 
   registerLoaderError(

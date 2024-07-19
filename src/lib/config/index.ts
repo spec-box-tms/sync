@@ -8,7 +8,7 @@ import {
 } from '../utils';
 import { Validator, printError } from '../validators';
 import { getLoaderError } from '../validators/validator';
-import { Meta, RootConfig, configDecoder, metaDecoder } from './models';
+import { Meta, RootConfig, ValidationConfig, configDecoder, metaDecoder } from './models';
 import { loadYaml, YamlFile } from '../yaml';
 import { processYamlFiles } from '../domain';
 
@@ -44,7 +44,7 @@ export const loadMeta = async (
 
     return { filePath, meta };
   } catch (error) {
-    printError(getLoaderError(error, filePath, 'config'));
+    printError(getLoaderError(error, filePath, 'config'), validationContext.severity);
     throw Error('Ошибка загрузки файла конфигурации');
   }
 };
@@ -52,9 +52,10 @@ export const loadMeta = async (
 export const loadProject = async (
   metaPath: string | undefined,
   filePaths: string[],
-  projectPath: string | undefined
+  projectPath: string | undefined,
+  validation: ValidationConfig
 ) => {
-  const validationContext = new Validator();
+  const validationContext = new Validator(validation);
 
   const meta = await loadMeta(validationContext, metaPath, projectPath);
   const files = await glob(filePaths, { cwd: projectPath });

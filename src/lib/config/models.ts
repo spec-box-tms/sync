@@ -1,6 +1,17 @@
 import { pipe } from "fp-ts/lib/function";
 import * as d from "io-ts/Decoder";
 
+// validation
+
+export const validationSeverityDecoder = d.union(
+  d.literal('error'),
+  d.literal('warning'),
+  d.literal('info'),
+  d.literal('off'),
+);
+
+export const validationConfigDecoder = d.record(validationSeverityDecoder);
+
 // meta
 export const attributeValueDecoder = d.struct({
   code: d.string,
@@ -69,7 +80,7 @@ export const attributeKeyPartDecoder = pipe(
 
 export const testReportConfigDecoder = d.struct({
   reportPath: d.string,
-  keys: d.array(d.union(literalKeyPartDecoder, attributeKeyPartDecoder)),
+  keys: d.array(d.union(literalKeyPartDecoder, attributeKeyPartDecoder, d.string)),
 });
 
 export const configDecoder = d.intersect(
@@ -80,6 +91,7 @@ export const configDecoder = d.intersect(
 )(
   d.partial({
     projectPath: d.string,
+    validation: validationConfigDecoder,
     jest: testReportConfigDecoder,
     JUnit: testReportConfigDecoder,
     markdown: markdownConfigDecoder,
@@ -91,6 +103,8 @@ export type ApiConfig = d.TypeOf<typeof apiConfigDecoder>;
 export type YmlConfig = d.TypeOf<typeof ymlConfigDecoder>;
 export type MarkdownConfig = d.TypeOf<typeof markdownConfigDecoder>;
 export type TestConfig = d.TypeOf<typeof testReportConfigDecoder>;
+export type ValidationConfig = d.TypeOf<typeof validationConfigDecoder>;
+export type ValidationSeverity = d.TypeOf<typeof validationSeverityDecoder>;
 
 export type Meta = d.TypeOf<typeof metaDecoder>;
 export type Tree = d.TypeOf<typeof treeDecoder>;

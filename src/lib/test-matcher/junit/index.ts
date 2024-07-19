@@ -3,11 +3,22 @@ import { parseObject, readTextFile } from '../../utils';
 import { AssertionResult, TestReport } from '../models';
 import { JUnitReport, junitReportDecoder, JUnitTestSuite } from './models';
 
-const mapTestResults = (testResult: JUnitTestSuite[]): AssertionResult[] => {
+const mapTestResults = (
+  testResult: JUnitTestSuite[],
+  suitesName = ''
+): AssertionResult[] => {
   const results = new Array<AssertionResult>();
 
-  for (let { testcase: testCases } of testResult) {
-    for (let { name, status } of testCases) {
+  for (let { testcase: testCases, name: suiteName = '' } of testResult) {
+    for (let { name: caseName, status } of testCases) {
+      let name = caseName;
+      if (suiteName) {
+        name = suiteName + ' ' + name;
+      }
+      if (suitesName) {
+        name = suitesName + ' ' + name;
+      }
+
       results.push({
         name,
         filePath: 'unknown',
@@ -21,7 +32,7 @@ const mapTestResults = (testResult: JUnitTestSuite[]): AssertionResult[] => {
 
 const mapTestReport = (junitReport: JUnitReport): TestReport => {
   const { testsuites } = junitReport;
-  const total = testsuites.tests;
+  const { tests: total, name } = testsuites;
 
   const startTime = testsuites.testsuite.reduce(
     (acc, item) => Math.min(acc, item.timestamp.getTime()),
@@ -36,7 +47,7 @@ const mapTestReport = (junitReport: JUnitReport): TestReport => {
     startTime,
     total,
     duration,
-    testResults: mapTestResults(testsuites.testsuite),
+    testResults: mapTestResults(testsuites.testsuite, name),
   };
 };
 
