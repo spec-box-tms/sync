@@ -27,7 +27,7 @@ export const cmdValidateOnly: CommandModule<{}, CommonOptions> = {
     }
 
     if (JUnit) {
-      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath);
+      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath, JUnit.property);
 
       applyTestReport(validationContext, projectData, junitReport, JUnit.keys);
     }

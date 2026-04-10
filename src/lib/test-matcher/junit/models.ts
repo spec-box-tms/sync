@@ -32,10 +32,23 @@ const mapStatus = (testCase: JUnitTestCaseStatus): JUnitStatuses => {
   return 'passed';
 };
 
+const junitTestCasePropertyDecoder = d.struct({
+  name: d.string,
+  value: d.string,
+});
+
 const junitTestCaseDecoder = d.intersect(
-  d.struct({
-    name: d.string,
-  })
+  d.intersect(
+    d.struct({
+      name: d.string,
+    }),
+  )(
+    d.partial({
+      properties: d.struct({
+        property: singleItemOrArray(junitTestCasePropertyDecoder),
+      }),
+    }),
+  ),
 )(
   pipe(
     junitTestCaseStatusDecoder,
@@ -72,3 +85,4 @@ export const junitReportDecoder = d.struct({
 export type JUnitReport = d.TypeOf<typeof junitReportDecoder>;
 export type JUnitTestSuite = d.TypeOf<typeof junitTestSuiteDecoder>;
 export type JUnitTestCase = d.TypeOf<typeof junitTestCaseDecoder>;
+export type JUnitTestCaseProperty = d.TypeOf<typeof junitTestCasePropertyDecoder>;
