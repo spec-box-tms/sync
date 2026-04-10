@@ -1,22 +1,35 @@
 import { parseStringPromise } from 'xml2js';
 import { parseObject, readTextFile } from '../../utils';
 import { AssertionResult, TestReport } from '../models';
-import { JUnitReport, junitReportDecoder, JUnitTestSuite } from './models';
+import { JUnitReport, junitReportDecoder, JUnitTestCaseProperty, JUnitTestSuite } from './models';
+
+const getPropertyValue = (properties?: JUnitTestCaseProperty[], property?: string): string | undefined => {
+  if(!properties || !property) {
+    return undefined;
+  }
+
+  return properties.find(p => p.name === property)?.value;
+}
 
 const mapTestResults = (
   testResult: JUnitTestSuite[],
-  suitesName = ''
+  suitesName = '',
+  property?: string,
 ): AssertionResult[] => {
   const results = new Array<AssertionResult>();
 
   for (let { testcase: testCases, name: suiteName = '' } of testResult) {
-    for (let { name: caseName, status } of testCases) {
-      let name = caseName;
-      if (suiteName) {
-        name = suiteName + ' ' + name;
-      }
-      if (suitesName) {
-        name = suitesName + ' ' + name;
+    for (let { name: caseName, status, properties } of testCases) {
+      let name = getPropertyValue(properties?.property, property);
+
+      if (!name) {
+        name = caseName;
+        if (suiteName) {
+          name = suiteName + ' ' + name;
+        }
+        if (suitesName) {
+          name = suitesName + ' ' + name;
+        }
       }
 
       results.push({
@@ -30,7 +43,10 @@ const mapTestResults = (
   return results;
 };
 
-const mapTestReport = (junitReport: JUnitReport): TestReport => {
+const mapTestReport = (
+  junitReport: JUnitReport,
+  property?: string,
+): TestReport => {
   const { testsuites } = junitReport;
   const { tests: total, name } = testsuites;
 
@@ -47,13 +63,14 @@ const mapTestReport = (junitReport: JUnitReport): TestReport => {
     startTime,
     total,
     duration,
-    testResults: mapTestResults(testsuites.testsuite, name),
+    testResults: mapTestResults(testsuites.testsuite, name, property),
   };
 };
 
 export const loadJUnitReport = async (
   path: string,
-  basePath?: string
+  basePath?: string,
+  property?: string,
 ): Promise<TestReport> => {
   const xml = await readTextFile(path, basePath);
   const data: unknown = await parseStringPromise(xml, {
@@ -61,6 +78,5 @@ export const loadJUnitReport = async (
     mergeAttrs: true,
   });
   const entity = parseObject(data, junitReportDecoder);
-
-  return mapTestReport(entity);
+  return mapTestReport(entity, property);
 };

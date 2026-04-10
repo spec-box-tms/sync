@@ -1,5 +1,5 @@
-import { pipe } from "fp-ts/lib/function";
-import * as d from "io-ts/Decoder";
+import { pipe } from 'fp-ts/lib/function';
+import * as d from 'io-ts/Decoder';
 
 // validation
 
@@ -27,7 +27,7 @@ export const attributeDecoder = d.struct({
 export const treeDecoder = d.struct({
   code: d.string,
   title: d.string,
-  "group-by": d.array(d.string),
+  'group-by': d.array(d.string),
 });
 
 export const metaDecoder = d.partial({
@@ -47,24 +47,24 @@ export const apiConfigDecoder = d.struct({
 export const ymlConfigDecoder = d.intersect(
   d.struct({
     files: d.array(d.string),
-  })
+  }),
 )(
   d.partial({
     metaPath: d.string,
-  })
+  }),
 );
 
 export const markdownConfigDecoder = d.struct({
-  path: d.string
+  path: d.string,
 });
 
 export const literalKeyPartDecoder = d.literal(
-  "featureTitle",
-  "featureCode",
-  "groupTitle",
-  "assertionTitle",
-  "fileName",
-  "filePath"
+  'featureTitle',
+  'featureCode',
+  'groupTitle',
+  'assertionTitle',
+  'fileName',
+  'filePath',
 );
 
 export const attributeKeyPartDecoder = pipe(
@@ -74,20 +74,28 @@ export const attributeKeyPartDecoder = pipe(
       return d.success(str.trim());
     }
 
-    return d.failure(str, "starts with @ or $ symbol");
-  })
+    return d.failure(str, 'starts with @ or $ symbol');
+  }),
 );
 
-export const testReportConfigDecoder = d.struct({
-  reportPath: d.string,
-  keys: d.array(d.union(literalKeyPartDecoder, attributeKeyPartDecoder, d.string)),
-});
+export const testReportConfigDecoder = d.intersect(
+  d.struct({
+    reportPath: d.string,
+    keys: d.array(
+      d.union(literalKeyPartDecoder, attributeKeyPartDecoder, d.string),
+    ),
+  }),
+)(
+  d.partial({
+    property: d.string,
+  }),
+);
 
 export const configDecoder = d.intersect(
   d.struct({
     api: apiConfigDecoder,
     yml: ymlConfigDecoder,
-  })
+  }),
 )(
   d.partial({
     projectPath: d.string,
@@ -95,7 +103,7 @@ export const configDecoder = d.intersect(
     jest: testReportConfigDecoder,
     JUnit: testReportConfigDecoder,
     markdown: markdownConfigDecoder,
-  })
+  }),
 );
 
 export type RootConfig = d.TypeOf<typeof configDecoder>;
