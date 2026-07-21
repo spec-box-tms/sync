@@ -70,8 +70,9 @@ export const startServer = async ({
   });
   app.get('/api/features/:code', async (req, res) => {
     if (!features) return res.sendStatus(404);
-    const revision = typeof req.query.revision === 'string' ? req.query.revision : undefined;
-    if (revision && 'projectRoot' in service) {
+    if (Object.prototype.hasOwnProperty.call(req.query, 'revision')) {
+      const revision = req.query.revision;
+      if (typeof revision !== 'string' || !revision || !('projectRoot' in service)) return res.sendStatus(404);
       const current = (service.snapshot as ProjectSnapshot).features.find((item) => item.code === req.params.code);
       if (!current) return res.sendStatus(404);
       let source: Buffer | undefined;

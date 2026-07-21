@@ -45,3 +45,21 @@ The focused test command needed loopback-socket permission because the sandbox o
 - The revision-unavailable test covers both a mismatched feature code and a deleted YAML file; the Git-unavailable tests cover both empty and throwing adapters.
 - Git calls are isolated to `execFile`, never shell interpolation. Failure handling is local to history/revision routes, so `/api/project` stays usable after a Git failure.
 - Intended Task 4 commit files: `src/lib/serve/server.ts`, `src/lib/serve/git.ts`, `test/lib/serve/git.test.ts`, and this report. Existing unrelated Task 3/5 changes remain unstaged.
+
+## Reviewer follow-up: revision query validation
+
+The reviewer found that the route treated a present but empty or repeated `revision` query parameter as if it were absent, then returned the current feature (including `optimisticLock`).
+
+RED: added the focused regression `GET /api/features/:code с пустым или повторным revision возвращает HTTP 404 без снимка текущей фичи`. It failed with `200 !== 404` before the fix.
+
+GREEN: the route now checks for the presence of the query key before interpreting its value. A present value must be a non-empty string and a Git-capable service; otherwise it returns 404 and cannot fall through to the current-feature response.
+
+Fresh verification after the fix:
+
+```
+node --test --test-concurrency=1 -r ts-node/register test/lib/serve/git.test.ts
+# 10 passed, 0 failed
+
+npm run build
+# exit 0
+```

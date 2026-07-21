@@ -52,6 +52,18 @@ const unavailableGit: GitAdapter = {
 };
 
 specTest(
+  'serve-feature-revision-get',
+  'GET /api/features/:code?revision=:commit',
+  'Проверка revision',
+  'GET /api/features/:code с пустым или повторным revision возвращает HTTP 404 без снимка текущей фичи',
+  () => withServer(async (url) => {
+    for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
+      assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
+    }
+  }),
+);
+
+specTest(
   'serve-feature-history-get',
   'GET /api/features/:code/history',
   'История файла',
