@@ -5,15 +5,12 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { stringify } from 'yaml';
 
 import { Feature } from '../domain';
-import { CreateFeatureRequest, ErrorResponse, FeatureResponse, UpdateFeatureRequest } from './models';
+import { ErrorResponse, FeatureResponse, decodeCreateFeatureRequest, decodeUpdateFeatureRequest } from './models';
 import { ProjectSnapshotService } from './snapshot';
 
 type Validation = ErrorResponse['errors'];
-const codePattern = /^[A-Za-z][A-Za-z0-9-_]*$/;
-
 const md5 = (content: Buffer) => createHash('md5').update(content).digest('hex');
 const error = (message: string, path = ''): Validation[number] => ({ code: 'invalid-request', message, path });
-const isObject = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 const { isMatch } = require('micromatch') as { isMatch(path: string, patterns: string[]): boolean };
 
@@ -30,64 +27,6 @@ const toResponse = async (feature: Feature, root: string): Promise<FeatureRespon
   };
 };
 
-const validateCreate = (body: unknown): CreateFeatureRequest | Validation => {
-  if (!isObject(body)) return [error('Ожидался объект', '')];
-  const result: Validation = [];
-  for (const key of Object.keys(body)) if (!['filePath', 'code', 'title'].includes(key)) result.push(error('Неизвестное поле', `/${key}`));
-  if (typeof body.filePath !== 'string') result.push(error('Ожидалась строка', '/filePath'));
-  if (typeof body.code !== 'string') result.push(error('Ожидалась строка', '/code'));
-  else if (!codePattern.test(body.code)) result.push(error('Некорректный код', '/code'));
-  if (typeof body.title !== 'string') result.push(error('Ожидалась строка', '/title'));
-  else if (!body.title.trim()) result.push(error('Название обязательно', '/title'));
-  if (result.length) return result;
-  return { filePath: body.filePath as string, code: body.code as string, title: body.title as string };
-};
-
-const validateUpdate = (body: unknown): UpdateFeatureRequest | Validation => {
-  if (!isObject(body)) return [error('Ожидался объект', '')];
-  const result: Validation = [];
-  const allowed = ['code', 'title', 'description', 'attributes', 'groups', 'optimisticLock', 'filePath'];
-  for (const key of Object.keys(body)) if (!allowed.includes(key)) result.push(error('Неизвестное поле', `/${key}`));
-  if (typeof body.code !== 'string') result.push(error('Ожидалась строка', '/code'));
-  else if (!codePattern.test(body.code)) result.push(error('Некорректный код', '/code'));
-  if (typeof body.title !== 'string') result.push(error('Ожидалась строка', '/title'));
-  else if (!body.title.trim()) result.push(error('Название обязательно', '/title'));
-  if (body.description !== undefined && typeof body.description !== 'string') result.push(error('Некорректное описание', '/description'));
-  if (body.filePath !== undefined && typeof body.filePath !== 'string') result.push(error('Некорректный путь', '/filePath'));
-  if (typeof body.optimisticLock !== 'string') result.push(error('Ожидалась строка', '/optimisticLock'));
-  if (!isObject(body.attributes)) result.push(error('Некорректные атрибуты', '/attributes'));
-  if (!Array.isArray(body.groups)) result.push(error('Некорректные группы', '/groups'));
-  const groups: UpdateFeatureRequest['groups'] = [];
-  const names = new Set<string>();
-  for (let index = 0; Array.isArray(body.groups) && index < body.groups.length; index++) {
-    const group = body.groups[index];
-    if (!isObject(group)) { result.push(error('Ожидался объект', `/groups/${index}`)); continue; }
-    for (const key of Object.keys(group)) if (!['title', 'assertions'].includes(key)) result.push(error('Неизвестное поле', `/groups/${index}/${key}`));
-    if (typeof group.title !== 'string') { result.push(error('Ожидалась строка', `/groups/${index}/title`)); continue; }
-    if (!Array.isArray(group.assertions)) { result.push(error('Некорректные утверждения', `/groups/${index}/assertions`)); continue; }
-    if (names.has(group.title)) result.push(error('Повторяющаяся группа', `/groups/${index}/title`));
-    names.add(group.title);
-    const assertions: UpdateFeatureRequest['groups'][number]['assertions'] = [];
-    group.assertions.forEach((assertion, assertionIndex) => {
-      const path = `/groups/${index}/assertions/${assertionIndex}`;
-      if (!isObject(assertion)) { result.push(error('Ожидался объект', path)); return; }
-      for (const key of Object.keys(assertion)) if (!['title', 'description', 'isAutomated'].includes(key)) result.push(error('Неизвестное поле', `${path}/${key}`));
-      if (typeof assertion.title !== 'string') { result.push(error('Ожидалась строка', `${path}/title`)); return; }
-      if (assertion.description !== undefined && typeof assertion.description !== 'string') result.push(error('Некорректное описание', `${path}/description`));
-      if (assertion.isAutomated !== undefined && typeof assertion.isAutomated !== 'boolean') result.push(error('Некорректный признак автоматизации', `${path}/isAutomated`));
-      assertions.push({ title: assertion.title, ...(typeof assertion.description === 'string' ? { description: assertion.description } : {}) });
-    });
-    groups.push({ title: group.title, assertions });
-  }
-  const attributes: Record<string, string[]> = {};
-  for (const [name, values] of isObject(body.attributes) ? Object.entries(body.attributes) : []) {
-    if (!Array.isArray(values) || values.some((value) => typeof value !== 'string')) result.push(error('Некорректный атрибут', `/attributes/${name}`));
-    else attributes[name] = values as string[];
-  }
-  if (result.length) return result;
-  return { code: body.code as string, title: body.title as string, ...(typeof body.description === 'string' ? { description: body.description } : {}), attributes, groups, optimisticLock: body.optimisticLock as string, ...(typeof body.filePath === 'string' ? { filePath: body.filePath } : {}) };
-};
-
 export class FeatureService {
   constructor(private readonly snapshots: ProjectSnapshotService) {}
 
@@ -97,8 +36,9 @@ export class FeatureService {
   }
 
   async create(body: unknown): Promise<{ snapshot: Awaited<ReturnType<ProjectSnapshotService['refresh']>> } | { errors: Validation }> {
-    const request = validateCreate(body);
-    if (Array.isArray(request)) return { errors: request };
+    const decoded = decodeCreateFeatureRequest(body);
+    if ('errors' in decoded) return decoded;
+    const request = decoded.value;
     const invalid = await this.validatePath(request.filePath) || this.validateUnique(request.code);
     if (invalid) return { errors: invalid };
     const target = resolve(this.contentRoot(), request.filePath);
@@ -108,13 +48,9 @@ export class FeatureService {
   }
 
   async update(currentCode: string, body: unknown): Promise<{ snapshot: Awaited<ReturnType<ProjectSnapshotService['refresh']>> } | { errors: Validation } | 'conflict' | 'missing'> {
-    let request: UpdateFeatureRequest | Validation;
-    try {
-      request = validateUpdate(body);
-    } catch (caught) {
-      return { errors: [error('Некорректное утверждение', caught instanceof Error ? caught.message : '')] };
-    }
-    if (Array.isArray(request)) return { errors: request };
+    const decoded = decodeUpdateFeatureRequest(body);
+    if ('errors' in decoded) return decoded;
+    const request = decoded.value;
     const feature = this.snapshots.snapshot.features.find((item) => item.code === currentCode);
     if (!feature) return 'missing';
     const target = await this.existingTarget(feature.filePath);

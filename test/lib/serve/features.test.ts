@@ -3,7 +3,9 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { test } from 'node:test';
 
+import { decodeCreateFeatureRequest, decodeUpdateFeatureRequest } from '../../../src/lib/serve/models';
 import { startServer } from '../../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
@@ -58,6 +60,17 @@ const useProjectPath = async (project: Project) => {
   await writeFile(join(project.root, 'workspace/.spec-box-meta.yml'), 'title: Test\nattributes: []\ntrees: []\n');
   await writeFile(join(project.root, 'workspace/specs/feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n');
 };
+
+test('feature request decoders reject unknown fields with JSON Pointer paths', () => {
+  assert.deepEqual(decodeCreateFeatureRequest({ filePath: 'specs/new.spec.yml', code: 'new', title: 'New', extra: true }), {
+    errors: [{ code: 'invalid-request', message: 'unknown field', path: '/extra' }],
+  });
+  assert.deepEqual(decodeUpdateFeatureRequest({
+    code: 'feature-one', title: 'Feature one', attributes: {}, groups: [{ title: 'Group', assertions: [{ title: 'Works', extra: true }] }], optimisticLock: 'lock',
+  }), {
+    errors: [{ code: 'invalid-request', message: 'unknown field', path: '/groups/0/assertions/0/extra' }],
+  });
+});
 
 specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'GET /api/features/:code возвращает текущую фичу с HTTP 200', () => withServer(async (url) => {
   assert.equal((await fetch(`${url}/api/features/feature-one`)).status, 200);
