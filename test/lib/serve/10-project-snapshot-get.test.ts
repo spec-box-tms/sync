@@ -116,7 +116,7 @@ specTest('serve-project-get', 'GET /api/project', 'Покрытие и зави�
   } finally { await project.dispose(); }
 });
 
-specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Покрытие загружается из плоского JUnit-отчёта Node.js', async () => {
+specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Плоский JUnit-отчёт Node.js сопоставляет testcase с утверждением по составному имени', async () => {
   const project = await createProject();
   try {
     await mkdir(join(project.root, 'test-results'));

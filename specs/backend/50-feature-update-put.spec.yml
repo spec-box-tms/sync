@@ -36,6 +36,7 @@ specs-unit:
     - assert: При изменении кода PUT /api/features/:code не переписывает ссылки на прежний код и ключи тестов
     - assert: PUT /api/features/:code сохраняет неразрешённые ссылки и повторные assert и возвращает их как диагностики нового ProjectSnapshot
   Ошибки сохранения:
+    - assert: Неизвестное поле в теле PUT /api/features/:code возвращается с точным JSON Pointer path
     - assert: PUT /api/features/:code возвращает HTTP 409 без тела и не меняет YAML-файл при несовпадении optimisticLock с текущим содержимым файла
     - assert: PUT /api/features/:code возвращает HTTP 400 без записи при некорректном теле, неизвестном поле, дублирующем коде, повторном названии группы или некорректном атрибуте
     - assert: PUT /api/features/:code возвращает HTTP 404 без записи для отсутствующей фичи

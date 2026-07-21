@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { decodeUpdateFeatureRequest } from '../../../src/lib/serve/models';
 import { startServer } from '../../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
@@ -57,6 +58,14 @@ const useProjectPath = async (project: Project) => {
   await writeFile(join(project.root, 'workspace/.spec-box-meta.yml'), 'title: Test\nattributes: []\ntrees: []\n');
   await writeFile(join(project.root, 'workspace/specs/feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n');
 };
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code', 'Ошибки сохранения', 'Неизвестное поле в теле PUT /api/features/:code возвращается с точным JSON Pointer path', () => {
+  assert.deepEqual(decodeUpdateFeatureRequest({
+    code: 'feature-one', title: 'Feature one', attributes: {}, groups: [{ title: 'Group', assertions: [{ title: 'Works', extra: true }] }], optimisticLock: 'lock',
+  }), {
+    errors: [{ code: 'invalid-request', message: 'unknown field', path: '/groups/0/assertions/0/extra' }],
+  });
+});
 
 specTest('serve-feature-update-put', 'PUT /api/features/:code', 'Успешное сохранение', 'PUT /api/features/:code принимает код, название, необязательное описание, атрибуты, группы утверждений и optimisticLock', () => withServer(async (url) => {
   const current = await feature(url);

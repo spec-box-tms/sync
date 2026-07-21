@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { decodeCreateFeatureRequest } from '../../../src/lib/serve/models';
 import { startServer } from '../../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
@@ -57,6 +58,12 @@ const useProjectPath = async (project: Project) => {
   await writeFile(join(project.root, 'workspace/.spec-box-meta.yml'), 'title: Test\nattributes: []\ntrees: []\n');
   await writeFile(join(project.root, 'workspace/specs/feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n');
 };
+
+specTest('serve-feature-create-post', 'POST /api/features', 'Проверка запроса', 'Неизвестное поле в теле POST /api/features возвращается с точным JSON Pointer path', () => {
+  assert.deepEqual(decodeCreateFeatureRequest({ filePath: 'specs/new.spec.yml', code: 'new', title: 'New', extra: true }), {
+    errors: [{ code: 'invalid-request', message: 'unknown field', path: '/extra' }],
+  });
+});
 
 specTest('serve-feature-create-post', 'POST /api/features', 'Успешное создание', 'POST /api/features принимает только filePath, code и title', () => withServer(async (url) => {
   assert.equal((await json(`${url}/api/features`, 'POST', { filePath: 'specs/new.spec.yml', code: 'new', title: 'New', extra: true })).status, 400);

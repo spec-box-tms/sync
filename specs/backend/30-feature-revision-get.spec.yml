@@ -27,6 +27,7 @@ specs-unit:
     - assert: GET /api/features/:code?revision=:commit возвращает модель фичи из указанного коммита её истории с HTTP 200
     - assert: Снимок фичи из Git-ревизии не содержит optimisticLock
   Недоступная ревизия:
+    - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404 при пустом или повторённом параметре revision
     - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если коммит не относится к истории фичи
     - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если фича или её файл отсутствуют в указанной ревизии
     - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если Git не может отдать файл фичи

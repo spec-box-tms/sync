@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { test } from 'node:test';
 import { promisify } from 'node:util';
 
 import { GitAdapter } from '../../../src/lib/serve/git';
@@ -55,6 +54,18 @@ const unavailableGit: GitAdapter = {
 specTest(
   'serve-feature-revision-get',
   'GET /api/features/:code?revision=:commit',
+  'Недоступная ревизия',
+  'GET /api/features/:code?revision=:commit возвращает HTTP 404 при пустом или повторённом параметре revision',
+  () => withServer(async (url) => {
+    for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
+      assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
+    }
+  }),
+);
+
+specTest(
+  'serve-feature-revision-get',
+  'GET /api/features/:code?revision=:commit',
   'Успешный ответ',
   'GET /api/features/:code?revision=:commit возвращает модель фичи из указанного коммита её истории с HTTP 200',
   () => withServer(async (url, project) => {
@@ -70,16 +81,6 @@ specTest(
     });
   }, { history: true }),
 );
-
-test(
-  'feature revision rejects empty or repeated revision',
-  () => withServer(async (url) => {
-    for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
-      assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
-    }
-  }),
-);
-
 
 specTest(
   'serve-feature-revision-get',

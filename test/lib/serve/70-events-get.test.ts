@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { test } from 'node:test';
 
 import { startServer } from '../../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
@@ -43,6 +42,35 @@ specTest(
   'GET /api/events открывает поток text/event-stream',
   () => withEvents(async (_project, _service, response) => {
     assert.match(response.headers.get('content-type') || '', /^text\/event-stream/);
+  }),
+);
+
+specTest(
+  'serve-events-get',
+  'GET /api/events',
+  'Наблюдение за проектом',
+  'Изменение файла вне конфигурации, YAML, метаданных и отчётов не запускает пересчёт проекта',
+  () => withEvents(async (project, service) => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const revision = service.snapshot.revision;
+    await writeFile(join(project.root, 'unwatched.txt'), 'ignore me');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    assert.equal(service.snapshot.revision, revision);
+  }),
+);
+
+specTest(
+  'serve-events-get',
+  'GET /api/events',
+  'Наблюдение за проектом',
+  'Создание настроенного отчёта в отсутствующем каталоге запускает пересчёт проекта',
+  () => withEvents(async (project, service) => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const revision = service.snapshot.revision;
+    await mkdir(join(project.root, 'test-results'));
+    await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites/>');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    assert.equal(service.snapshot.revision, revision + 1);
   }),
 );
 
@@ -92,38 +120,3 @@ specTest(
     }
   }),
 );
-
-test('watcher ignores files outside the configured configuration, YAML, meta, and report paths', async () => {
-  const project = await createProject();
-  const service = new ProjectSnapshotService(project.root);
-  await service.refresh();
-  const server = await startServer({ projectRoot: project.root, port: 0, service });
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const revision = service.snapshot.revision;
-    await writeFile(join(project.root, 'unwatched.txt'), 'ignore me');
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    assert.equal(service.snapshot.revision, revision);
-  } finally {
-    await server.close();
-    await project.dispose();
-  }
-});
-
-test('watcher refreshes when a configured report is created in a missing directory', async () => {
-  const project = await createProject();
-  const service = new ProjectSnapshotService(project.root);
-  await service.refresh();
-  const server = await startServer({ projectRoot: project.root, port: 0, service });
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const revision = service.snapshot.revision;
-    await mkdir(join(project.root, 'test-results'));
-    await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites/>');
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    assert.equal(service.snapshot.revision, revision + 1);
-  } finally {
-    await server.close();
-    await project.dispose();
-  }
-});
