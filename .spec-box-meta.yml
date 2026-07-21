@@ -1,0 +1,31 @@
+title: SpecBox
+description: SpecBox CLI утилита
+repository: https://github.com/spec-box-tms/sync
+
+attributes:
+  - code: tool
+    title: Инструмент
+    values:
+      - code: validate
+        title: Валидация
+      - code: sync
+        title: Синхронизация
+      - code: serve
+        title: Редактор
+  - code: module
+    title: Модуль
+    values:
+      - code: specs
+        title: Специфкации
+      - code: tests
+        title: Тесты
+      - code: backend
+        title: backend
+      - code: frontend
+        title: Frontend
+trees:
+  - code: by-tool-module
+    title: Разделение по инструментам и модулям
+    group-by:
+      - tool
+      - module

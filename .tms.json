@@ -1,0 +1,14 @@
+{
+  "api": {
+    "host": "http://spec-box.ugpa.ru/api",
+    "project": "test"
+  },
+  "yml": {
+    "files": ["specs/**/*.spec.yml", "!specs/**/*.draft.yml"]
+  },
+  "JUnit": {
+    "reportPath": "test-results/junit.xml",
+    "property": "description",
+    "keys": ["featureCode", "featureTitle", "groupTitle", "assertionTitle"]
+  }
+}
