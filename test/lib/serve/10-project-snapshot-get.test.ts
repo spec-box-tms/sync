@@ -116,6 +116,15 @@ specTest('serve-project-get', 'GET /api/project', 'Покрытие и зави�
   } finally { await project.dispose(); }
 });
 
+specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Покрытие загружается из плоского JUnit-отчёта Node.js', async () => {
+  const project = await createProject();
+  try {
+    await mkdir(join(project.root, 'test-results'));
+    await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites><testcase name="feature-one Feature one Group Works" time="0.01"/></testsuites>');
+    assert.deepEqual((await new ProjectSnapshotService(project.root).refresh()).coverage, { total: 1, automated: 1, uncovered: 0 });
+  } finally { await project.dispose(); }
+});
+
 specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Признак автоматизации утверждения означает его сопоставление с тестом в текущем отчёте и не зависит от успешности запуска теста', async () => {
   const project = await createProject();
   try {
