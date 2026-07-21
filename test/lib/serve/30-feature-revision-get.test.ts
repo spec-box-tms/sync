@@ -54,78 +54,6 @@ const unavailableGit: GitAdapter = {
 specTest(
   'serve-feature-revision-get',
   'GET /api/features/:code?revision=:commit',
-  'Проверка revision',
-  'GET /api/features/:code с пустым или повторным revision возвращает HTTP 404 без снимка текущей фичи',
-  () => withServer(async (url) => {
-    for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
-      assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
-    }
-  }),
-);
-
-specTest(
-  'serve-feature-history-get',
-  'GET /api/features/:code/history',
-  'История файла',
-  'GET /api/features/:code/history возвращает HTTP 200 и записи истории от новых коммитов к старым',
-  () => withServer(async (url) => {
-    const response = await fetch(`${url}/api/features/feature-one/history`);
-    assert.equal(response.status, 200);
-    const history = await response.json() as Array<{ message: string }>;
-    assert.deepEqual(history.map(({ message }) => message), ['Change feature', 'Initial feature']);
-  }, { history: true }),
-);
-
-specTest(
-  'serve-feature-history-get',
-  'GET /api/features/:code/history',
-  'История файла',
-  'Каждая запись истории содержит идентификатор коммита, автора, дату ISO 8601 с часовым поясом и сообщение коммита',
-  () => withServer(async (url) => {
-    const history = await (await fetch(`${url}/api/features/feature-one/history`)).json() as Array<{ commit: string; author: string; date: string; message: string }>;
-    assert.ok(history.length > 0);
-    history.forEach((entry) => {
-      assert.match(entry.commit, /^[0-9a-f]{40}$/);
-      assert.equal(entry.author, 'Test User');
-      assert.match(entry.date, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/);
-      assert.equal(typeof entry.message, 'string');
-    });
-  }, { history: true }),
-);
-
-specTest(
-  'serve-feature-history-get',
-  'GET /api/features/:code/history',
-  'История файла',
-  'GET /api/features/:code/history возвращает HTTP 200 и [] для неотслеживаемого YAML-файла или недоступного Git',
-  async () => {
-    await withServer(async (url) => {
-      const response = await fetch(`${url}/api/features/feature-one/history`);
-      assert.equal(response.status, 200);
-      assert.deepEqual(await response.json(), []);
-    });
-    await withServer(async (url) => {
-      const response = await fetch(`${url}/api/features/feature-one/history`);
-      assert.equal(response.status, 200);
-      assert.deepEqual(await response.json(), []);
-    }, { git: unavailableGit });
-  },
-);
-
-specTest(
-  'serve-feature-history-get',
-  'GET /api/features/:code/history',
-  'История файла',
-  'Ошибка Git при GET /api/features/:code/history не нарушает работу остальных маршрутов',
-  () => withServer(async (url) => {
-    assert.equal((await fetch(`${url}/api/features/feature-one/history`)).status, 200);
-    assert.equal((await fetch(`${url}/api/project`)).status, 200);
-  }, { git: { ...unavailableGit, history: async () => { throw new Error('Git unavailable'); } } }),
-);
-
-specTest(
-  'serve-feature-revision-get',
-  'GET /api/features/:code?revision=:commit',
   'Успешный ответ',
   'GET /api/features/:code?revision=:commit возвращает модель фичи из указанного коммита её истории с HTTP 200',
   () => withServer(async (url, project) => {
@@ -141,6 +69,19 @@ specTest(
     });
   }, { history: true }),
 );
+
+specTest(
+  'serve-feature-revision-get',
+  'GET /api/features/:code?revision=:commit',
+  'Проверка revision',
+  'GET /api/features/:code с пустым или повторным revision возвращает HTTP 404 без снимка текущей фичи',
+  () => withServer(async (url) => {
+    for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
+      assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
+    }
+  }),
+);
+
 
 specTest(
   'serve-feature-revision-get',

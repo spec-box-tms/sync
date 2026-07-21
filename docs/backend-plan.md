@@ -131,10 +131,10 @@
 - Изменить: `README.md`, при необходимости `docs/backend.md` только если контракт реализации потребовал уточнения.
 - Проверить: `package.json`, `test/lib/serve/*.test.ts`.
 
-- [ ] Добавить в README один пример `spec-box serve --port 0`, пояснение про loopback URL и отсутствие обращений к `api.host`/запуска тестов.
-- [ ] Сверить каждый `assert` из семи route-specs с одним `specTest`: ключ — `code` и `feature` верхнего YAML, имя группы и assert из `specs-unit`, соединённые пробелом в порядке `JUnit.keys`. Дописать только отсутствующие тесты.
-- [ ] Выполнить чистые проверки: `npm run build`, `npm run test:serve`; открыть `test-results/junit.xml` и сверить все `<testcase name>` с ключами, рассчитанными по `.tms.json`. Затем ручной smoke-test во временной копии: `node dist/cli.js serve --config <temp> --port 0`, `curl` к `/api/project`, проверить, что URL loopback и процесс не обращается к `api.host`.
-- [ ] Commit `docs: document local serve command`.
+- [x] Добавить в README один пример `spec-box serve --port 0`, пояснение про loopback URL и отсутствие обращений к `api.host`/запуска тестов.
+- [x] Сверить каждый `assert` из семи route-specs с одним `specTest`: ключ — `code` и `feature` верхнего YAML, имя группы и assert из `specs-unit`, соединённые пробелом в порядке `JUnit.keys`. Дописать только отсутствующие тесты.
+- [x] Выполнить чистые проверки: `npm run build`, `npm run test:serve`; открыть `test-results/junit.xml` и сверить все `<testcase name>` с ключами, рассчитанными по `.tms.json`. Затем ручной smoke-test во временной копии: `node dist/cli.js serve --config <temp> --port 0`, `curl` к `/api/project`, проверить, что URL loopback и процесс не обращается к `api.host`.
+- [x] Commit `docs: document local serve command`.
 
 ## Порядок поставки
 

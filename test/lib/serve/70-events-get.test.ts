@@ -35,27 +35,6 @@ const withEvents = async (fn: (project: Awaited<ReturnType<typeof createProject>
   }
 };
 
-specTest(
-  'serve-project-get',
-  'GET /api/project',
-  'Успешный ответ',
-  'GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8',
-  async () => {
-    const server = await startServer({
-      projectRoot: process.cwd(),
-      port: 0,
-      service: { snapshot: { revision: 1, diagnostics: [] } },
-    });
-    try {
-      const response = await fetch(`${server.url}/api/project`);
-      assert.equal(response.status, 200);
-      assert.match(response.headers.get('content-type') || '', /^application\/json; charset=utf-8/);
-      assert.deepEqual(await response.json(), { revision: 1, diagnostics: [] });
-    } finally {
-      await server.close();
-    }
-  },
-);
 
 specTest(
   'serve-events-get',
