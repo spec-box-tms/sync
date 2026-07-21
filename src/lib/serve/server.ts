@@ -1,6 +1,6 @@
 import { existsSync, FSWatcher, watch } from 'node:fs';
 import { createServer, Server } from 'node:http';
-import { join } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 
 import express from 'express';
 
@@ -10,6 +10,7 @@ import { GitAdapter, gitAdapter } from './git';
 import { parse } from 'yaml';
 import { parseObject } from '../utils';
 import { entityDecoder } from '../yaml/models';
+import { RootConfig } from '../config/models';
 
 export interface StartServerOptions {
   projectRoot: string;
@@ -24,6 +25,19 @@ export interface RunningServer {
   close(): Promise<void>;
 }
 
+type RefreshableService = StartServerOptions['service'] & {
+  refresh(): Promise<unknown>;
+  config?: RootConfig;
+  configPath?: string;
+};
+
+const staticRoot = (pattern: string) => {
+  const parts = pattern.split(/[\\/]/);
+  const dynamicPart = parts.findIndex((part) => /[*?\[\]{}()!]/.test(part));
+  const root = parts.slice(0, dynamicPart < 0 ? -1 : dynamicPart);
+  return root.length ? root.join('/') : '.';
+};
+
 export const startServer = async ({
   projectRoot,
   port,
@@ -33,8 +47,55 @@ export const startServer = async ({
   const app = express();
   const clients = new Set<import('express').Response>();
   let unsubscribe: (() => void) | undefined;
-  let watcher: FSWatcher | undefined;
+  let watchers: FSWatcher[] = [];
   let refreshTimer: NodeJS.Timeout | undefined;
+  let closed = false;
+  const refreshable = service instanceof Object && 'refresh' in service ? service as RefreshableService : undefined;
+
+  const closeWatchers = () => {
+    watchers.forEach((watcher) => watcher.close());
+    watchers = [];
+  };
+  const watchPaths = (): Array<{ path: string; recursive: boolean; fileName?: string }> => {
+    const configPath = resolve(projectRoot, refreshable?.configPath || '.tms.json');
+    const config = refreshable?.config;
+    const file = (path: string) => {
+      let directory = dirname(path);
+      while (!existsSync(directory) && dirname(directory) !== directory) directory = dirname(directory);
+      return { path: directory, recursive: directory !== dirname(path), fileName: relative(directory, path) || basename(path) };
+    };
+    if (!config) return [file(configPath)];
+    const root = config.projectPath ? resolve(projectRoot, config.projectPath) : projectRoot;
+    return [
+      file(configPath),
+      file(resolve(root, config.yml.metaPath || '.spec-box-meta.yml')),
+      ...config.yml.files.filter((pattern) => !pattern.startsWith('!')).map((pattern) => ({ path: resolve(root, staticRoot(pattern)), recursive: true })),
+      ...(config.jest ? [file(resolve(root, config.jest.reportPath))] : []),
+      ...(config.JUnit ? [file(resolve(root, config.JUnit.reportPath))] : []),
+    ];
+  };
+  const configureWatchers = () => {
+    if (closed) return;
+    closeWatchers();
+    for (const target of watchPaths()) {
+      try {
+        watchers.push(watch(target.path, { recursive: target.recursive }, (_event, filename) => {
+          if (target.fileName && (!filename || filename.toString() !== target.fileName)) return;
+          scheduleRefresh();
+        }));
+      } catch {
+        // A missing optional report must not stop the local server.
+      }
+    }
+  };
+  const scheduleRefresh = () => {
+    if (closed) return;
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(() => {
+      refreshTimer = undefined;
+      void refreshable?.refresh().then(configureWatchers).catch(() => undefined);
+    }, 50);
+  };
   app.use(express.json());
   app.use((error: Error & { body?: unknown }, _req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (error instanceof SyntaxError && 'body' in error) {
@@ -43,7 +104,7 @@ export const startServer = async ({
     return next(error);
   });
   app.get('/api/project', (_req, res) => res.json(service.snapshot));
-  const features = service instanceof Object && 'refresh' in service ? new FeatureService(service as never) : undefined;
+  const features = refreshable ? new FeatureService(service as never) : undefined;
   if (service instanceof Object && 'subscribe' in service) {
     unsubscribe = (service as { subscribe(listener: (snapshot: ProjectSnapshot) => void): () => void }).subscribe(({ revision }) => {
       for (const client of clients) client.write(`event: project-updated\ndata: ${JSON.stringify({ revision })}\n\n`);
@@ -122,16 +183,6 @@ export const startServer = async ({
   }
 
   const httpServer = createServer(app);
-  if (service instanceof Object && 'refresh' in service) {
-    try {
-      watcher = watch(projectRoot, { recursive: true }, () => {
-        if (refreshTimer) clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(() => void (service as { refresh(): Promise<unknown> }).refresh(), 50);
-      });
-    } catch {
-      // fs.watch is a best-effort local convenience; the API remains usable without it.
-    }
-  }
   await new Promise<void>((resolve, reject) => {
     httpServer.once('error', reject);
     httpServer.listen(port, '127.0.0.1', () => {
@@ -144,13 +195,15 @@ export const startServer = async ({
     throw new Error('Сервер не вернул TCP-адрес');
   }
   const url = `http://127.0.0.1:${address.port}`;
+  if (refreshable) configureWatchers();
 
   return {
     httpServer,
     url,
     close: () => new Promise((resolve, reject) => {
+      closed = true;
       if (refreshTimer) clearTimeout(refreshTimer);
-      watcher?.close();
+      closeWatchers();
       unsubscribe?.();
       clients.forEach((client) => client.end());
       httpServer.close((error) => error ? reject(error) : resolve());
