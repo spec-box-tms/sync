@@ -8,7 +8,6 @@
   },
   "JUnit": {
     "reportPath": "test-results/junit.xml",
-    "property": "description",
     "keys": ["featureCode", "featureTitle", "groupTitle", "assertionTitle"]
   }
 }
