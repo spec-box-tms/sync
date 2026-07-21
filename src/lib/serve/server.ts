@@ -6,8 +6,7 @@ import express from 'express';
 
 import { ProjectSnapshot } from './models';
 import { FeatureService } from './features';
-import { getHistory } from './git';
-import { getFileAtRevision } from './git';
+import { GitAdapter, gitAdapter } from './git';
 import { parse } from 'yaml';
 import { parseObject } from '../utils';
 import { entityDecoder } from '../yaml/models';
@@ -16,6 +15,7 @@ export interface StartServerOptions {
   projectRoot: string;
   port: number;
   service: { snapshot: ProjectSnapshot | Record<string, unknown> };
+  git?: GitAdapter;
 }
 
 export interface RunningServer {
@@ -28,6 +28,7 @@ export const startServer = async ({
   projectRoot,
   port,
   service,
+  git = gitAdapter,
 }: StartServerOptions): Promise<RunningServer> => {
   const app = express();
   const clients = new Set<import('express').Response>();
@@ -60,7 +61,12 @@ export const startServer = async ({
   app.get('/api/features/:code/history', async (req, res) => {
     if (!features || !('projectRoot' in service)) return res.json([]);
     const feature = (service.snapshot as ProjectSnapshot).features.find((item) => item.code === req.params.code);
-    return res.json(feature ? await getHistory((service as { projectRoot: string }).projectRoot, feature.filePath) : []);
+    if (!feature) return res.json([]);
+    try {
+      return res.json(await git.history((service as { projectRoot: string }).projectRoot, feature.filePath));
+    } catch {
+      return res.json([]);
+    }
   });
   app.get('/api/features/:code', async (req, res) => {
     if (!features) return res.sendStatus(404);
@@ -68,10 +74,16 @@ export const startServer = async ({
     if (revision && 'projectRoot' in service) {
       const current = (service.snapshot as ProjectSnapshot).features.find((item) => item.code === req.params.code);
       if (!current) return res.sendStatus(404);
-      const source = await getFileAtRevision((service as { projectRoot: string }).projectRoot, current.filePath, revision);
+      let source: Buffer | undefined;
+      try {
+        source = await git.fileAtRevision((service as { projectRoot: string }).projectRoot, current.filePath, revision);
+      } catch {
+        return res.sendStatus(404);
+      }
       if (!source) return res.sendStatus(404);
       try {
-        const entity = parseObject(parse(source), entityDecoder);
+        const entity = parseObject(parse(source.toString('utf8')), entityDecoder);
+        if (entity.code !== req.params.code) return res.sendStatus(404);
         return res.json({
           code: entity.code,
           title: entity.feature,
