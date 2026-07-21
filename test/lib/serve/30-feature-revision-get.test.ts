@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { test } from 'node:test';
 import { promisify } from 'node:util';
 
 import { GitAdapter } from '../../../src/lib/serve/git';
@@ -70,11 +71,8 @@ specTest(
   }, { history: true }),
 );
 
-specTest(
-  'serve-feature-revision-get',
-  'GET /api/features/:code?revision=:commit',
-  'Проверка revision',
-  'GET /api/features/:code с пустым или повторным revision возвращает HTTP 404 без снимка текущей фичи',
+test(
+  'feature revision rejects empty or repeated revision',
   () => withServer(async (url) => {
     for (const query of ['?revision=', '?revision', '?revision=first&revision=second']) {
       assert.equal((await fetch(`${url}/api/features/feature-one${query}`)).status, 404);
