@@ -1,0 +1,33 @@
+feature: POST /api/features
+code: serve-feature-create-post
+description: |-
+  Создаёт YAML-файл новой фичи по допустимому относительному пути.
+
+  Модели запроса и ответа TypeScript:
+  ```ts
+  interface CreateFeatureRequest {
+    filePath: string;
+    code: string;
+    title: string;
+  }
+  type CreateFeatureResponse = ProjectSnapshot;
+  interface ErrorResponse {
+    errors: Array<{ code: string; message: string; path: string }>;
+  }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешное создание:
+    - assert: POST /api/features принимает только filePath, code и title
+    - assert: POST /api/features с допустимым уникальным путём, кодом и непустым названием создаёт недостающие родительские каталоги, минимально валидный YAML и возвращает пересчитанный ProjectSnapshot с HTTP 201
+    - assert: Имя и суффикс нового YAML-файла полностью задаются filePath без добавления сервером
+  Проверка запроса:
+    - assert: POST /api/features отклоняет HTTP 400 путь вне каталога проекта, не соответствующий положительному шаблону yml.files или соответствующий исключающему шаблону
+    - assert: POST /api/features отклоняет HTTP 400 существующий файл, дублирующий код, некорректный код или пустое название
+    - assert: POST /api/features отклоняет HTTP 400 некорректное тело или неизвестное поле
+    - assert: Каждый ответ HTTP 400 содержит errors с code, message и JSON Pointer path для каждой найденной ошибки
+    - assert: Отклонённый POST /api/features не создаёт каталогов и не изменяет файлы рабочей копии

@@ -1,0 +1,41 @@
+feature: GET /api/project
+code: serve-project-get
+description: |-
+  Возвращает текущий пересчитанный снимок проекта для интерфейса.
+
+  Модель ответа TypeScript:
+  ```ts
+  type Severity = 'info' | 'warning' | 'error';
+  type ProjectSnapshot = {
+    revision: number;
+    project?: { title?: string; description?: string; repository?: string };
+    attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
+    treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
+    features: Feature[];
+    diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
+    coverage: { total: number; automated: number; uncovered: number };
+    storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
+    trees: FeatureTree[];
+    dependencyGraph: { nodes: Array<{ code: string; title?: string; exists: boolean }>; edges: Array<{ from: string; to: string; resolved: boolean }> };
+  };
+  type DirectoryNode = { name: string; path: string; children: DirectoryNode[] };
+  type FeatureTree = { code: string; title: string; groupBy: string[]; root: FeatureTreeNode };
+  type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; features: string[]; children: FeatureTreeNode[] };
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешный ответ:
+    - assert: GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8
+    - assert: Корректный ProjectSnapshot содержит ревизию, сведения о проекте, атрибуты, определения деревьев, фичи, диагностики, покрытие, области хранения, деревья и граф зависимостей
+    - assert: Ревизия ProjectSnapshot увеличивается после каждого полного пересчёта проекта
+    - assert: При ошибке YAML, мета-файла или отчёта ProjectSnapshot сохраняет данные остальных корректных файлов и содержит соответствующую диагностику
+    - assert: При некорректной новой версии .tms.json работающий сервер возвращает ProjectSnapshot только с ревизией и диагностиками
+  Покрытие и зависимости:
+    - assert: Покрытие в ProjectSnapshot показывает количество всех, автоматизированных и непокрытых утверждений по загруженным отчётам Jest и JUnit
+    - assert: Признак автоматизации утверждения означает его сопоставление с тестом в текущем отчёте и не зависит от успешности запуска теста
+    - assert: Граф зависимостей содержит вершины существующих фич и рёбра для ссылок между фичами
+    - assert: Неразрешённая ссылка добавляется в граф как несуществующая вершина и неразрешённое ребро вместе с диагностикой

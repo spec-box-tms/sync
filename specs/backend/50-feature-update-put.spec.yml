@@ -1,0 +1,41 @@
+feature: PUT /api/features/:code
+code: serve-feature-update-put
+description: |-
+  Сохраняет полную редактируемую структуру существующей YAML-фичи.
+
+  Модели запроса и ответа TypeScript:
+  ```ts
+  interface UpdateFeatureRequest {
+    code: string;
+    title: string;
+    description?: string;
+    attributes: Record<string, string[]>;
+    groups: Array<{
+      title: string;
+      assertions: Array<{ title: string; description?: string; isAutomated?: boolean }>;
+    }>;
+    optimisticLock: string;
+    filePath?: string;
+  }
+  type UpdateFeatureResponse = ProjectSnapshot;
+  interface ErrorResponse {
+    errors: Array<{ code: string; message: string; path: string }>;
+  }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешное сохранение:
+    - assert: PUT /api/features/:code принимает код, название, необязательное описание, атрибуты, группы утверждений и optimisticLock
+    - assert: PUT /api/features/:code с актуальным optimisticLock сохраняет фичу, полностью пересчитывает проект и возвращает ProjectSnapshot с HTTP 200
+    - assert: PUT /api/features/:code игнорирует filePath и isAutomated из тела запроса
+    - assert: PUT /api/features/:code допускает изменение кода фичи и сохраняет прежний путь YAML-файла
+    - assert: При изменении кода PUT /api/features/:code не переписывает ссылки на прежний код и ключи тестов
+    - assert: PUT /api/features/:code сохраняет неразрешённые ссылки и повторные assert и возвращает их как диагностики нового ProjectSnapshot
+  Ошибки сохранения:
+    - assert: PUT /api/features/:code возвращает HTTP 409 без тела и не меняет YAML-файл при несовпадении optimisticLock с текущим содержимым файла
+    - assert: PUT /api/features/:code возвращает HTTP 400 без записи при некорректном теле, неизвестном поле, дублирующем коде, повторном названии группы или некорректном атрибуте
+    - assert: PUT /api/features/:code возвращает HTTP 404 без записи для отсутствующей фичи

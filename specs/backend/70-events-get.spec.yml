@@ -1,0 +1,22 @@
+feature: GET /api/events
+code: serve-events-get
+description: |-
+  Открывает SSE-поток уведомлений о пересчёте локального проекта.
+
+  Модель данных SSE-события TypeScript:
+  ```ts
+  interface ProjectUpdatedEvent {
+    revision: number;
+  }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Уведомления:
+    - assert: GET /api/events открывает поток text/event-stream
+    - assert: После каждого полного пересчёта GET /api/events отправляет событие project-updated с новой ревизией
+    - assert: Данные события project-updated содержат только JSON с полем revision без ProjectSnapshot
+    - assert: Несколько быстрых изменений наблюдаемых файлов объединяются в один пересчёт и одно событие project-updated

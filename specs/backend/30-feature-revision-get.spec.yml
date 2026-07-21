@@ -1,0 +1,32 @@
+feature: GET /api/features/:code?revision=:commit
+code: serve-feature-revision-get
+description: |-
+  Возвращает снимок YAML-фичи из выбранной локальной Git-ревизии.
+
+  Модель ответа TypeScript:
+  ```ts
+  interface FeatureRevisionResponse {
+    code: string;
+    title: string;
+    description?: string;
+    attributes: Record<string, string[]>;
+    groups: Array<{
+      title: string;
+      assertions: Array<{ title: string; description?: string; isAutomated: boolean }>;
+    }>;
+    filePath: string;
+  }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешный ответ:
+    - assert: GET /api/features/:code?revision=:commit возвращает модель фичи из указанного коммита её истории с HTTP 200
+    - assert: Снимок фичи из Git-ревизии не содержит optimisticLock
+  Недоступная ревизия:
+    - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если коммит не относится к истории фичи
+    - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если фича или её файл отсутствуют в указанной ревизии
+    - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404, если Git не может отдать файл фичи
