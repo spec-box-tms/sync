@@ -1,0 +1,5 @@
+@if(token().lang === 'mermaid') {
+  <md-mermaid [code]="token().text"></md-mermaid>
+} @else {
+  <pre mdPrism [code]="token().text" [language]="token().lang"></pre>
+}

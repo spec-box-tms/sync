@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: var(--tui-background-neutral-1-hover);
+  }
+  
+  &.active {
+    background: var(--tui-background-accent-1);
+    &:hover {
+      background: var(--tui-background-accent-1-hover);
+    }
+  }
+}

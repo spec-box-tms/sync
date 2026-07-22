@@ -1,0 +1,11 @@
+<code [class]="languageClass()">{{ code() }}</code>
+<button
+  (click)="copy()"
+  appearance="secondary"
+  iconStart="@tui.clipboard"
+  size="s"
+  tuiIconButton
+  type="button"
+>
+  Скопировать
+</button>

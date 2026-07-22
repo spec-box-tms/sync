@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+.children {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1em;
+  max-height: 0;
+  overflow-y: hidden;
+  transition: max-height 0.8s ease;
+  &.expanded {
+    max-height: 1000px;
+  }
+  border-left: var(--tui-border-normal) 1px solid;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: var(--tui-background-neutral-1-hover);
+  }
+}

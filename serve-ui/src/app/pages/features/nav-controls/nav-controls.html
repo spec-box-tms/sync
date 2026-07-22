@@ -1,0 +1,7 @@
+<input placeholder="Поиск..." [(ngModel)]="search" />
+<select [(ngModel)]="activeTree">
+  <option [ngValue]="null">Без группировки</option>
+  @for (tree of projectSnapshot().trees; track tree.code) {
+    <option [ngValue]="tree">{{ tree.title }}</option>
+  }
+</select>

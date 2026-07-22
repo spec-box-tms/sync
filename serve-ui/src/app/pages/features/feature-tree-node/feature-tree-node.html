@@ -1,0 +1,18 @@
+<div class="item" (click)="toggleExpanded()">
+  @if (expanded()) {
+    <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
+  } @else {
+    <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
+  }
+  {{ node().valueTitle ?? node().valueCode }}
+</div>
+<div class="children" [class.expanded]="expanded()">
+  @if (expanded()) {
+    @for (childNode of node().children; track childNode.valueCode) {
+      <feature-tree-node [node]="childNode" />
+    }
+    @for (featureCode of node().features; track featureCode) {
+      <feature-item [featureCode]="featureCode" />
+    }
+  }
+</div>

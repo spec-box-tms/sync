@@ -1,0 +1,9 @@
+:host {
+  background-color: var(--tui-background-neutral-2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.4rem;
+  font-family: Menlo, Monaco, "Courier New", monospace;
+  color: var(--tui-text-secondary);
+  cursor: pointer;
+  text-wrap: nowrap;
+}
