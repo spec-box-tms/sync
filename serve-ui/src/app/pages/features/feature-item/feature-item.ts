@@ -2,6 +2,7 @@ import { Component, computed, inject, input, OnInit, signal } from '@angular/cor
 import { ProjectService } from '../../../core/project.service';
 import { TuiIcon } from '@taiga-ui/core';
 import { ActiveFeatureService } from '../active-feature.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'feature-item',
@@ -16,6 +17,7 @@ import { ActiveFeatureService } from '../active-feature.service';
 export class FeatureItem {
   private readonly projectSnapshotResource = inject(ProjectService).projectResource;
   private readonly activeFeatureService = inject(ActiveFeatureService);
+  private readonly router = inject(Router);
 
   readonly featureCode = input.required<string>();
   readonly isMissing = signal(false);
@@ -56,6 +58,6 @@ export class FeatureItem {
 
   activate() {
     this.activeFeatureService.activate(this.feature());
-    console.log('activate');
+    this.router.navigate([], { queryParams: { feature: this.featureCode() }, queryParamsHandling: 'merge' });
   }
 }

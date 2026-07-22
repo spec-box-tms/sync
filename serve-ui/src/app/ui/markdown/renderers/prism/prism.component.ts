@@ -8,20 +8,19 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { PrismService } from './prism.service';
 import { TuiButton, TuiIcon } from '@taiga-ui/core';
-import { Clipboard } from '@angular/cdk/clipboard';
+import { TuiCopy } from '@taiga-ui/kit';
+import { PrismService } from './prism.service';
 
 @Component({
   selector: 'pre[mdPrism]',
   standalone: true,
-  imports: [TuiButton, TuiIcon],
+  imports: [TuiButton, TuiCopy],
   templateUrl: './prism.component.html',
   styleUrl: './prism.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrismComponent implements AfterViewInit {
-  private clipboard = inject(Clipboard);
   private prismService = inject(PrismService);
   private elementRef = inject(ElementRef<HTMLElement>);
   code = input.required<string>();
@@ -31,10 +30,5 @@ export class PrismComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.prismService.highlightElement(this.elementRef.nativeElement);
-  }
-
-  copy() {
-    this.clipboard.copy(this.code());
-    console.log('info', 'Значение скопировано в буфер обмена');
   }
 }

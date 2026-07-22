@@ -3,7 +3,7 @@ import { FeaturesPage } from './pages/features/features-page';
 
 export const routes: Routes = [
   {
-    path: '/features',
+    path: '',
     component: FeaturesPage,
   },
 ];

@@ -1,0 +1,17 @@
+:host {
+  display: flex;
+  height: 100%;
+}
+
+.tree-container {
+  padding: 1em;
+  width: 360px;
+  max-width: 360px;
+  flex-shrink: 0;
+}
+
+.content {
+  flex-grow: 1;
+  height: 100%;
+  padding: 1em;
+}

@@ -1,0 +1,37 @@
+import { Component, inject, input, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { FeatureTree as FeatureTreeModel } from '../../../model/feature-tree.model';
+import { Feature } from '../../../model/feature.model';
+import { ProjectSnapshot } from '../../../model/project-snapshot.model';
+import { ActiveFeatureService } from '../active-feature.service';
+import { FeatureContent } from '../feature-content/feature-content';
+import { FeatureList } from '../feature-list/feature-list';
+import { FeatureTree } from '../feature-tree/feature-tree';
+import { NavControls } from '../nav-controls/nav-controls';
+
+@Component({
+  selector: 'feature-page-presenter',
+  templateUrl: 'feature-page-presenter.html',
+  styleUrl: 'feature-page-presenter.scss',
+  imports: [FeatureTree, FeatureList, NavControls, FeatureContent],
+  providers: [ActiveFeatureService],
+})
+export class FeaturePagePresenter {
+  private readonly router = inject(Router);
+
+  readonly projectSnapshot = input.required<ProjectSnapshot>();
+  readonly activeTree = input.required<FeatureTreeModel | null>();
+  readonly activeFeature = input.required<Feature | null>();
+
+  readonly featureCodes = signal<string[]>([]);
+
+  setFeatureCodes(featureCodes: string[]) {
+    this.featureCodes.set(featureCodes);
+  }
+  setActiveTree(tree: FeatureTreeModel | null) {
+    this.router.navigate([], {
+      queryParams: { tree: tree?.code ?? null },
+      queryParamsHandling: 'merge',
+    });
+  }
+}

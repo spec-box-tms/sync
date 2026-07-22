@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
+}
+
+.assert {
+  display: flex;
+  align-items: center;
+  margin-left: 2em;
+  margin-bottom: 0.8em;
+  gap: 0.4rem;
+}
+
+.description {
+  margin-left: 4rem;
+  max-height: 0px;
+  overflow-y: hidden;
+  transition: max-height 0.8s ease;
+  &.expanded {
+    max-height: 1000px;
+  }
+}
+
+.expander {
+  margin-left: 4rem;
+  cursor: pointer;
+}

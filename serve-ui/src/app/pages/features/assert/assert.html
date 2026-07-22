@@ -1,0 +1,21 @@
+<div class="assert">
+  @if (assertion().isAutomated) {
+    <div appearance="positive" tuiBadge tuiStatus></div>
+  } @else {
+    <div appearance="positive" tuiBadge tuiStatus></div>
+  }
+  <markdown [value]="assertion().title" />
+</div>
+@if (assertion().description; as _description) {
+  <div class="expander" (click)="toggleExpanded()">
+    @if (expanded()) {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
+    } @else {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
+    }
+    Описание
+  </div>
+  <div class="description" [class.expanded]="expanded()">
+    <markdown [value]="_description" />
+  </div>
+}

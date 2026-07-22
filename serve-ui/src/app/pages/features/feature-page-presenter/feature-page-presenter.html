@@ -1,0 +1,21 @@
+<section class="tree-container">
+  <div class="nav-container">
+    <nav-controls
+      [projectSnapshot]="projectSnapshot()"
+      (featureCodes)="setFeatureCodes($event)"
+      (activeTreeChange)="setActiveTree($event)"
+      [activeTree]="activeTree()"
+    />
+
+    @if (activeTree(); as _activeTree) {
+      <feature-tree [tree]="_activeTree" />
+    } @else {
+      <feature-list [featureCodes]="featureCodes()" />
+    }
+  </div>
+  <div class="feature-container"></div>
+</section>
+
+<section class="content">
+  <feature-content [feature]="activeFeature()" />
+</section>

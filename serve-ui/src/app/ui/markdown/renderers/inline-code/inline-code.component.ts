@@ -3,12 +3,14 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Tokens } from 'marked';
 import { RendererBase } from '../renderer-base';
+import { TuiCopy } from '@taiga-ui/kit';
 @Component({
   selector: 'span[mdInlineCode]',
   standalone: true,
   templateUrl: './inline-code.component.html',
   styleUrl: './inline-code.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TuiCopy],
   host: {
     '(click)': 'copyToClipboard()',
   },

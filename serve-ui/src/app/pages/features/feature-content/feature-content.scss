@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: var(--tui-background-neutral-1);
+  height: 100%;
+}
+
+.wrapper {
+  margin: 1em 2em;
+}
+
+.details {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 1em;
+}
+
+.meta {
+  display: flex;
+  gap: 1em;
+  margin-bottom: 1em;
+}

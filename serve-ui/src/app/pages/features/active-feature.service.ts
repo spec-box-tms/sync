@@ -6,7 +6,6 @@ export class ActiveFeatureService {
   private readonly activeFeatureSignal = signal<Feature | null>(null);
 
   readonly activeFeature = this.activeFeatureSignal.asReadonly();
-
   activate(feature: Feature | null) {
     this.activeFeatureSignal.set(feature);
   }

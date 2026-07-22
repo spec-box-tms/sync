@@ -1,22 +1,9 @@
-<section class="tree-container">
-  @if (projectSnapshotResource.hasValue()) {
-    <div class="nav-container">
-      <nav-controls
-        [projectSnapshot]="projectSnapshotResource.value()"
-        (featureCodes)="setFeatureCodes($event)"
-        (activeTreeChange)="setActiveTree($event)"
-      />
-
-      @if (activeTree(); as _activeTree) {
-        <feature-tree [tree]="_activeTree" />
-      } @else {
-        <feature-list [featureCodes]="featureCodes()" />
-      }
-    </div>
-    <div class="feature-container"></div>
-  }
-</section>
-
-<section class="content">
-  <feature-content [feature]="activeFeature()"/>
-</section>
+@if (projectSnapshotResource.hasValue()) {
+  <feature-page-presenter
+    [projectSnapshot]="projectSnapshotResource.value()"
+    [activeFeature]="activeFeature()"
+    [activeTree]="activeTree()"
+  />
+} @else {
+  Загрузка...
+}
