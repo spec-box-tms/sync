@@ -1,0 +1,11 @@
+feature: GET /client-side-route
+code: serve-static-ui
+description: Возвращает index.html собранного Angular-приложения для прямого перехода по маршруту клиентского роутера.
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  SPA fallback:
+    - assert: Не-API маршрут возвращает index.html собранного Angular-приложения

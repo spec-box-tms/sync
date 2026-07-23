@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TuiButton, tuiButtonOptionsProvider } from '@taiga-ui/core';
-import { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import {
   addToLineStart,
   removeAtLineStart,

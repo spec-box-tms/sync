@@ -6,11 +6,13 @@
     [activeTree]="activeTree()"
   />
 
-  @if (activeTree(); as _activeTree) {
-    <feature-tree [tree]="_activeTree" />
-  } @else {
-    <feature-list [featureCodes]="featureCodes()" />
-  }
+  <tui-scrollbar>
+    @if (activeTree(); as _activeTree) {
+      <feature-tree [tree]="_activeTree" />
+    } @else {
+      <feature-list [featureCodes]="featureCodes()" />
+    }
+  </tui-scrollbar>
 </section>
 
 <section class="content">

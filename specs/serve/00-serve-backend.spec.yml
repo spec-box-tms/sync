@@ -19,6 +19,8 @@ description: |-
   - PUT /api/features/:code/yaml — сохранение YAML-файла: $serve-feature-update-put.
   - GET /api/features/:code/history — Git-история фичи: $serve-feature-history-get.
   - GET /api/events — SSE-уведомления: $serve-events-get.
+
+  Не-API маршруты Angular SPA возвращают его index.html: $serve-static-ui.
 definitions:
   tool:
     - serve

@@ -183,9 +183,11 @@ export const startServer = async ({
     if (result === 'conflict') return res.status(409).end();
     return res.json(result.snapshot);
   });
-  const staticPath = join(projectRoot, 'dist', 'ui');
+  const packagedUiPath = join(__dirname, '..', '..', 'ui');
+  const staticPath = existsSync(packagedUiPath) ? packagedUiPath : join(projectRoot, 'dist', 'ui');
   if (existsSync(staticPath)) {
     app.use(express.static(staticPath));
+    app.get(/^(?!\/api(?:\/|$)).*/, (_req, res) => res.sendFile(join(staticPath, 'index.html')));
   }
 
   const httpServer = createServer(app);

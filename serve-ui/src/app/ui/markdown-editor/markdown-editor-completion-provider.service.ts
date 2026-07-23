@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
+import type {
   editor,
   IDisposable,
   IPosition,
@@ -8,7 +8,7 @@ import {
 } from 'monaco-editor';
 import { MdSuggestion } from './md-suggestion.model';
 
-declare const monaco: { languages: typeof languages };
+declare const monaco: typeof import('monaco-editor');
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +84,7 @@ export class MarkdownEditorCompletionProviderService {
           .map<languages.CompletionItem>(
             ({ label, description, insertText }) => ({
               label,
-              kind: languages.CompletionItemKind.Reference,
+              kind: monaco.languages.CompletionItemKind.Reference,
               insertText: insertText ?? label,
               detail: description,
               range,

@@ -28,7 +28,6 @@ specTest(
   },
 );
 
-
 specTest(
   'serve-project-get',
   'GET /api/project',

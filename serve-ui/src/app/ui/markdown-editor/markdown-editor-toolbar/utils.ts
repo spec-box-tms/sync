@@ -1,4 +1,4 @@
-import { editor, IRange } from 'monaco-editor';
+import type { editor, IRange } from 'monaco-editor';
 
 export const nullCallback = () => null;
 

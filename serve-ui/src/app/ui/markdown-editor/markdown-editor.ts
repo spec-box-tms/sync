@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MarkdownEditorCompletionProviderService } from './markdown-editor-completion-provider.service';
 import { MarkdownEditorToolbar } from './markdown-editor-toolbar/markdown-editor-toolbar';

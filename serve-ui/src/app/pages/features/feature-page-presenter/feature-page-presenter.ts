@@ -8,12 +8,13 @@ import { FeatureList } from '../feature-list/feature-list';
 import { FeaturePresenter } from '../feature-presenter/feature-presenter';
 import { FeatureTree } from '../feature-tree/feature-tree';
 import { NavControls } from '../nav-controls/nav-controls';
+import { TuiScrollbar } from "@taiga-ui/core";
 
 @Component({
   selector: 'feature-page-presenter',
   templateUrl: 'feature-page-presenter.html',
   styleUrl: 'feature-page-presenter.scss',
-  imports: [FeatureTree, FeatureList, NavControls, FeaturePresenter],
+  imports: [FeatureTree, FeatureList, NavControls, FeaturePresenter, TuiScrollbar],
   providers: [ActiveFeatureService],
 })
 export class FeaturePagePresenter {

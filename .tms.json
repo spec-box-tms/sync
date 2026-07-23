@@ -4,7 +4,7 @@
     "project": "test"
   },
   "yml": {
-    "files": ["specs/**/*.spec.yml", "!specs/**/*.draft.yml"]
+    "files": ["specs/**/*.spec.yml", "specs/**/*.spec.yaml", "!specs/**/*.draft.yml"]
   },
   "JUnit": {
     "reportPath": "test-results/junit.xml",
