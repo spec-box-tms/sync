@@ -144,32 +144,4 @@ describe('FeatureEditor', () => {
       headers: { ETag: '"lock-three"' },
     });
   });
-
-  it('locks text until the post-save YAML refresh completes', () => {
-    fixture.componentRef.setInput('feature', feature('feature-one'));
-    fixture.detectChanges();
-    const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
-    expect(textarea.disabled).toBe(true);
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\n', {
-      headers: { ETag: '"lock-one"' },
-    });
-
-    const edited = 'code: feature-one\nfeature: Changed\n';
-    component.yaml.set(edited);
-    fixture.detectChanges();
-    component.save();
-    httpMock.expectOne('/api/features/feature-one/yaml').flush({});
-    const reload = httpMock.expectOne('/api/features/feature-one/yaml');
-    fixture.detectChanges();
-
-    expect(textarea.disabled).toBe(true);
-    textarea.value = 'code: feature-one\nfeature: Stale\n';
-    textarea.dispatchEvent(new Event('input'));
-    expect(component.yaml()).toBe(edited);
-
-    reload.flush('code: feature-one\nfeature: Refreshed\n', { headers: { ETag: '"lock-two"' } });
-    fixture.detectChanges();
-    expect(textarea.disabled).toBe(false);
-    expect(component.yaml()).toBe('code: feature-one\nfeature: Refreshed\n');
-  });
 });

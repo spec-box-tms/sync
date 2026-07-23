@@ -97,12 +97,6 @@ export class FeatureEditor {
       });
   }
 
-  setYaml(value: string) {
-    if (this.ready() && !this.saving()) {
-      this.yaml.set(value);
-    }
-  }
-
   private url(code: string) {
     return `${this.apiUrl}/api/features/${encodeURIComponent(code)}/yaml`;
   }
