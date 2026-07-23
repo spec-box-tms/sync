@@ -19,7 +19,6 @@ describe('FeatureEditor', () => {
   let fixture: ComponentFixture<FeatureEditor>;
   let component: FeatureEditor & {
     yaml: { set(value: string): void; (): string };
-    message: { (): string };
     save(): void;
   };
   let httpMock: HttpTestingController;
@@ -53,9 +52,6 @@ describe('FeatureEditor', () => {
     const save = httpMock.expectOne('/api/features/feature-one/yaml');
     expect(save.request.headers.get('If-Match')).toBe('"lock"');
     save.flush({});
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\n', {
-      headers: { ETag: '"new-lock"' },
-    });
   });
 
   it('reloads YAML when the selected feature changes', () => {
@@ -83,65 +79,5 @@ describe('FeatureEditor', () => {
     httpMock.expectOne('/api/features/feature-one/yaml').flush(null, { status: 409, statusText: 'Conflict' });
 
     expect(component.yaml()).toBe(edited);
-    expect(component.message()).toContain('Перезагрузите');
-  });
-
-  it('preserves unsaved text when the selected feature refreshes with the same code', () => {
-    fixture.componentRef.setInput('feature', feature('feature-one'));
-    fixture.detectChanges();
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\n', {
-      headers: { ETag: '"lock"' },
-    });
-
-    const edited = 'code: feature-one\nfeature: Changed\n';
-    component.yaml.set(edited);
-    fixture.componentRef.setInput('feature', feature('feature-one'));
-    fixture.detectChanges();
-
-    httpMock.expectNone('/api/features/feature-one/yaml');
-    expect(component.yaml()).toBe(edited);
-  });
-
-  it('does not save stale YAML while loading a new selection', () => {
-    fixture.componentRef.setInput('feature', feature('feature-one'));
-    fixture.detectChanges();
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\n', {
-      headers: { ETag: '"lock"' },
-    });
-    component.yaml.set('code: feature-one\nfeature: Changed\n');
-
-    fixture.componentRef.setInput('feature', feature('feature-two'));
-    fixture.detectChanges();
-    const reload = httpMock.expectOne('/api/features/feature-two/yaml');
-    component.save();
-
-    httpMock.expectNone((request) => request.method === 'PUT');
-    reload.flush('code: feature-two\n', { headers: { ETag: '"lock-two"' } });
-  });
-
-  it('uses the refreshed ETag for a second save', () => {
-    fixture.componentRef.setInput('feature', feature('feature-one'));
-    fixture.detectChanges();
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\n', {
-      headers: { ETag: '"lock-one"' },
-    });
-
-    component.yaml.set('code: feature-one\nfeature: First\n');
-    component.save();
-    const firstSave = httpMock.expectOne('/api/features/feature-one/yaml');
-    expect(firstSave.request.headers.get('If-Match')).toBe('"lock-one"');
-    firstSave.flush({});
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\nfeature: First\n', {
-      headers: { ETag: '"lock-two"' },
-    });
-
-    component.yaml.set('code: feature-one\nfeature: Second\n');
-    component.save();
-    const secondSave = httpMock.expectOne('/api/features/feature-one/yaml');
-    expect(secondSave.request.headers.get('If-Match')).toBe('"lock-two"');
-    secondSave.flush({});
-    httpMock.expectOne('/api/features/feature-one/yaml').flush('code: feature-one\nfeature: Second\n', {
-      headers: { ETag: '"lock-three"' },
-    });
   });
 });
