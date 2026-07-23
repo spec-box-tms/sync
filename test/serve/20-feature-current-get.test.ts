@@ -4,8 +4,8 @@ import { mkdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { startServer } from '../../../src/lib/serve/server';
-import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
+import { startServer } from '../../src/lib/serve/server';
+import { ProjectSnapshotService } from '../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 

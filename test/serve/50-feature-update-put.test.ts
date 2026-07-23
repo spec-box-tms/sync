@@ -25,13 +25,13 @@ const withServer = async (fn: (url: string, project: Project) => Promise<void>) 
   }
 };
 
-const putYaml = (url: string, ifMatch?: string) => fetch(url, {
+const putYaml = (url: string, ifMatch?: string, body: BodyInit = source, contentType: string | undefined = 'application/yaml; charset=utf-8') => fetch(url, {
   method: 'PUT',
   headers: {
-    'content-type': 'application/yaml; charset=utf-8',
+    ...(contentType === undefined ? {} : { 'content-type': contentType }),
     ...(ifMatch === undefined ? {} : { 'if-match': ifMatch }),
   },
-  body: source,
+  body,
 });
 
 specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml с актуальным If-Match сохраняет исходные YAML-байты и возвращает пересчитанный ProjectSnapshot', () => withServer(async (url, project) => {
@@ -61,4 +61,25 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибк
   const response = await putYaml(`${url}/api/features/missing/yaml`, '"current"');
   assert.equal(response.status, 404);
   assert.deepEqual(await readFile(path), before);
+}));
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'PUT /api/features/:code/yaml возвращает HTTP 415 без записи для JSON или неподдерживаемого Content-Type', () => withServer(async (url, project) => {
+  const path = join(project.root, 'specs/feature.spec.yml');
+  const before = await readFile(path);
+  const etag = (await fetch(`${url}/api/features/feature-one/yaml`)).headers.get('etag')!;
+  for (const [body, contentType] of [[JSON.stringify(source), 'application/json'], [source, 'text/plain']] as const) {
+    const response = await putYaml(`${url}/api/features/feature-one/yaml`, etag, body, contentType);
+    assert.equal(response.status, 415);
+    assert.deepEqual(await readFile(path), before);
+  }
+}));
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'Два одновременных PUT /api/features/:code/yaml с одним ETag сохраняют ровно одно тело', () => withServer(async (url, project) => {
+  const path = join(project.root, 'specs/feature.spec.yml');
+  const etag = (await fetch(`${url}/api/features/feature-one/yaml`)).headers.get('etag')!;
+  const bodies = [Buffer.from('code: feature-one\nfeature: First\n'), Buffer.from('code: feature-one\nfeature: Second\n')];
+  const responses = await Promise.all(bodies.map((body) => putYaml(`${url}/api/features/feature-one/yaml`, etag, body)));
+  assert.deepEqual(responses.map(({ status }) => status).sort(), [200, 409]);
+  const stored = await readFile(path);
+  assert.ok(bodies.some((body) => body.equals(stored)));
 }));

@@ -28,6 +28,8 @@ const toResponse = async (feature: Feature, root: string): Promise<FeatureRespon
 };
 
 export class FeatureService {
+  private readonly writes = new Map<string, Promise<void>>();
+
   constructor(private readonly snapshots: ProjectSnapshotService) {}
 
   async current(code: string): Promise<FeatureResponse | undefined> {
@@ -61,10 +63,26 @@ export class FeatureService {
     if (!feature) return 'missing';
     const target = await this.existingTarget(feature.filePath);
     if (!target) return 'missing';
-    const current = await readFile(target);
-    if (ifMatch !== `"${md5(current)}"`) return 'conflict';
-    await writeFile(target, bytes);
-    return { snapshot: await this.snapshots.refresh() };
+    return this.exclusive(target, async () => {
+      const current = await readFile(target);
+      if (ifMatch !== `"${md5(current)}"`) return 'conflict';
+      await writeFile(target, bytes);
+      return { snapshot: await this.snapshots.refresh() };
+    });
+  }
+
+  private async exclusive<T>(target: string, operation: () => Promise<T>): Promise<T> {
+    const previous = this.writes.get(target) || Promise.resolve();
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => { release = resolve; });
+    this.writes.set(target, current);
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
+      if (this.writes.get(target) === current) this.writes.delete(target);
+    }
   }
 
   private validateUnique(code: string, current?: string): Validation | undefined {

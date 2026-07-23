@@ -97,7 +97,8 @@ export const startServer = async ({
     }, 50);
   };
   app.use(express.json());
-  app.use((error: Error & { body?: unknown }, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.use((error: Error & { body?: unknown }, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (req.path.endsWith('/yaml')) return res.sendStatus(415);
     if (error instanceof SyntaxError && 'body' in error) {
       return res.status(400).json({ errors: [{ code: 'invalid-request', message: 'Некорректный JSON', path: '' }] });
     }
@@ -176,6 +177,7 @@ export const startServer = async ({
   });
   app.put('/api/features/:code/yaml', express.raw({ type: ['application/yaml', 'text/yaml'] }), async (req, res) => {
     if (!features) return res.sendStatus(404);
+    if (!Buffer.isBuffer(req.body)) return res.sendStatus(415);
     const result = await features.updateYaml(req.params.code, req.body, req.get('if-match'));
     if (result === 'missing') return res.sendStatus(404);
     if (result === 'conflict') return res.status(409).end();

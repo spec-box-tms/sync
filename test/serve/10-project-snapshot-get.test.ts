@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { startServer } from '../../../src/lib/serve/server';
-import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
+import { startServer } from '../../src/lib/serve/server';
+import { ProjectSnapshotService } from '../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 

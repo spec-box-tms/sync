@@ -4,9 +4,9 @@ import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 
-import { GitAdapter } from '../../../src/lib/serve/git';
-import { startServer } from '../../../src/lib/serve/server';
-import { ProjectSnapshotService } from '../../../src/lib/serve/snapshot';
+import { GitAdapter } from '../../src/lib/serve/git';
+import { startServer } from '../../src/lib/serve/server';
+import { ProjectSnapshotService } from '../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 
