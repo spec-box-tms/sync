@@ -1,9 +1,9 @@
 <label>
   YAML
-  <textarea [value]="yaml()" (input)="yaml.set($any($event.target).value)"></textarea>
+  <textarea [disabled]="saving()" [value]="yaml()" (input)="yaml.set($any($event.target).value)"></textarea>
 </label>
-<button type="button" (click)="load()">Перезагрузить</button>
-<button type="button" (click)="save()">Сохранить</button>
+<button type="button" [disabled]="saving()" (click)="load()">Перезагрузить</button>
+<button type="button" [disabled]="!ready() || saving()" (click)="save()">Сохранить</button>
 @if (message()) {
   <p>{{ message() }}</p>
 }

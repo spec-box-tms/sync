@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { API_URL } from '../../../core/api-url.token';
 import { Feature } from '../../../model/feature.model';
 
@@ -12,54 +12,88 @@ export class FeatureEditor {
   private readonly apiUrl = inject(API_URL);
   private readonly http = inject(HttpClient);
   private readonly etag = signal<string | null>(null);
+  private requestId = 0;
 
   readonly feature = input.required<Feature | null>();
+  private readonly selectedCode = computed(() => this.feature()?.code ?? null);
   readonly yaml = signal('');
   readonly message = signal('');
+  readonly ready = signal(false);
+  readonly saving = signal(false);
 
   constructor() {
     effect(() => {
-      const code = this.feature()?.code;
+      const code = this.selectedCode();
       if (code) {
+        this.yaml.set('');
+        this.etag.set(null);
         this.load(code);
+      } else {
+        this.requestId++;
+        this.yaml.set('');
+        this.etag.set(null);
+        this.ready.set(false);
       }
     });
   }
 
-  load(code = this.feature()?.code) {
+  load(code = this.selectedCode()) {
     if (!code) {
       return;
     }
 
+    const requestId = ++this.requestId;
     this.message.set('');
+    this.ready.set(false);
     this.http.get(this.url(code), { observe: 'response', responseType: 'text' }).subscribe({
       next: (response) => {
-        if (this.feature()?.code === code) {
+        if (this.selectedCode() === code && requestId === this.requestId) {
           this.yaml.set(response.body ?? '');
           this.etag.set(response.headers.get('ETag'));
+          this.ready.set(true);
         }
       },
-      error: () => this.message.set('Не удалось загрузить YAML.'),
+      error: () => {
+        if (this.selectedCode() === code && requestId === this.requestId) {
+          this.message.set('Не удалось загрузить YAML.');
+        }
+      },
     });
   }
 
   save() {
-    const code = this.feature()?.code;
-    if (!code) {
+    const code = this.selectedCode();
+    const etag = this.etag();
+    if (!code || !etag || !this.ready() || this.saving()) {
       return;
     }
 
+    this.saving.set(true);
     this.http
       .put(this.url(code), this.yaml(), {
         headers: {
           'Content-Type': 'application/yaml; charset=utf-8',
-          'If-Match': this.etag() ?? '',
+          'If-Match': etag,
         },
       })
       .subscribe({
-        next: () => this.message.set('Сохранено.'),
-        error: (error) =>
-          this.message.set(error.status === 409 ? 'YAML изменён. Перезагрузите редактор.' : 'Не удалось сохранить YAML.'),
+        next: () => {
+          this.saving.set(false);
+          if (this.selectedCode() === code) {
+            this.load(code);
+          }
+        },
+        error: (error) => {
+          this.saving.set(false);
+          if (this.selectedCode() === code) {
+            if (error.status === 409) {
+              this.ready.set(false);
+              this.message.set('YAML изменён. Перезагрузите редактор.');
+            } else {
+              this.message.set('Не удалось сохранить YAML.');
+            }
+          }
+        },
       });
   }
 
