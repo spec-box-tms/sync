@@ -1,6 +1,6 @@
 <label>
   YAML
-  <textarea [disabled]="saving()" [value]="yaml()" (input)="yaml.set($any($event.target).value)"></textarea>
+  <textarea [disabled]="!ready() || saving()" [value]="yaml()" (input)="setYaml($any($event.target).value)"></textarea>
 </label>
 <button type="button" [disabled]="saving()" (click)="load()">Перезагрузить</button>
 <button type="button" [disabled]="!ready() || saving()" (click)="save()">Сохранить</button>
