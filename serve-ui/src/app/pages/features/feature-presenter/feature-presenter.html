@@ -1,0 +1,35 @@
+<div class="wrapper">
+  @if (feature(); as _feature) {
+    <div class="header">
+      <h2>{{ _feature.title }}</h2>
+      <div class="actions">
+        @if (!editing()) {
+          <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
+        } @else {
+          <!-- <button size="s" tuiButton (click)="exitEditing()">Сохранить</button> -->
+          <button size="s" tuiButton (click)="exitEditing()">Отменить</button>
+        }
+      </div>
+    </div>
+    <div class="details">
+      <div>
+        <b>Код:</b>
+        <tui-copy>
+          {{ _feature.code }}
+        </tui-copy>
+      </div>
+      <feature-history-selector [featureCode]="_feature.code" />
+    </div>
+    @if (editing()) {
+      <feature-editor [featureCode]="_feature.code" />
+    } @else {
+      <tui-scrollbar>
+        <div class="content">
+          <feature-content [feature]="_feature" />
+        </div>
+      </tui-scrollbar>
+    }
+  } @else {
+    ничего не выбрано
+  }
+</div>

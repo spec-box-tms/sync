@@ -1,28 +1,10 @@
-<tui-scrollbar>
-  <div class="wrapper">
-    @if (feature(); as _feature) {
-      <h2>{{ _feature.title }}</h2>
-      <div class="details">
-        <div>
-          <b>Код:</b>
-          <tui-copy>
-            {{ _feature.code }}
-          </tui-copy>
-        </div>
-        <feature-history-selector [featureCode]="_feature.code" />
-      </div>
-      <div class="meta">
-        @for (attribute of attributes(); track attribute.code) {
-          <attribute [attributeCode]="attribute.code" [attributeValues]="attribute.values" />
-        }
-      </div>
-      <markdown [value]="_feature.description" />
+<div class="meta">
+  @for (attribute of attributes(); track attribute.code) {
+    <attribute [attributeCode]="attribute.code" [attributeValues]="attribute.values" />
+  }
+</div>
+<markdown [value]="feature().description" />
 
-      @for (group of _feature.groups; track group.title) {
-        <feature-group [group]="group" />
-      }
-    } @else {
-      ничего не выбрано
-    }
-  </div>
-</tui-scrollbar>
+@for (group of feature().groups; track group.title) {
+  <feature-group [group]="group" />
+}

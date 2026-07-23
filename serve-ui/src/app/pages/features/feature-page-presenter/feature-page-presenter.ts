@@ -4,8 +4,8 @@ import { FeatureTree as FeatureTreeModel } from '../../../model/feature-tree.mod
 import { Feature } from '../../../model/feature.model';
 import { ProjectSnapshot } from '../../../model/project-snapshot.model';
 import { ActiveFeatureService } from '../active-feature.service';
-import { FeatureContent } from '../feature-content/feature-content';
 import { FeatureList } from '../feature-list/feature-list';
+import { FeaturePresenter } from '../feature-presenter/feature-presenter';
 import { FeatureTree } from '../feature-tree/feature-tree';
 import { NavControls } from '../nav-controls/nav-controls';
 
@@ -13,7 +13,7 @@ import { NavControls } from '../nav-controls/nav-controls';
   selector: 'feature-page-presenter',
   templateUrl: 'feature-page-presenter.html',
   styleUrl: 'feature-page-presenter.scss',
-  imports: [FeatureTree, FeatureList, NavControls, FeatureContent],
+  imports: [FeatureTree, FeatureList, NavControls, FeaturePresenter],
   providers: [ActiveFeatureService],
 })
 export class FeaturePagePresenter {

@@ -1,0 +1,9 @@
+@if (editor(); as editor) {
+  <markdown-editor-toolbar [editor]="editor"></markdown-editor-toolbar>
+}
+<ngx-monaco-editor
+  class="editor"
+  [(ngModel)]="editValue"
+  [options]="editorOptions"
+  (onInit)="initEditor($event)"
+></ngx-monaco-editor>

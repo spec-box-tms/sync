@@ -24,6 +24,8 @@
     "@taiga-ui/kit": "^5.16.0",
     "marked": "^18.0.7",
     "mermaid": "^11.3.0",
+    "monaco-editor": "^0.55.1",
+    "ngx-monaco-editor-v2": "^22.0.4",
     "prismjs": "^1.29.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

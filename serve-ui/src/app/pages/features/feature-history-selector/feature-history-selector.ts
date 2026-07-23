@@ -1,16 +1,16 @@
+import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, input, model, signal } from '@angular/core';
-import { FeatureHistory } from '../../../model/feature-history.model';
 import { FormsModule } from '@angular/forms';
-import { TuiChevron, TuiDataListWrapper, TuiSelect, TuiTooltip } from '@taiga-ui/kit';
-import { TuiIcon, tuiItemsHandlersProvider } from '@taiga-ui/core';
-import { DatePipe } from '@angular/common';
+import { tuiItemsHandlersProvider } from '@taiga-ui/core';
+import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
+import { FeatureHistory } from '../../../model/feature-history.model';
 
 @Component({
   selector: 'feature-history-selector',
   templateUrl: 'feature-history-selector.html',
   styleUrl: 'feature-history-selector.scss',
-  imports: [FormsModule, TuiChevron, TuiDataListWrapper, TuiIcon, TuiSelect, TuiTooltip, DatePipe],
+  imports: [FormsModule, TuiChevron, TuiDataListWrapper, TuiSelect, DatePipe],
   providers: [
     tuiItemsHandlersProvider({
       stringify: signal((x: FeatureHistory) => x.message),

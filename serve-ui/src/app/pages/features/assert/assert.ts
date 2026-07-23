@@ -1,15 +1,15 @@
 import { Component, effect, input, signal } from '@angular/core';
-import { Assertion } from '../../../model/assertion.model';
-import { TuiBadge, TuiStatus, TuiInputInline } from '@taiga-ui/kit';
-import { Markdown } from '../../../ui/markdown/markdown.component';
-import { TuiIcon } from '@taiga-ui/core';
 import { FormsModule } from '@angular/forms';
+import { TuiIcon } from '@taiga-ui/core';
+import { TuiBadge, TuiStatus } from '@taiga-ui/kit';
+import { Assertion } from '../../../model/assertion.model';
+import { Markdown } from '../../../ui/markdown/markdown.component';
 
 @Component({
   selector: 'assert',
   templateUrl: 'assert.html',
   styleUrl: 'assert.scss',
-  imports: [FormsModule, Markdown, TuiBadge, TuiStatus, TuiIcon, TuiInputInline],
+  imports: [FormsModule, Markdown, TuiBadge, TuiStatus, TuiIcon],
 })
 export class Assert {
   assertion = input.required<Assertion>();

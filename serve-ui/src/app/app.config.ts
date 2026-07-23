@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { API_URL } from './core/api-url.token';
+import { provideMonaco } from './ui/markdown-editor/provide-monaco';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,5 +15,6 @@ export const appConfig: ApplicationConfig = {
       provide: API_URL,
       useValue: ``,
     },
+    provideMonaco(),
   ],
 };
