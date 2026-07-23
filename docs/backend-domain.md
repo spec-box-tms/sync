@@ -43,7 +43,7 @@ interface TreeDefinition {
 
 ## Фича
 
-### Модель в снимке проекта
+### Модель ответа
 
 ```ts
 interface Assertion {
@@ -64,11 +64,14 @@ interface Feature {
   attributes: Record<string, string[]>;
   groups: AssertionGroup[];
   filePath: string;
+  optimisticLock?: string;
 }
 ```
 
 `isAutomated` вычисляется по загруженным Jest/JUnit-отчётам и не означает, что
-тест был успешно выполнен.
+тест был успешно выполнен. `optimisticLock` — MD5 исходных байтов текущего
+YAML-файла; он остаётся в структурированном ответе для совместимости, но
+YAML-редактор использует `ETag` и `If-Match`.
 
 Пустые атрибуты и группы возвращаются как `{}` и `[]`; необязательное
 `description` отсутствует, если в YAML его нет.
@@ -201,9 +204,8 @@ interface ProjectSnapshot {
 
 ### `GET /api/features/:code`
 
-Возвращает исходные байты текущего YAML-файла. Ответ содержит
-`Content-Type: application/yaml; charset=utf-8` и `ETag` — MD5 этих байтов в
-кавычках.
+Возвращает текущую `Feature` для отображения UI с обязательным
+`optimisticLock`.
 
 ```http
 200 OK
@@ -213,10 +215,9 @@ interface ProjectSnapshot {
 ### `GET /api/features/:code?revision=:commit`
 
 `revision` — идентификатор коммита, ранее возвращённый историей этой фичи.
-Возвращает исходные байты YAML из этого коммита с
-`Content-Type: application/yaml; charset=utf-8`, но без `ETag`. Если фича не
-существовала в этой ревизии, коммит не относится к её истории или Git не может
-отдать файл, возвращается `404`.
+Возвращает `Feature` из YAML в этом коммите без `optimisticLock`. Если фича
+не существовала в этой ревизии, коммит не относится к её истории или Git не
+может отдать файл, возвращается `404`.
 
 ```http
 200 OK
@@ -238,7 +239,18 @@ interface ProjectSnapshot {
 400 Bad Request
 ```
 
-### `PUT /api/features/:code`
+### `GET /api/features/:code/yaml`
+
+Возвращает исходные байты текущего YAML-файла. Ответ содержит
+`Content-Type: application/yaml; charset=utf-8` и `ETag` — MD5 этих байтов в
+кавычках.
+
+```http
+200 OK
+404 Not Found
+```
+
+### `PUT /api/features/:code/yaml`
 
 Принимает YAML непосредственно в теле с
 `Content-Type: application/yaml; charset=utf-8`. `:code` выбирает
