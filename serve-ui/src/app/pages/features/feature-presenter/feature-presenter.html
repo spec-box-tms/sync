@@ -6,8 +6,17 @@
         @if (!editing()) {
           <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
         } @else {
-          <!-- <button size="s" tuiButton (click)="exitEditing()">Сохранить</button> -->
-          <button size="s" tuiButton (click)="exitEditing()">Отменить</button>
+          <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
+            Отменить
+          </button>
+          <button
+            size="s"
+            tuiButton
+            [disabled]="!hasChanges()"
+            (click)="saveChanges()"
+          >
+            Сохранить
+          </button>
         }
       </div>
     </div>
@@ -21,13 +30,15 @@
       <feature-history-selector [featureCode]="_feature.code" />
     </div>
     @if (editing()) {
-      <feature-editor [featureCode]="_feature.code" />
+      <div class="editor">
+        <feature-editor #editor [featureCode]="_feature.code" (canClose)="exitEditing()" />
+      </div>
     } @else {
-      <tui-scrollbar>
-        <div class="content">
+      <div class="content">
+        <tui-scrollbar>
           <feature-content [feature]="_feature" />
-        </div>
-      </tui-scrollbar>
+        </tui-scrollbar>
+      </div>
     }
   } @else {
     ничего не выбрано

@@ -38,7 +38,7 @@ export class MarkdownEditorCompletionProviderService {
     }
     if (this.completionProvider) {
       this.existingProvider = monaco.languages.registerCompletionItemProvider(
-        'markdown',
+        'yaml',
         this.completionProvider
       );
     }

@@ -1,9 +1,9 @@
 ---
-name: rapidpnp-system-analyst
-description: "Use for RapidPNP requirements work: clarify behavior, write acceptance criteria, update SpecBoxTMS YAML specs, decompose roadmap items, and prepare task.md for implementation."
+name: spec-box-system-analyst
+description: "Use for SpecBox requirements work: clarify behavior, write acceptance criteria, update SpecBoxTMS YAML specs, decompose roadmap items, and prepare task.md for implementation."
 ---
 
-# RapidPNP System Analyst
+# SpecBox System Analyst
 
 Use `agents/system-analyst.md` as the canonical role prompt.
 

@@ -7,22 +7,26 @@
 }
 
 .wrapper {
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
 .header {
+  flex: 0 0 auto;
   padding: 1em 2em;
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  .action {
+  .actions {
     display: flex;
     gap: 0.6rem;
   }
 }
 
 .details {
+  flex: 0 0 auto;
   padding: 1em 2em;
   display: flex;
   gap: 1em;
@@ -32,7 +36,18 @@
 }
 
 .content {
-  padding: 1em 2em;
-  overflow: hidden;
-  flex-grow: 1;
+  flex: 1 1 auto;
+  overflow-y: hidden;
+  min-height: 0;
+}
+
+feature-content {
+  margin: 0 2em;
+}
+
+.editor {
+  margin: 0 2em;
+  flex: 1 1 auto;
+  overflow-y: hidden;
+  min-height: 0;
 }
