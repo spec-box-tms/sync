@@ -129,6 +129,11 @@ export const startServer = async ({
       return res.json([]);
     }
   });
+  app.get('/api/features/:code/yaml', async (req, res) => {
+    const yaml = await features?.yaml(req.params.code);
+    if (!yaml) return res.sendStatus(404);
+    return res.type('application/yaml; charset=utf-8').set('ETag', yaml.etag).send(yaml.bytes);
+  });
   app.get('/api/features/:code', async (req, res) => {
     if (!features) return res.sendStatus(404);
     if (Object.prototype.hasOwnProperty.call(req.query, 'revision')) {
@@ -169,14 +174,13 @@ export const startServer = async ({
     const result = await features.create(req.body);
     return 'errors' in result ? res.status(400).json(result) : res.status(201).json(result.snapshot);
   });
-  app.put('/api/features/:code', async (req, res) => {
+  app.put('/api/features/:code/yaml', express.raw({ type: ['application/yaml', 'text/yaml'] }), async (req, res) => {
     if (!features) return res.sendStatus(404);
-    const result = await features.update(req.params.code, req.body);
+    const result = await features.updateYaml(req.params.code, req.body, req.get('if-match'));
     if (result === 'missing') return res.sendStatus(404);
     if (result === 'conflict') return res.status(409).end();
-    return 'errors' in result ? res.status(400).json(result) : res.json(result.snapshot);
+    return res.json(result.snapshot);
   });
-
   const staticPath = join(projectRoot, 'dist', 'ui');
   if (existsSync(staticPath)) {
     app.use(express.static(staticPath));

@@ -5,7 +5,7 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { stringify } from 'yaml';
 
 import { Feature } from '../domain';
-import { ErrorResponse, FeatureResponse, decodeCreateFeatureRequest, decodeUpdateFeatureRequest } from './models';
+import { ErrorResponse, FeatureResponse, decodeCreateFeatureRequest } from './models';
 import { ProjectSnapshotService } from './snapshot';
 
 type Validation = ErrorResponse['errors'];
@@ -35,6 +35,15 @@ export class FeatureService {
     return feature ? toResponse(feature, this.contentRoot()) : undefined;
   }
 
+  async yaml(code: string): Promise<{ bytes: Buffer; etag: string } | undefined> {
+    const feature = this.snapshots.snapshot.features.find((item) => item.code === code);
+    if (!feature) return undefined;
+    const target = await this.existingTarget(feature.filePath);
+    if (!target) return undefined;
+    const bytes = await readFile(target);
+    return { bytes, etag: `"${md5(bytes)}"` };
+  }
+
   async create(body: unknown): Promise<{ snapshot: Awaited<ReturnType<ProjectSnapshotService['refresh']>> } | { errors: Validation }> {
     const decoded = decodeCreateFeatureRequest(body);
     if ('errors' in decoded) return decoded;
@@ -47,28 +56,14 @@ export class FeatureService {
     return { snapshot: await this.snapshots.refresh() };
   }
 
-  async update(currentCode: string, body: unknown): Promise<{ snapshot: Awaited<ReturnType<ProjectSnapshotService['refresh']>> } | { errors: Validation } | 'conflict' | 'missing'> {
-    const decoded = decodeUpdateFeatureRequest(body);
-    if ('errors' in decoded) return decoded;
-    const request = decoded.value;
-    const feature = this.snapshots.snapshot.features.find((item) => item.code === currentCode);
+  async updateYaml(code: string, bytes: Buffer, ifMatch: string | undefined): Promise<{ snapshot: Awaited<ReturnType<ProjectSnapshotService['refresh']>> } | 'conflict' | 'missing'> {
+    const feature = this.snapshots.snapshot.features.find((item) => item.code === code);
     if (!feature) return 'missing';
     const target = await this.existingTarget(feature.filePath);
-    if (!target) return { errors: [error('Путь вне проекта', '/filePath')] };
-    const bytes = await readFile(target);
-    if (md5(bytes) !== request.optimisticLock) return 'conflict';
-    const duplicate = this.validateUnique(request.code, currentCode);
-    if (duplicate) return { errors: duplicate };
-    const metaAttributes = new Set(this.snapshots.snapshot.attributes.map(({ code }) => code));
-    if (Object.keys(request.attributes).some((name) => !metaAttributes.has(name))) return { errors: [error('Неизвестный атрибут', '/attributes')] };
-    const document = {
-      code: request.code,
-      feature: request.title,
-      ...(request.description === undefined ? {} : { description: request.description }),
-      ...(Object.keys(request.attributes).length ? { definitions: request.attributes } : {}),
-      ...(request.groups.length ? { 'specs-unit': Object.fromEntries(request.groups.map((group) => [group.title, group.assertions.map(({ title, description }) => ({ assert: title, ...(description === undefined ? {} : { description }) }))])) } : {}),
-    };
-    await writeFile(target, stringify(document));
+    if (!target) return 'missing';
+    const current = await readFile(target);
+    if (ifMatch !== `"${md5(current)}"`) return 'conflict';
+    await writeFile(target, bytes);
     return { snapshot: await this.snapshots.refresh() };
   }
 

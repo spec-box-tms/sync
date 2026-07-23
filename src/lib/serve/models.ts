@@ -68,16 +68,6 @@ export interface CreateFeatureRequest {
   title: string;
 }
 
-export interface UpdateFeatureRequest {
-  code: string;
-  title: string;
-  description?: string;
-  attributes: Record<string, string[]>;
-  groups: Array<{ title: string; assertions: Array<{ title: string; description?: string; isAutomated?: boolean }> }>;
-  optimisticLock: string;
-  filePath?: string;
-}
-
 export interface ErrorResponse {
   errors: Array<{ code: string; message: string; path: string }>;
 }
@@ -119,38 +109,11 @@ const codePattern = /^[A-Za-z][A-Za-z0-9-_]*$/;
 const codeDecoder = d.parse((value: string) => codePattern.test(value) ? d.success(value) : d.failure(value, 'valid feature code'))(d.string);
 const titleDecoder = d.parse((value: string) => value.trim() ? d.success(value) : d.failure(value, 'non-empty title'))(d.string);
 
-const writableAssertionDecoder = strict(d.intersect(
-  d.struct({ title: d.string }),
-)(d.partial({ description: d.string, isAutomated: d.boolean })), ['title', 'description', 'isAutomated']);
-
-const writableGroupDecoder = strict(d.struct({
-  title: d.string,
-  assertions: d.array(writableAssertionDecoder),
-}), ['title', 'assertions']);
-
-const uniqueGroupsDecoder = d.parse((groups: UpdateFeatureRequest['groups']) => {
-  const seen = new Set<string>();
-  const duplicate = groups.findIndex((group) => seen.has(group.title) || !seen.add(group.title));
-  return duplicate < 0
-    ? d.success(groups)
-    : E.left(FS.of(DE.index(duplicate, 'required', FS.of(DE.key('title', 'required', d.error(groups[duplicate].title, 'unique group title'))))));
-})(d.array(writableGroupDecoder));
-
 export const createFeatureRequestDecoder: d.Decoder<unknown, CreateFeatureRequest> = strict(d.struct({
   filePath: d.string,
   code: codeDecoder,
   title: titleDecoder,
 }), ['filePath', 'code', 'title']);
-
-export const updateFeatureRequestDecoder: d.Decoder<unknown, UpdateFeatureRequest> = strict(d.intersect(
-  d.struct({
-    code: codeDecoder,
-    title: titleDecoder,
-    attributes: d.record(d.array(d.string)),
-    groups: uniqueGroupsDecoder,
-    optimisticLock: d.string,
-  }),
-)(d.partial({ description: d.string, filePath: d.string })), ['code', 'title', 'description', 'attributes', 'groups', 'optimisticLock', 'filePath']);
 
 const decodeRequest = <T>(decoder: d.Decoder<unknown, T>, input: unknown): RequestDecoding<T> => {
   const decoded = decoder.decode(input);
@@ -158,4 +121,3 @@ const decodeRequest = <T>(decoder: d.Decoder<unknown, T>, input: unknown): Reque
 };
 
 export const decodeCreateFeatureRequest = (input: unknown) => decodeRequest(createFeatureRequestDecoder, input);
-export const decodeUpdateFeatureRequest = (input: unknown) => decodeRequest(updateFeatureRequestDecoder, input);
