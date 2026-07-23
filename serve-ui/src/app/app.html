@@ -1,6 +1,11 @@
 <tui-root>
   <div class="header">
-    
+    <h2>
+      SpecBoxTMS
+      @if (title(); as _title) {
+        - {{ _title }}
+      }
+    </h2>
   </div>
   <main>
     <router-outlet />

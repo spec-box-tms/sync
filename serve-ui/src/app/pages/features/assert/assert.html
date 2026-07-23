@@ -4,7 +4,7 @@
   } @else {
     <div appearance="positive" tuiBadge tuiStatus></div>
   }
-  <markdown [value]="assertion().title" />
+  <markdown [value]="title" />
 </div>
 @if (assertion().description; as _description) {
   <div class="expander" (click)="toggleExpanded()">

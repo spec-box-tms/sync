@@ -9,6 +9,7 @@
             {{ _feature.code }}
           </tui-copy>
         </div>
+        <feature-history-selector [featureCode]="_feature.code" />
       </div>
       <div class="meta">
         @for (attribute of attributes(); track attribute.code) {
@@ -18,10 +19,7 @@
       <markdown [value]="_feature.description" />
 
       @for (group of _feature.groups; track group.title) {
-        <h3>{{ group.title }}</h3>
-        @for (assert of group.assertions; track assert.title) {
-          <assert [assertion]="assert" />
-        }
+        <feature-group [group]="group" />
       }
     } @else {
       ничего не выбрано

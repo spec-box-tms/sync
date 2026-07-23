@@ -10,6 +10,7 @@
     ],
     "scripts": {
         "start": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node ./src/cli.ts",
+        "start:ui": "npm --prefix ./serve-ui run start",
         "build": "rm -rf dist && tsc --build tsconfig.json",
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",

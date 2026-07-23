@@ -1,18 +1,18 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { JsonPipe } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
-import { TuiButton, TuiIcon, TuiScrollbar } from '@taiga-ui/core';
+import { TuiScrollbar } from '@taiga-ui/core';
 import { TuiCopy } from '@taiga-ui/kit';
 import { Feature } from '../../../model/feature.model';
 import { Markdown } from '../../../ui/markdown/markdown.component';
 import { Attribute } from '../attribute/attribute';
-import { Assert } from '../assert/assert';
+import { FeatureHistorySelector } from "../featrue-history-selector/feature-history-selector";
+import { FeatureGroup } from '../feature-group/feature-group';
 
 @Component({
   selector: 'feature-content',
   templateUrl: 'feature-content.html',
   styleUrl: 'feature-content.scss',
-  imports: [Markdown, Attribute, Assert, TuiButton, TuiCopy, TuiIcon, TuiScrollbar, JsonPipe],
+  imports: [Markdown, Attribute, FeatureGroup, TuiCopy, TuiScrollbar, FeatureHistorySelector],
 })
 export class FeatureContent {
   private clipboard = inject(Clipboard);

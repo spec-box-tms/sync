@@ -1,8 +1,8 @@
 feature: Локальный backend serve
 code: serve-backend
-description: >-
+description: |-
   Локальный backend команды spec-box serve обслуживает Angular SPA, внутренний
-  JSON API и SSE для текущей рабочей копии проекта. Его цель — дать
+  **JSON API** и SSE для текущей рабочей копии проекта. Его цель — дать
   пользователю единое локальное место для просмотра, создания и
   структурированного редактирования YAML-спецификаций, диагностики их
   корректности, просмотра покрытия, зависимостей и истории Git без вызовов
@@ -10,6 +10,7 @@ description: >-
   loopback-адресов.
 
   Внутренний API включает следующие маршруты:
+
   - GET /api/project — текущий снимок проекта: $serve-project-get.
   - GET /api/features/:code — текущая фича: $serve-feature-get.
   - GET /api/features/:code?revision=:commit — фича из Git-ревизии: $serve-feature-revision-get.

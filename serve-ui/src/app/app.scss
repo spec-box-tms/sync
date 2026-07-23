@@ -1,3 +1,11 @@
 main {
-  height: 100vh;
+  height: calc(100vh - 46px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 1em 2em;
+  height: 46px;
+  background-color: var(--tui-background-neutral-1);
 }

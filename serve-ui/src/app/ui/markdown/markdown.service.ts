@@ -10,7 +10,6 @@ export class MarkdownService {
 
   parse(markdown: string): TokensList {
     const tokens = marked.lexer(markdown);
-    console.log(tokens);
     return tokens;
   }
 }

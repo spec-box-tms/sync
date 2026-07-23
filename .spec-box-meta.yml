@@ -20,7 +20,7 @@ attributes:
       - code: tests
         title: Тесты
       - code: backend
-        title: backend
+        title: Backend
       - code: frontend
         title: Frontend
 trees:
