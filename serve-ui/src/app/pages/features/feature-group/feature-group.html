@@ -1,28 +1,5 @@
 <h3>
-  @if (!editing()) {
-    {{ title }}
-    <button
-      appearance="icon"
-      iconStart="@tui.pencil"
-      size="xs"
-      tuiIconButton
-      type="button"
-      class="tui-space_left-1"
-      (click)="toggleEditing()"
-    >
-      Редактировать
-    </button>
-  } @else {
-    <tui-input-inline>
-      Введите название группы
-      <input
-        tuiAutoFocus
-        [(ngModel)]="title"
-        (blur)="onBlur()"
-        (keydown.enter.prevent)="toggleEditing()"
-      />
-    </tui-input-inline>
-  }
+  {{ group().title }}
 </h3>
 
 @for (assert of group().assertions; track assert.title) {
