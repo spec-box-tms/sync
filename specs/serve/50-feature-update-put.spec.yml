@@ -1,27 +1,9 @@
-feature: PUT /api/features/:code
+feature: PUT /api/features/:code/yaml
 code: serve-feature-update-put
 description: |-
-  Сохраняет полную редактируемую структуру существующей YAML-фичи.
-
-  Модели запроса и ответа TypeScript:
-  ```ts
-  interface UpdateFeatureRequest {
-    code: string;
-    title: string;
-    description?: string;
-    attributes: Record<string, string[]>;
-    groups: Array<{
-      title: string;
-      assertions: Array<{ title: string; description?: string; isAutomated?: boolean }>;
-    }>;
-    optimisticLock: string;
-    filePath?: string;
-  }
-  type UpdateFeatureResponse = ProjectSnapshot;
-  interface ErrorResponse {
-    errors: Array<{ code: string; message: string; path: string }>;
-  }
-  ```
+  Сохраняет исходный YAML-файл фичи без разбора или преобразования. Клиент
+  передаёт YAML в теле с Content-Type application/yaml; charset=utf-8 и
+  полученный через $serve-feature-yaml-get ETag в заголовке If-Match.
 definitions:
   tool:
     - serve
@@ -29,14 +11,10 @@ definitions:
     - backend
 specs-unit:
   Успешное сохранение:
-    - assert: PUT /api/features/:code принимает код, название, необязательное описание, атрибуты, группы утверждений и optimisticLock
-    - assert: PUT /api/features/:code с актуальным optimisticLock сохраняет фичу, полностью пересчитывает проект и возвращает ProjectSnapshot с HTTP 200
-    - assert: PUT /api/features/:code игнорирует filePath и isAutomated из тела запроса
-    - assert: PUT /api/features/:code допускает изменение кода фичи и сохраняет прежний путь YAML-файла
-    - assert: При изменении кода PUT /api/features/:code не переписывает ссылки на прежний код и ключи тестов
-    - assert: PUT /api/features/:code сохраняет неразрешённые ссылки и повторные assert и возвращает их как диагностики нового ProjectSnapshot
+    - assert: PUT /api/features/:code/yaml принимает YAML в теле с Content-Type application/yaml; charset=utf-8 и актуальный If-Match
+    - assert: PUT /api/features/:code/yaml записывает тело YAML без изменения комментариев, неизвестных полей, порядка ключей и форматирования
+    - assert: PUT /api/features/:code/yaml с актуальным If-Match полностью пересчитывает проект и возвращает ProjectSnapshot с HTTP 200
+    - assert: PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные assert и возвращает их в diagnostics нового ProjectSnapshot
   Ошибки сохранения:
-    - assert: Неизвестное поле в теле PUT /api/features/:code возвращается с точным JSON Pointer path
-    - assert: PUT /api/features/:code возвращает HTTP 409 без тела и не меняет YAML-файл при несовпадении optimisticLock с текущим содержимым файла
-    - assert: PUT /api/features/:code возвращает HTTP 400 без записи при некорректном теле, неизвестном поле, дублирующем коде, повторном названии группы или некорректном атрибуте
-    - assert: PUT /api/features/:code возвращает HTTP 404 без записи для отсутствующей фичи
+    - assert: PUT /api/features/:code/yaml возвращает HTTP 409 без тела и не меняет YAML-файл при отсутствующем или несовпавшем If-Match
+    - assert: PUT /api/features/:code/yaml возвращает HTTP 404 без записи для отсутствующей фичи

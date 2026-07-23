@@ -1,0 +1,18 @@
+feature: GET /api/features/:code/yaml
+code: serve-feature-yaml-get
+description: |-
+  Возвращает исходные байты YAML-файла выбранной фичи для режима
+  редактирования. Структурированный GET /api/features/:code остаётся
+  отдельным контрактом для отображения UI.
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешный ответ:
+    - assert: GET /api/features/:code/yaml возвращает исходные байты YAML-файла с HTTP 200
+    - assert: Ответ GET /api/features/:code/yaml содержит Content-Type application/yaml; charset=utf-8
+    - assert: Ответ GET /api/features/:code/yaml содержит ETag в виде MD5 исходных байтов YAML-файла в кавычках
+  Отсутствующая фича:
+    - assert: GET /api/features/:code/yaml для отсутствующего кода возвращает HTTP 404
