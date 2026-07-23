@@ -29,7 +29,7 @@ definitions:
     - backend
 specs-unit:
   Успешный ответ:
-    - assert: GET `/api/project` возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8
+    - assert: GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8
       description: |-
         Вот пример таблицы:
 

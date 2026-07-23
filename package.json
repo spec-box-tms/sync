@@ -15,7 +15,7 @@
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",
         "test": "npm run test:serve && npm run test:unit",
-        "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=junit test/lib/serve/*.test.ts > test-results/junit.xml",
+        "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=junit test/serve/*.test.ts > test-results/junit.xml",
         "test:unit": "node --test -r ts-node/register test/lib/helpers/*.test.ts",
         "test-ext": "./bin/spec-box sync",
         "version-beta": "npm version prerelease --preid beta",
