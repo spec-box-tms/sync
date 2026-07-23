@@ -1,0 +1,19 @@
+:host {
+  display: contents;
+}
+
+.history-selector {
+  width: 40em;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  .caption {
+    display: flex;
+    justify-content: space-between;
+    color: var(--tui-text-secondary);
+    font: var(--tui-typography-body-xs);
+  }
+}

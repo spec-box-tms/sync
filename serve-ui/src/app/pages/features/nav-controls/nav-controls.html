@@ -1,7 +1,9 @@
-<input placeholder="Поиск..." [(ngModel)]="search" />
-<select [(ngModel)]="activeTree">
-  <option [ngValue]="null">Без группировки</option>
-  @for (tree of projectSnapshot().trees; track tree.code) {
-    <option [ngValue]="tree">{{ tree.title }}</option>
-  }
-</select>
+<tui-textfield tuiTextfieldSize="s" iconEnd="@tui.search">
+  <input placeholder="Поиск..." tuiInput [(ngModel)]="search" />
+</tui-textfield>
+
+<tui-textfield tuiTextfieldSize="s" tuiChevron>
+  <input placeholder="Без группировки" tuiSelect [(ngModel)]="activeTree" />
+
+  <tui-data-list-wrapper *tuiDropdown [items]="projectSnapshot().trees" />
+</tui-textfield>

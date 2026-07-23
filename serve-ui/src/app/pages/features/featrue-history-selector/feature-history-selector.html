@@ -1,16 +1,27 @@
 <tui-textfield
-  iconStart="@tui.user-round"
+  class="history-selector"
+  iconStart="@tui.git-compare-arrows"
   tuiChevron
-  tuiTextfieldSize="m"
-  [tuiTextfieldCleaner]="false"
+  tuiTextfieldSize="s"
+  [tuiTextfieldCleaner]="true"
 >
-  <input placeholder="I am placeholder" tuiSelect [(ngModel)]="value" />
+  <input placeholder="Текущая версия" tuiSelect [(ngModel)]="value" />
 
-  <tui-data-list-wrapper *tuiDropdown [items]="featureHistory()" />
-
-  <!-- @if (value) {
-    <tui-icon icon="@tui.badge-check" style="color: var(--tui-status-info); pointer-events: none" />
-  } -->
-
-  <tui-icon tuiTooltip="I am a hint" />
+  <tui-data-list-wrapper *tuiDropdown [items]="featureHistory()" [itemContent]="content" />
 </tui-textfield>
+
+<ng-template #content let-history>
+  <div class="history-item">
+    <div>
+      {{ history.message }}
+    </div>
+    <div class="caption">
+      <span>
+        {{ history.author }}
+      </span>
+      <span>
+        {{ history.date | date: 'dd.MM.yyyy HH:mm' }}
+      </span>
+    </div>
+  </div>
+</ng-template>
