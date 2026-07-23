@@ -34,17 +34,34 @@ const putYaml = (url: string, ifMatch?: string, body: BodyInit = source, content
   body,
 });
 
-specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml с актуальным If-Match сохраняет исходные YAML-байты и возвращает пересчитанный ProjectSnapshot', () => withServer(async (url, project) => {
-  const current = await fetch(`${url}/api/features/feature-one/yaml`);
-  const response = await putYaml(`${url}/api/features/feature-one/yaml`, current.headers.get('etag')!);
+const currentEtag = async (url: string) => (await fetch(`${url}/api/features/feature-one/yaml`)).headers.get('etag')!;
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml принимает YAML в теле с Content-Type application/yaml; charset=utf-8 и актуальный If-Match', () => withServer(async (url) => {
+  const response = await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url));
   assert.equal(response.status, 200);
+}));
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml записывает тело YAML без изменения комментариев, неизвестных полей, порядка ключей и форматирования', () => withServer(async (url, project) => {
+  await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url));
   assert.deepEqual(await readFile(join(project.root, 'specs/feature.spec.yml')), Buffer.from(source));
+}));
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml с актуальным If-Match полностью пересчитывает проект и возвращает ProjectSnapshot с HTTP 200', () => withServer(async (url) => {
+  const response = await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url));
+  assert.equal(response.status, 200);
   const snapshot = await response.json() as Snapshot;
   assert.equal(snapshot.revision, 2);
   assert.equal(snapshot.features[0].title, 'Changed');
 }));
 
-specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'PUT /api/features/:code/yaml возвращает HTTP 409 без тела и не меняет YAML-файл без If-Match или с устаревшим If-Match', () => withServer(async (url, project) => {
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные assert и возвращает их в diagnostics нового ProjectSnapshot', () => withServer(async (url) => {
+  const response = await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url), 'code: feature-one\nfeature: Changed\nspecs-unit: [\n');
+  assert.equal(response.status, 200);
+  const snapshot = await response.json() as Snapshot & { diagnostics: Array<{ severity: string }> };
+  assert.ok(snapshot.diagnostics.some(({ severity }) => severity === 'error'));
+}));
+
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'PUT /api/features/:code/yaml возвращает HTTP 409 без тела и не меняет YAML-файл при отсутствующем или несовпавшем If-Match', () => withServer(async (url, project) => {
   const path = join(project.root, 'specs/feature.spec.yml');
   const before = await readFile(path);
   for (const ifMatch of [undefined, '"stale"']) {

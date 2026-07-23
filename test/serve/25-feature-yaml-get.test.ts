@@ -23,11 +23,19 @@ const withServer = async (fn: (url: string) => Promise<void>) => {
   }
 };
 
-specTest('serve-feature-yaml-get', 'GET /api/features/:code/yaml', 'Успешный ответ', 'GET /api/features/:code/yaml возвращает исходные YAML-байты и их ETag', () => withServer(async (url) => {
+specTest('serve-feature-yaml-get', 'GET /api/features/:code/yaml', 'Успешный ответ', 'GET /api/features/:code/yaml возвращает исходные байты YAML-файла с HTTP 200', () => withServer(async (url) => {
   const response = await fetch(`${url}/api/features/feature-one/yaml`);
   assert.equal(response.status, 200);
   assert.equal(await response.text(), source);
+}));
+
+specTest('serve-feature-yaml-get', 'GET /api/features/:code/yaml', 'Успешный ответ', 'Ответ GET /api/features/:code/yaml содержит Content-Type application/yaml; charset=utf-8', () => withServer(async (url) => {
+  const response = await fetch(`${url}/api/features/feature-one/yaml`);
   assert.equal(response.headers.get('content-type'), 'application/yaml; charset=utf-8');
+}));
+
+specTest('serve-feature-yaml-get', 'GET /api/features/:code/yaml', 'Успешный ответ', 'Ответ GET /api/features/:code/yaml содержит ETag в виде MD5 исходных байтов YAML-файла в кавычках', () => withServer(async (url) => {
+  const response = await fetch(`${url}/api/features/feature-one/yaml`);
   assert.equal(response.headers.get('etag'), `"${createHash('md5').update(source).digest('hex')}"`);
 }));
 
