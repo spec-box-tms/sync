@@ -18,8 +18,6 @@
       </div>
       <markdown [value]="_feature.description" />
 
-      <feature-editor [feature]="_feature" />
-
       @for (group of _feature.groups; track group.title) {
         <feature-group [group]="group" />
       }

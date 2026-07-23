@@ -7,13 +7,12 @@ import { Markdown } from '../../../ui/markdown/markdown.component';
 import { Attribute } from '../attribute/attribute';
 import { FeatureHistorySelector } from "../featrue-history-selector/feature-history-selector";
 import { FeatureGroup } from '../feature-group/feature-group';
-import { FeatureEditor } from '../feature-editor/feature-editor';
 
 @Component({
   selector: 'feature-content',
   templateUrl: 'feature-content.html',
   styleUrl: 'feature-content.scss',
-  imports: [Markdown, Attribute, FeatureGroup, TuiCopy, TuiScrollbar, FeatureHistorySelector, FeatureEditor],
+  imports: [Markdown, Attribute, FeatureGroup, TuiCopy, TuiScrollbar, FeatureHistorySelector],
 })
 export class FeatureContent {
   private clipboard = inject(Clipboard);
