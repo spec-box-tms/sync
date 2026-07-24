@@ -3,6 +3,10 @@
   flex-direction: column;
 }
 
+:host ::ng-deep tui-expand .t-wrapper {
+  overflow-x: hidden !important;
+}
+
 .assert {
   display: flex;
   align-items: center;
@@ -12,16 +16,12 @@
 }
 
 .description {
-  margin-left: 4rem;
-  max-height: 0px;
-  overflow-y: hidden;
-  transition: max-height 0.8s ease;
-  &.expanded {
-    max-height: 1000px;
-  }
+  margin-left: 4em;
 }
 
 .expander {
+  display: flex;
+  align-items: center;
   margin-left: 4rem;
   cursor: pointer;
 }

@@ -1,8 +1,8 @@
 <div class="assert">
   @if (assertion().isAutomated) {
-    <div appearance="positive" tuiBadge tuiStatus></div>
+    <div appearance="positive" tuiBadge tuiStatus size="m" tuiHint="Проверка автоматизирована"></div>
   } @else {
-    <div appearance="negative" tuiBadge tuiStatus></div>
+    <div appearance="negative" tuiBadge tuiStatus size="m" tuiHint="Нет автоматической проверки"></div>
   }
   <markdown [value]="title" />
 </div>
@@ -15,7 +15,9 @@
     }
     Описание
   </div>
-  <div class="description" [class.expanded]="expanded()">
-    <markdown [value]="_description" />
+  <div class="description">
+    <tui-expand [expanded]="expanded()">
+      <markdown *tuiItem [value]="_description" />
+    </tui-expand>
   </div>
 }

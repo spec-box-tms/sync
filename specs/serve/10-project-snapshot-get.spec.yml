@@ -30,6 +30,25 @@ definitions:
 specs-unit:
   Успешный ответ:
     - assert: GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8
+      description: |-
+        ```ts
+         type Severity = 'info' | 'warning' | 'error';
+         type ProjectSnapshot = {
+           revision: number;
+           project?: { title?: string; description?: string; repository?: string };
+           attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
+           treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
+           features: Feature[];
+           diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
+           coverage: { total: number; automated: number; uncovered: number };
+           storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
+           trees: FeatureTree[];
+           dependencyGraph: { nodes: Array<{ code: string; title?: string; exists: boolean }>; edges: Array<{ from: string; to: string; resolved: boolean }> };
+         };
+         type DirectoryNode = { name: string; path: string; children: DirectoryNode[] };
+         type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode };
+         type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
+         ```
     - assert: Корректный ProjectSnapshot содержит ревизию, сведения о проекте, атрибуты, определения деревьев, фичи, диагностики, покрытие, области хранения, деревья и граф зависимостей
     - assert: Ревизия ProjectSnapshot увеличивается после каждого полного пересчёта проекта
     - assert: При ошибке YAML, мета-файла или отчёта ProjectSnapshot сохраняет данные остальных корректных файлов и содержит соответствующую диагностику
