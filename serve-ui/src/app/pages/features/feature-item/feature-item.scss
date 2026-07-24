@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.4rem;
+  color: var(--tui-text-primary-on-accent-1);
 
   padding: 4px 12px;
   border-radius: 4px;
@@ -19,6 +20,13 @@
   }
 }
 
+.title, .suffix {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.2rem;
+}
+
 .counters {
   white-space: nowrap;
   font: var(--tui-typography-body-xs);
@@ -26,4 +34,15 @@
   &.zero {
     color: var(--tui-text-negative);
   }
+}
+
+.status {
+  font: var(--tui-typography-body-xs);
+}
+
+.modified {
+  color: var(--tui-status-warning);
+}
+.untracked {
+  color: var(--tui-text-positive);
 }

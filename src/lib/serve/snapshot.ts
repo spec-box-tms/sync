@@ -13,6 +13,7 @@ import { getLoaderError, LINK_LIKE, Validator } from '../validators/validator';
 import { ValidationError } from '../validators/models';
 import { loadYaml, YamlFile } from '../yaml';
 
+import { getStatus } from './git';
 import { Diagnostic, FeatureTreeNode, ProjectSnapshot } from './models';
 
 const emptySnapshot = (
@@ -200,7 +201,10 @@ export class ProjectSnapshotService {
       treeDefinitions: (projectData.trees || []).map(
         ({ code, title, attributes: groupBy }) => ({ code, title, groupBy }),
       ),
-      features: projectData.features,
+      features: await Promise.all(projectData.features.map(async (feature) => ({
+        ...feature,
+        gitStatus: await getStatus(root, feature.filePath),
+      }))),
       diagnostics: validator.errors.map((item) =>
         toDiagnostic(item, validator),
       ),

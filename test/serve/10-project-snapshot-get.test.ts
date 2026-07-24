@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
 
 import { startServer } from '../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../src/lib/serve/snapshot';
 import { createProject } from './fixtures';
 import { specTest } from './spec-name';
+
+const exec = promisify(execFile);
+const git = (root: string, args: string[]) => exec('git', args, { cwd: root });
 
 specTest(
   'serve-project-get',
@@ -22,6 +27,31 @@ specTest(
       assert.equal(snapshot.features[0].code, 'feature-one');
       assert.deepEqual(snapshot.coverage, { total: 1, automated: 0, uncovered: 1 });
       assert.equal(snapshot.dependencyGraph.nodes[0].code, 'feature-one');
+    } finally {
+      await project.dispose();
+    }
+  },
+);
+
+specTest(
+  'serve-project-get',
+  'GET /api/project',
+  'Успешный ответ',
+  'Каждая фича ProjectSnapshot содержит gitStatus clean, modified или untracked по состоянию её YAML-файла в Git',
+  async () => {
+    const project = await createProject();
+    try {
+      await git(project.root, ['init']);
+      await git(project.root, ['config', 'user.name', 'Test User']);
+      await git(project.root, ['config', 'user.email', 'test@example.com']);
+      await git(project.root, ['add', '.']);
+      await git(project.root, ['commit', '-m', 'Initial feature']);
+      const service = new ProjectSnapshotService(project.root);
+      assert.equal((await service.refresh()).features[0].gitStatus, 'clean');
+      await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Changed\n');
+      assert.equal((await service.refresh()).features[0].gitStatus, 'modified');
+      await writeFile(join(project.root, 'specs', 'untracked.spec.yml'), 'code: untracked\nfeature: Untracked\n');
+      assert.equal((await service.refresh()).features.find(({ code }) => code === 'untracked')?.gitStatus, 'untracked');
     } finally {
       await project.dispose();
     }

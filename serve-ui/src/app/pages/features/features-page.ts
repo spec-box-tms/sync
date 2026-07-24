@@ -23,8 +23,9 @@ export class FeaturesPage {
   readonly errors = computed(() => {
     if (this.projectSnapshotResource.hasValue()) {
       const diagnostics = this.projectSnapshotResource.value().diagnostics;
-      if (diagnostics.length) {
-        return diagnostics;
+      const errors = diagnostics.filter(d=>d.severity === 'error');
+      if (errors.length) {
+        return errors;
       }
     }
     return null;

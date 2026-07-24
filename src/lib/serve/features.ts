@@ -4,8 +4,7 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 
 import { stringify } from 'yaml';
 
-import { Feature } from '../domain';
-import { ErrorResponse, FeatureResponse, decodeCreateFeatureRequest } from './models';
+import { ErrorResponse, FeatureResponse, ProjectSnapshot, decodeCreateFeatureRequest } from './models';
 import { ProjectSnapshotService } from './snapshot';
 
 type Validation = ErrorResponse['errors'];
@@ -14,7 +13,7 @@ const error = (message: string, path = ''): Validation[number] => ({ code: 'inva
 
 const { isMatch } = require('micromatch') as { isMatch(path: string, patterns: string[]): boolean };
 
-const toResponse = async (feature: Feature, root: string): Promise<FeatureResponse> => {
+const toResponse = async (feature: ProjectSnapshot['features'][number], root: string): Promise<FeatureResponse> => {
   const bytes = await readFile(resolve(root, feature.filePath));
   return {
     code: feature.code,
@@ -24,6 +23,7 @@ const toResponse = async (feature: Feature, root: string): Promise<FeatureRespon
     groups: feature.groups,
     filePath: feature.filePath,
     optimisticLock: md5(bytes),
+    gitStatus: feature.gitStatus,
   };
 };
 

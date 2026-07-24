@@ -16,6 +16,7 @@ description: |-
     }>;
     filePath: string;
     optimisticLock: string;
+    gitStatus: 'clean' | 'modified' | 'untracked';
   }
   ```
 definitions:
@@ -26,7 +27,8 @@ definitions:
 specs-unit:
   Успешный ответ:
     - assert: GET /api/features/:code возвращает текущую фичу с HTTP 200
-    - assert: Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла и optimisticLock
+    - assert: Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла, optimisticLock и gitStatus
+    - assert: gitStatus текущей фичи равен clean, modified или untracked по состоянию её YAML-файла в Git
     - assert: Каждое утверждение ответа содержит вычисленный признак isAutomated
     - assert: У фичи без атрибутов и групп ответ содержит attributes как {} и groups как []
     - assert: У фичи без YAML-описания поле description отсутствует в ответе

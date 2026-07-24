@@ -2,6 +2,8 @@ import * as DE from 'io-ts/DecodeError';
 import * as d from 'io-ts/Decoder';
 import * as FS from 'io-ts/FreeSemigroup';
 import * as E from 'fp-ts/lib/Either';
+import { Feature } from '../domain';
+import { GitStatus } from './git';
 
 export type Severity = 'info' | 'warning' | 'error';
 
@@ -33,7 +35,7 @@ export interface ProjectSnapshot {
   project?: { title?: string; description?: string; repository?: string };
   attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
   treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
-  features: import('../domain').Feature[];
+  features: Array<Feature & { gitStatus: GitStatus }>;
   diagnostics: Diagnostic[];
   coverage: { total: number; automated: number; uncovered: number };
   storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
@@ -62,6 +64,7 @@ export interface FeatureResponse {
   groups: Array<{ title: string; assertions: FeatureAssertionResponse[] }>;
   filePath: string;
   optimisticLock: string;
+  gitStatus: GitStatus;
 }
 
 export interface CreateFeatureRequest {

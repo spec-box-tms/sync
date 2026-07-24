@@ -8,4 +8,5 @@ export type Feature = {
   attributes: Record<string, string[]>;
   fileName: string;
   filePath: string;
+  gitStatus: 'clean' | 'modified' | 'untracked';
 };

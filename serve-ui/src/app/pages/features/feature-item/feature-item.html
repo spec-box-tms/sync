@@ -1,22 +1,29 @@
 @if (isMissing()) {
   Отсутствует название
 } @else {
-  @if (feature() === null) {
-    Загрузка...
-  } @else {
-    <span>
+  @if (feature(); as _feature) {
+    <div class="title">
       @if (hasAsserts()) {
         <tui-icon [style.font-size.px]="16" icon="@tui.table-of-contents" />
       } @else {
         <tui-icon [style.font-size.px]="16" icon="@tui.file-text" />
       }
-      {{ feature()?.title }}
-    </span>
-
-    @if (totalCount() > 0) {
-      <span class="counters" [class.zero]="automatedCount() === 0">
-        {{ automatedCount() }} / {{ totalCount() }}
+      <span [class]="_feature.gitStatus">
+        {{ _feature.title }}
       </span>
-    }
+    </div>
+
+    <div class="suffix">
+      @if (totalCount() > 0) {
+        <span class="counters" [class.zero]="automatedCount() === 0">
+          {{ automatedCount() }} / {{ totalCount() }}
+        </span>
+      }
+      <span class="status" [class]="_feature.gitStatus">
+        {{ gitStatusToLetter(_feature.gitStatus) }}
+      </span>
+    </div>
+  } @else {
+    Загрузка...
   }
 }

@@ -3,6 +3,7 @@ import { ProjectService } from '../../../core/project.service';
 import { TuiIcon } from '@taiga-ui/core';
 import { ActiveFeatureService } from '../active-feature.service';
 import { Router } from '@angular/router';
+import { Feature } from '../../../model/feature.model';
 
 @Component({
   selector: 'feature-item',
@@ -78,5 +79,15 @@ export class FeatureItem {
       queryParams: { feature: this.featureCode() },
       queryParamsHandling: 'merge',
     });
+  }
+
+  gitStatusToLetter(status: Feature['gitStatus']): string {
+    if (status === 'untracked') {
+      return 'U';
+    }
+    if (status === 'modified') {
+      return 'M';
+    }
+    return ' ';
   }
 }
