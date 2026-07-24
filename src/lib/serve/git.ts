@@ -10,6 +10,8 @@ export interface HistoryEntry {
   message: string;
 }
 
+export type GitStatus = 'clean' | 'modified' | 'untracked';
+
 export interface GitAdapter {
   history(root: string, filePath: string): Promise<HistoryEntry[]>;
   fileAtRevision(root: string, filePath: string, commit: string): Promise<Buffer | undefined>;
@@ -37,6 +39,15 @@ export const getFileAtRevision = async (root: string, filePath: string, commit: 
     return await gitBytes(root, ['show', `${commit}:${filePath}`]);
   } catch {
     return undefined;
+  }
+};
+
+export const getStatus = async (root: string, filePath: string): Promise<GitStatus> => {
+  try {
+    const status = await gitText(root, ['status', '--porcelain', '--', filePath]);
+    return status.startsWith('??') ? 'untracked' : status ? 'modified' : 'clean';
+  } catch {
+    return 'clean';
   }
 };
 

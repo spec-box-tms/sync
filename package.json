@@ -1,6 +1,6 @@
 {
     "name": "spec-box-tms-sync",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "private": false,
     "bin": {
         "spec-box": "./bin/spec-box"

@@ -6,12 +6,13 @@ description: |-
   Модель ответа TypeScript:
   ```ts
   type Severity = 'info' | 'warning' | 'error';
+  type GitStatus = 'clean' | 'modified' | 'untracked';
   type ProjectSnapshot = {
     revision: number;
     project?: { title?: string; description?: string; repository?: string };
     attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
     treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
-    features: Feature[];
+    features: Array<Feature & { gitStatus: GitStatus }>;
     diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
     coverage: { total: number; automated: number; uncovered: number };
     storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
@@ -33,12 +34,13 @@ specs-unit:
       description: |-
         ```ts
          type Severity = 'info' | 'warning' | 'error';
+         type GitStatus = 'clean' | 'modified' | 'untracked';
          type ProjectSnapshot = {
            revision: number;
            project?: { title?: string; description?: string; repository?: string };
            attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
            treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
-           features: Feature[];
+           features: Array<Feature & { gitStatus: GitStatus }>;
            diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
            coverage: { total: number; automated: number; uncovered: number };
            storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
@@ -50,6 +52,7 @@ specs-unit:
          type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
          ```
     - assert: Корректный ProjectSnapshot содержит ревизию, сведения о проекте, атрибуты, определения деревьев, фичи, диагностики, покрытие, области хранения, деревья и граф зависимостей
+    - assert: Каждая фича ProjectSnapshot содержит gitStatus clean, modified или untracked по состоянию её YAML-файла в Git
     - assert: Ревизия ProjectSnapshot увеличивается после каждого полного пересчёта проекта
     - assert: При ошибке YAML, мета-файла или отчёта ProjectSnapshot сохраняет данные остальных корректных файлов и содержит соответствующую диагностику
     - assert: При некорректной новой версии .tms.json работающий сервер возвращает ProjectSnapshot только с ревизией и диагностиками

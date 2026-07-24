@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
 
 import { startServer } from '../../src/lib/serve/server';
 import { ProjectSnapshotService } from '../../src/lib/serve/snapshot';
@@ -19,7 +21,11 @@ type Feature = {
   groups: Array<{ title: string; assertions: Array<{ title: string; description?: string; isAutomated: boolean }> }>;
   filePath: string;
   optimisticLock: string;
+  gitStatus: 'clean' | 'modified' | 'untracked';
 };
+
+const exec = promisify(execFile);
+const git = (root: string, args: string[]) => exec('git', args, { cwd: root });
 
 const withServer = async (fn: (url: string, project: Project) => Promise<void>, setup?: (project: Project) => Promise<void>) => {
   const project = await createProject();
@@ -63,9 +69,9 @@ specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный от�
   assert.equal((await fetch(`${url}/api/features/feature-one`)).status, 200);
 }, useProjectPath));
 
-specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла и optimisticLock', () => withServer(async (url) => {
+specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла, optimisticLock и gitStatus', () => withServer(async (url) => {
   const current = await feature(url);
-  assert.deepEqual(Object.keys(current).sort(), ['attributes', 'code', 'filePath', 'groups', 'optimisticLock', 'title']);
+  assert.deepEqual(Object.keys(current).sort(), ['attributes', 'code', 'filePath', 'gitStatus', 'groups', 'optimisticLock', 'title']);
   assert.equal(current.code, 'feature-one');
   assert.equal(current.title, 'Feature one');
   assert.deepEqual(current.attributes, {});
@@ -73,6 +79,12 @@ specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный от�
   assert.equal(current.groups[0].assertions[0].title, 'Works');
   assert.equal(current.filePath, 'specs/feature.spec.yml');
   assert.match(current.optimisticLock, /^[a-f0-9]{32}$/);
+}));
+
+specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'gitStatus текущей фичи равен clean, modified или untracked по состоянию её YAML-файла в Git', () => withServer(async (url) => {
+  assert.equal((await feature(url)).gitStatus, 'untracked');
+}, async (project) => {
+  await git(project.root, ['init']);
 }));
 
 specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Каждое утверждение ответа содержит вычисленный признак isAutomated', () => withServer(async (url) => {

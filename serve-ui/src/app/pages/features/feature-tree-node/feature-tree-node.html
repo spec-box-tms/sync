@@ -1,17 +1,22 @@
 <div class="item" (click)="toggleExpanded()">
-  <span>
+  <div class="title">
     @if (expanded()) {
       <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
     } @else {
       <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
     }
-    {{ node().valueTitle ?? node().valueCode }}
-  </span>
-  @if (node().totalCount > 0) {
-    <span class="counters" [class.zero]="node().automatedCount === 0">
-      {{ node().automatedCount }} / {{ node().totalCount }}
+    <span [class]="node().gitStatus">
+      {{ node().valueTitle ?? node().valueCode }}
     </span>
-  }
+  </div>
+  <div class="suffix">
+    @if (node().totalCount > 0) {
+      <span class="counters" [class.zero]="node().automatedCount === 0">
+        {{ node().automatedCount }} / {{ node().totalCount }}
+      </span>
+    }
+    <div class="status" [class]="node().gitStatus"></div>
+  </div>
 </div>
 <div class="children" [class.expanded]="expanded()">
   @if (expanded()) {

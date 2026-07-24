@@ -137,7 +137,11 @@
             <h4>{{ item.groupTitle }}:</h4>
             <markdown [value]="item.assertion.title" />
             <div class="diff-line removed">
-              − {{ item.assertion.description || item.assertion.title }}
+              @if (item.assertion.description) {
+                <markdown [value]="item.assertion.description" />
+              } @else {
+                -
+              }
             </div>
           </article>
         }
