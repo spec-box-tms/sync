@@ -76,7 +76,7 @@
 
 ### Локальный просмотр и редактор спецификаций
 
-![Serve UI](serve-ui.png)
+![Serve UI](https://github.com/spec-box-tms/sync/blob/0be5d89bae3fb044d899323eafeafffa58a8dd6c/serve-ui.png)
 
 ```sh
 npx spec-box serve --port 3030
