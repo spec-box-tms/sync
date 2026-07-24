@@ -1,0 +1,14 @@
+<tui-root>
+  <div class="header">
+    <img class="logo" src="favicon.ico" alt="Spec Box TMS">
+    <h2>
+      SpecBoxTMS
+      @if (title(); as _title) {
+        - {{ _title }}
+      }
+    </h2>
+  </div>
+  <main>
+    <router-outlet />
+  </main>
+</tui-root>

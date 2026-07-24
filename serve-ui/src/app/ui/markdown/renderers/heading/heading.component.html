@@ -1,0 +1,8 @@
+@switch (token().depth) {
+  @case (1) { <h1><ng-container *forToken="token().tokens"/></h1> }
+  @case (2) { <h2><ng-container *forToken="token().tokens"/></h2> }
+  @case (3) { <h3><ng-container *forToken="token().tokens"/></h3> }
+  @case (4) { <h4><ng-container *forToken="token().tokens"/></h4> }
+  @case (5) { <h5><ng-container *forToken="token().tokens"/></h5> }
+  @case (6) { <h6><ng-container *forToken="token().tokens"/></h6> }
+}

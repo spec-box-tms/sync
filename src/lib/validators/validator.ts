@@ -47,6 +47,15 @@ export class Validator {
     ].some((e) => this.severity[e.type] === 'error');
   }
 
+  get errors(): readonly ValidationError[] {
+    return [
+      ...this.loaderErrors,
+      ...this.metaErrors,
+      ...this.featureErrors,
+      ...this.jestUnusedTests,
+    ];
+  }
+
   constructor(config: ValidationConfig) {
     this.severity = { ...DEFAULT_ERROR_SEVERITY, ...config };
   }

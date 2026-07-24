@@ -1,0 +1,12 @@
+:host {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--tui-border-normal);
+  border-radius: .5em;
+}
+
+.editor {
+  flex-grow: 1;
+}

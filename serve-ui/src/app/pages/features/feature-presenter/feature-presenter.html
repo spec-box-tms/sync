@@ -1,0 +1,57 @@
+<div class="wrapper">
+  @if (feature(); as _feature) {
+    <div class="header">
+      <h2>{{ _feature.title }}</h2>
+      <div class="actions">
+        @if (!compareWith()) {
+          @if (!editing()) {
+            <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
+          } @else {
+            <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
+              Отменить
+            </button>
+            <button size="s" tuiButton [disabled]="!hasChanges()" (click)="saveChanges()">
+              Сохранить
+            </button>
+          }
+        } @else {
+          <button size="s" tuiButton (click)="compareWith.set(null)">Выйти из сравнения</button>
+        }
+      </div>
+    </div>
+    <div class="details">
+      <div>
+        <b>Код:</b>
+        <tui-copy>
+          {{ _feature.code }}
+        </tui-copy>
+      </div>
+      <feature-history-selector
+        [featureCode]="_feature.code"
+        [value]="compareWith()"
+        (valueChange)="compareWith.set($event)"
+      />
+    </div>
+    @if (compareWith(); as _compareWith) {
+      <div class="content">
+        <tui-scrollbar>
+          <feature-compare [feature]="_feature" [origin]="_compareWith" />
+        </tui-scrollbar>
+      </div>
+    } @else {
+      @if (editing()) {
+        <div class="editor">
+          <feature-editor #editor [featureCode]="_feature.code" (canClose)="exitEditing()" />
+        </div>
+      } @else {
+        <div class="content">
+          <tui-scrollbar>
+            <feature-content [feature]="_feature" />
+          </tui-scrollbar>
+        </div>
+      }
+    }
+  } @else {
+    ничего не выбрано
+  }
+</div>

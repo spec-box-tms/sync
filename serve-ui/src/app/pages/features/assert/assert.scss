@@ -1,0 +1,27 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+:host ::ng-deep tui-expand .t-wrapper {
+  overflow-x: hidden !important;
+}
+
+.assert {
+  display: flex;
+  align-items: center;
+  margin-left: 2em;
+  margin-bottom: 0.8em;
+  gap: 0.4rem;
+}
+
+.description {
+  margin-left: 4em;
+}
+
+.expander {
+  display: flex;
+  align-items: center;
+  margin-left: 4rem;
+  cursor: pointer;
+}

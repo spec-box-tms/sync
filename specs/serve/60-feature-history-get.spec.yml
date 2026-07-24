@@ -1,0 +1,25 @@
+feature: GET /api/features/:code/history
+code: serve-feature-history-get
+description: |-
+  Возвращает локальную Git-историю YAML-файла выбранной фичи.
+
+  Модель ответа TypeScript:
+  ```ts
+  type HistoryResponse = Array<{
+    commit: string;
+    author: string;
+    date: string;
+    message: string;
+  }>;
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  История файла:
+    - assert: GET /api/features/:code/history возвращает HTTP 200 и записи истории от новых коммитов к старым
+    - assert: Каждая запись истории содержит идентификатор коммита, автора, дату ISO 8601 с часовым поясом и сообщение коммита
+    - assert: GET /api/features/:code/history возвращает HTTP 200 и [] для неотслеживаемого YAML-файла или недоступного Git
+    - assert: Ошибка Git при GET /api/features/:code/history не нарушает работу остальных маршрутов

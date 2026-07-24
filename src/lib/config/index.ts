@@ -31,7 +31,8 @@ export const loadConfig = async (
 export const loadMeta = async (
   validationContext: Validator,
   path?: string,
-  basePath: string = CWD // TODO: перенести в resolvePath
+  basePath: string = CWD, // TODO: перенести в resolvePath
+  tolerant = false,
 ): Promise<{ filePath: string; meta: Meta }> => {
   const filePath = path || DEFAULT_META_PATH;
   let fileReader = path
@@ -44,7 +45,11 @@ export const loadMeta = async (
 
     return { filePath, meta };
   } catch (error) {
-    printError(getLoaderError(error, filePath, 'config'), validationContext.severity);
+    const loaderError = getLoaderError(error, filePath, 'config');
+    if (!tolerant) {
+      printError(loaderError, validationContext.severity);
+    }
+    validationContext.registerLoaderError(error, filePath, 'config');
     throw Error('Ошибка загрузки файла конфигурации');
   }
 };

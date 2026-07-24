@@ -1,0 +1,22 @@
+<table [columns]="columns()" tuiTable>
+  <thead tuiThead>
+    <tr tuiThGroup>
+      @for(column of columnTokens(); track $index) {
+      <th tuiTh [resizable]="true" [sticky]="true">
+        <span><ng-container *forToken="column.tokens" /></span>
+      </th>
+      }
+    </tr>
+  </thead>
+  <tbody tuiTbody [data]="rows()">
+    @for(row of rows(); track row) {
+    <tr tuiTr>
+      @for(cell of row; track $index) {
+      <td *tuiCell="columns()[$index]" tuiTd>
+        <ng-container *forToken="cell.tokens" />
+      </td>
+      }
+    </tr>
+    }
+  </tbody>
+</table>

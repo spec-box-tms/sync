@@ -1,0 +1,6 @@
+@for (featureCode of featureCodes(); track featureCode) {
+  <feature-item [featureCode]="featureCode" />
+}
+@if (featureCodes().length === 0) {
+  Ничего не найдено
+}

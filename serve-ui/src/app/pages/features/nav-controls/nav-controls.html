@@ -1,0 +1,9 @@
+<tui-textfield tuiTextfieldSize="s" iconEnd="@tui.search">
+  <input placeholder="Поиск..." tuiInput [(ngModel)]="search" />
+</tui-textfield>
+
+<tui-textfield tuiTextfieldSize="s" tuiChevron>
+  <input placeholder="Без группировки" tuiSelect [(ngModel)]="activeTree" />
+
+  <tui-data-list-wrapper *tuiDropdown [items]="projectSnapshot().trees" />
+</tui-textfield>

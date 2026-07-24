@@ -1,0 +1,18 @@
+main {
+  height: calc(100vh - 46px);
+}
+
+.header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 1em 1em;
+  height: 46px;
+  background-color: var(--tui-background-neutral-1);
+
+  .logo {
+    width: 2rem;
+    height: 2rem;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+  }
+}

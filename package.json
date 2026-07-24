@@ -1,6 +1,6 @@
 {
     "name": "spec-box-tms-sync",
-    "version": "0.4.3",
+    "version": "1.0.0",
     "private": false,
     "bin": {
         "spec-box": "./bin/spec-box"
@@ -10,10 +10,14 @@
     ],
     "scripts": {
         "start": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node ./src/cli.ts",
-        "build": "rm -rf dist && tsc --build tsconfig.json",
+        "start:ui": "npm --prefix ./serve-ui run start",
+        "serve": "npm start -- serve --port 3000",
+        "build": "sh ./utils/build.sh",
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",
-        "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node ./src/cli.ts sync",
+        "test": "npm run test:serve && npm run test:unit",
+        "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=junit test/serve/*.test.ts > test-results/junit.xml",
+        "test:unit": "node --test -r ts-node/register test/lib/helpers/*.test.ts",
         "test-ext": "./bin/spec-box sync",
         "version-beta": "npm version prerelease --preid beta",
         "publish-beta": "npm publish --tag beta"
@@ -22,8 +26,10 @@
     "dependencies": {
         "@azure/core-client": "^1.7.3",
         "@azure/core-rest-pipeline": "^1.11.0",
+        "@types/express": "4.17.25",
         "@types/xml2js": "0.4.14",
         "chalk": "^4.1.0",
+        "express": "4.22.2",
         "fast-glob": "^3.3.0",
         "fp-ts": "^2.16.0",
         "fs-extra": "^11.1.1",

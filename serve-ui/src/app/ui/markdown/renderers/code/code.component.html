@@ -1,0 +1,8 @@
+@if (token().lang === 'mermaid') {
+  <md-mermaid [code]="token().text"></md-mermaid>
+} @else {
+  <pre>
+    <code [highlight]="token().text" [language]="token().lang ?? 'text'" lineNumbers>
+    </code>
+  </pre>
+}

@@ -1,0 +1,23 @@
+<div class="assert">
+  @if (assertion().isAutomated) {
+    <div appearance="positive" tuiBadge tuiStatus size="m" tuiHint="Проверка автоматизирована"></div>
+  } @else {
+    <div appearance="negative" tuiBadge tuiStatus size="m" tuiHint="Нет автоматической проверки"></div>
+  }
+  <markdown [value]="title" />
+</div>
+@if (assertion().description; as _description) {
+  <div class="expander" (click)="toggleExpanded()">
+    @if (expanded()) {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
+    } @else {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
+    }
+    Описание
+  </div>
+  <div class="description">
+    <tui-expand [expanded]="expanded()">
+      <markdown *tuiItem [value]="_description" />
+    </tui-expand>
+  </div>
+}

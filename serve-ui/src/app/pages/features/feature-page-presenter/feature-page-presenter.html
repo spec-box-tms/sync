@@ -1,0 +1,20 @@
+<section class="tree-container">
+  <nav-controls
+    [projectSnapshot]="projectSnapshot()"
+    (featureCodes)="setFeatureCodes($event)"
+    (activeTreeChange)="setActiveTree($event)"
+    [activeTree]="activeTree()"
+  />
+
+  <tui-scrollbar>
+    @if (activeTree(); as _activeTree) {
+      <feature-tree [tree]="_activeTree" />
+    } @else {
+      <feature-list [featureCodes]="featureCodes()" />
+    }
+  </tui-scrollbar>
+</section>
+
+<section class="content">
+  <feature-presenter [feature]="activeFeature()" />
+</section>

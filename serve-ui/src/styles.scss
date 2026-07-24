@@ -1,0 +1,195 @@
+html,
+body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+md-code {
+  display: block;
+
+  .hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1rem;
+    color: var(--tui-text-primary);
+    background: var(--tui-background-base);
+    border-radius: 8px;
+  }
+
+  .hljs-ln {
+    table-layout: fixed;
+  }
+
+  .hljs-ln-code {
+    inline-size: 100%;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+  }
+
+  .hljs-addition {
+    color: var(--tui-text-positive);
+    background: var(--tui-background-positive);
+  }
+
+  .hljs-deletion {
+    color: var(--tui-text-negative);
+    background: var(--tui-background-negative);
+  }
+
+  .hljs-ln {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .hljs-ln-numbers {
+    width: 1%;
+    padding-right: 0.75rem !important;
+    color: var(--tui-text-tertiary);
+    text-align: right;
+    user-select: none;
+  }
+
+  .hljs-ln-code {
+    padding-left: 0.75rem !important;
+  }
+
+  .hljs-ln-code:hover {
+    background: var(--tui-background-base-alt);
+    outline: 1px solid var(--tui-border-hover);
+  }
+}
+
+md-code {
+  pre {
+    position: relative;
+    margin: 0;
+    white-space: normal;
+  }
+
+  .hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 0.5em;
+    color: var(--tui-text-primary);
+  }
+
+  .hljs-subst,
+  .hljs-title {
+    color: var(--tui-text-primary);
+    font-weight: 400;
+  }
+
+  .hljs-property {
+    color: #bd65a4;
+  }
+
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--tui-text-secondary);
+    font-style: italic;
+  }
+
+  .hljs-meta {
+    color: #e38162;
+  }
+
+  .hljs-section,
+  .hljs-name,
+  .hljs-literal,
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-type,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    color: var(--tui-text-action);
+    font-weight: 700;
+  }
+
+  .hljs-attr {
+    color: var(--tui-text-action);
+  }
+
+  .hljs-attribute,
+  .hljs-number,
+  .hljs-regexp,
+  .hljs-link,
+  .hljs-built_in {
+    color: #b8474e;
+    font-weight: 700;
+  }
+
+  .hljs-number,
+  .hljs-regexp,
+  .hljs-link {
+    font-weight: 400;
+  }
+
+  .hljs-string {
+    color: var(--tui-status-positive);
+    font-weight: 700;
+  }
+
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-formula {
+    color: var(--tui-text-primary);
+    background: var(--tui-background-base-alt);
+    font-style: italic;
+  }
+
+  .hljs-doctag {
+    text-decoration: underline;
+  }
+
+  .hljs-variable,
+  .hljs-template-variable {
+    color: var(--tui-text-action-hover);
+  }
+
+  [tuiTheme='dark'] & .hljs-variable,
+  [tuiTheme='dark'] & .hljs-template-variable {
+    color: var(--tui-status-warning);
+  }
+
+  .hljs-addition {
+    background: var(--tui-status-positive-pale);
+  }
+
+  .hljs-deletion {
+    background: var(--tui-status-negative-pale);
+  }
+
+  .hljs-emphasis {
+    font-style: italic;
+  }
+
+  .hljs-strong {
+    font-weight: 700;
+  }
+
+  .hljs-ln {
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .hljs-ln td {
+    padding: 0;
+    white-space: pre;
+  }
+
+  .hljs-ln-numbers {
+    inline-size: 1rem;
+    padding-inline-end: 1em !important;
+    opacity: 0.3;
+    text-align: end;
+    vertical-align: top;
+  }
+
+  .hljs-ln td:not(.hljs-ln-numbers):hover {
+    outline: 1px solid var(--tui-border-normal);
+    border-radius: 0.25rem;
+  }
+}

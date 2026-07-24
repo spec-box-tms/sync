@@ -3,11 +3,10 @@ swagger.json
 dist
 
 # temporal
-.spec-box-meta.yml
-.tms.json
-specs-demo
 test-results
 demo-docs
 mkdocs.yml
 
 .DS_Store
+
+.env

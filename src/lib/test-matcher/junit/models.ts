@@ -69,7 +69,7 @@ const junitTestSuiteDecoder = d.struct({
   testcase: singleItemOrArray(junitTestCaseDecoder),
 });
 
-const junitTestSuitesDecoder = d.struct({
+const nestedJUnitTestSuitesDecoder = d.struct({
   name: d.string,
   tests: pipe(
     d.string,
@@ -77,6 +77,22 @@ const junitTestSuitesDecoder = d.struct({
   ),
   testsuite: singleItemOrArray(junitTestSuiteDecoder),
 });
+
+const flatJUnitTestSuitesDecoder = pipe(
+  d.struct({
+    testcase: singleItemOrArray(junitTestCaseDecoder),
+  }),
+  d.parse(({ testcase }) => d.success({
+    name: '',
+    tests: testcase.length,
+    testsuite: [{ name: '', timestamp: new Date(0), time: 0, testcase }],
+  })),
+);
+
+const junitTestSuitesDecoder = d.union(
+  nestedJUnitTestSuitesDecoder,
+  flatJUnitTestSuitesDecoder,
+);
 
 export const junitReportDecoder = d.struct({
   testsuites: junitTestSuitesDecoder,

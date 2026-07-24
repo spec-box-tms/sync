@@ -1,0 +1,10 @@
+<div class="meta">
+  @for (attribute of attributes(); track attribute.code) {
+    <attribute [attributeCode]="attribute.code" [attributeValues]="attribute.values" />
+  }
+</div>
+<markdown [value]="feature().description" />
+
+@for (group of feature().groups; track group.title) {
+  <feature-group [group]="group" />
+}

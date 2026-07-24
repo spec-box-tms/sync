@@ -1,0 +1,35 @@
+feature: GET /api/features/:code
+code: serve-feature-get
+description: |-
+  Возвращает редактируемую модель текущей YAML-фичи по её коду.
+
+  Модель ответа TypeScript:
+  ```ts
+  interface FeatureResponse {
+    code: string;
+    title: string;
+    description?: string;
+    attributes: Record<string, string[]>;
+    groups: Array<{
+      title: string;
+      assertions: Array<{ title: string; description?: string; isAutomated: boolean }>;
+    }>;
+    filePath: string;
+    optimisticLock: string;
+  }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешный ответ:
+    - assert: GET /api/features/:code возвращает текущую фичу с HTTP 200
+    - assert: Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла и optimisticLock
+    - assert: Каждое утверждение ответа содержит вычисленный признак isAutomated
+    - assert: У фичи без атрибутов и групп ответ содержит attributes как {} и groups как []
+    - assert: У фичи без YAML-описания поле description отсутствует в ответе
+    - assert: optimisticLock текущей фичи равен MD5 исходных байтов её YAML-файла
+  Отсутствующая фича:
+    - assert: GET /api/features/:code для отсутствующего кода возвращает HTTP 404
