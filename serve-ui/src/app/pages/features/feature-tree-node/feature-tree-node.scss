@@ -17,6 +17,7 @@
 .item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.4rem;
 
   padding: 4px 12px;
@@ -24,5 +25,14 @@
   cursor: pointer;
   &:hover {
     background: var(--tui-background-neutral-1-hover);
+  }
+}
+
+.counters {
+  white-space: nowrap;
+  font: var(--tui-typography-body-xs);
+  color: var(--tui-text-secondary);
+  &.zero {
+    color: var(--tui-text-negative);
   }
 }

@@ -22,6 +22,8 @@ export interface FeatureTreeNode {
   attributeCode?: string;
   valueCode?: string;
   valueTitle?: string;
+  totalCount: number;
+  automatedCount: number;
   features: string[];
   children: FeatureTreeNode[];
 }
@@ -35,7 +37,7 @@ export interface ProjectSnapshot {
   diagnostics: Diagnostic[];
   coverage: { total: number; automated: number; uncovered: number };
   storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
-  trees: Array<{ code: string; title: string; groupBy: string[]; root: FeatureTreeNode }>;
+  trees: Array<{ code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode }>;
   dependencyGraph: {
     nodes: Array<{ code: string; title?: string; exists: boolean }>;
     edges: Array<{ from: string; to: string; resolved: boolean }>;

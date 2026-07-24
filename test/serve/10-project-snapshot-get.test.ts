@@ -32,6 +32,34 @@ specTest(
   'serve-project-get',
   'GET /api/project',
   'Успешный ответ',
+  'Каждое дерево и его ветви содержат количество всех и автоматизированных утверждений входящих фич',
+  async () => {
+    const project = await createProject();
+    try {
+      await writeFile(join(project.root, '.spec-box-meta.yml'), 'title: Test\nattributes:\n  - code: tool\n    title: Инструмент\n    values:\n      - code: serve\n        title: Редактор\ntrees:\n  - code: by-tool\n    title: По инструменту\n    group-by: [tool]\n');
+      await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nattributes:\n  tool: [serve]\nspecs-unit:\n  Group:\n    - assert: Automated\n    - assert: Manual\n');
+      await mkdir(join(project.root, 'test-results'));
+      await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites><testcase name="feature-one Feature one Group Automated"/></testsuites>');
+
+      const tree = (await new ProjectSnapshotService(project.root).refresh()).trees[0];
+      assert.deepEqual(
+        { totalCount: tree.totalCount, automatedCount: tree.automatedCount },
+        { totalCount: 2, automatedCount: 1 },
+      );
+      assert.deepEqual(
+        { totalCount: tree.root.children[0].totalCount, automatedCount: tree.root.children[0].automatedCount },
+        { totalCount: 2, automatedCount: 1 },
+      );
+    } finally {
+      await project.dispose();
+    }
+  },
+);
+
+specTest(
+  'serve-project-get',
+  'GET /api/project',
+  'Успешный ответ',
   'Ревизия ProjectSnapshot увеличивается после каждого полного пересчёта проекта',
   async () => {
     const project = await createProject();

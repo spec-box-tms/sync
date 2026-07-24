@@ -19,8 +19,8 @@ description: |-
     dependencyGraph: { nodes: Array<{ code: string; title?: string; exists: boolean }>; edges: Array<{ from: string; to: string; resolved: boolean }> };
   };
   type DirectoryNode = { name: string; path: string; children: DirectoryNode[] };
-  type FeatureTree = { code: string; title: string; groupBy: string[]; root: FeatureTreeNode };
-  type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; features: string[]; children: FeatureTreeNode[] };
+  type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode };
+  type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
   ```
 definitions:
   tool:
@@ -34,6 +34,7 @@ specs-unit:
     - assert: Ревизия ProjectSnapshot увеличивается после каждого полного пересчёта проекта
     - assert: При ошибке YAML, мета-файла или отчёта ProjectSnapshot сохраняет данные остальных корректных файлов и содержит соответствующую диагностику
     - assert: При некорректной новой версии .tms.json работающий сервер возвращает ProjectSnapshot только с ревизией и диагностиками
+    - assert: Каждое дерево и его ветви содержат количество всех и автоматизированных утверждений входящих фич
   Покрытие и зависимости:
     - assert: Покрытие в ProjectSnapshot показывает количество всех, автоматизированных и непокрытых утверждений по загруженным отчётам Jest и JUnit
     - assert: Плоский JUnit-отчёт Node.js сопоставляет testcase с утверждением по составному имени

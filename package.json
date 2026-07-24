@@ -11,7 +11,7 @@
     "scripts": {
         "start": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node ./src/cli.ts",
         "start:ui": "npm --prefix ./serve-ui run start",
-        "serve": "npm start -- serve --prot 3000",
+        "serve": "npm start -- serve --port 3000",
         "build": "sh ./utils/build.sh",
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",

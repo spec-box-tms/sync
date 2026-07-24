@@ -56,8 +56,27 @@ export class FeatureItem {
     return feature;
   });
 
+  readonly totalCount = computed(() => {
+    const feature = this.feature();
+    if (!feature) {
+      return 0;
+    }
+    return feature.groups.flatMap((group) => group.assertions).length;
+  });
+
+  readonly automatedCount = computed(() => {
+    const feature = this.feature();
+    if (!feature) {
+      return 0;
+    }
+    return feature.groups.flatMap((group) => group.assertions.filter((a) => a.isAutomated)).length;
+  });
+
   activate() {
     this.activeFeatureService.activate(this.feature());
-    this.router.navigate([], { queryParams: { feature: this.featureCode() }, queryParamsHandling: 'merge' });
+    this.router.navigate([], {
+      queryParams: { feature: this.featureCode() },
+      queryParamsHandling: 'merge',
+    });
   }
 }

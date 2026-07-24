@@ -1,14 +1,22 @@
-@if (hasAsserts()) {
-  <tui-icon [style.font-size.px]="16" icon="@tui.table-of-contents" />
-} @else {
-  <tui-icon [style.font-size.px]="16" icon="@tui.file-text" />
-}
 @if (isMissing()) {
-  Отсутствует описание фичи
+  Отсутствует название
 } @else {
   @if (feature() === null) {
     Загрузка...
   } @else {
-    {{ feature()?.title }}
+    <span>
+      @if (hasAsserts()) {
+        <tui-icon [style.font-size.px]="16" icon="@tui.table-of-contents" />
+      } @else {
+        <tui-icon [style.font-size.px]="16" icon="@tui.file-text" />
+      }
+      {{ feature()?.title }}
+    </span>
+
+    @if (totalCount() > 0) {
+      <span class="counters" [class.zero]="automatedCount() === 0">
+        {{ automatedCount() }} / {{ totalCount() }}
+      </span>
+    }
   }
 }

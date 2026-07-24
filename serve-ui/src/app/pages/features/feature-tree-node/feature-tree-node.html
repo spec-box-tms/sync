@@ -1,10 +1,17 @@
 <div class="item" (click)="toggleExpanded()">
-  @if (expanded()) {
-    <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
-  } @else {
-    <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
+  <span>
+    @if (expanded()) {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
+    } @else {
+      <tui-icon [style.font-size.px]="16" icon="@tui.chevron-right" />
+    }
+    {{ node().valueTitle ?? node().valueCode }}
+  </span>
+  @if (node().totalCount > 0) {
+    <span class="counters" [class.zero]="node().automatedCount === 0">
+      {{ node().automatedCount }} / {{ node().totalCount }}
+    </span>
   }
-  {{ node().valueTitle ?? node().valueCode }}
 </div>
 <div class="children" [class.expanded]="expanded()">
   @if (expanded()) {

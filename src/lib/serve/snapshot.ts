@@ -54,14 +54,26 @@ const toDiagnostic = (
   message: 'description' in error ? error.description : error.type,
 });
 
+const assertionCounts = (features: Feature[]) => {
+  const assertions = features.flatMap((feature) =>
+    feature.groups.flatMap((group) => group.assertions),
+  );
+  return {
+    totalCount: assertions.length,
+    automatedCount: assertions.filter((assertion) => assertion.isAutomated)
+      .length,
+  };
+};
+
 const treeNode = (
   features: Feature[],
   groupBy: string[],
   attributes: Attribute[],
   depth = 0,
 ): FeatureTreeNode => {
+  const counts = assertionCounts(features);
   if (depth === groupBy.length) {
-    return { features: features.map(({ code }) => code), children: [] };
+    return { ...counts, features: features.map(({ code }) => code), children: [] };
   }
   const attributeCode = groupBy[depth];
   const attribute = attributes.find((a) => a.code === attributeCode);
@@ -72,6 +84,7 @@ const treeNode = (
     }
   }
   return {
+    ...counts,
     features: [],
     children: [...values.entries()].map(([valueCode, group]) => {
       const attributeValue =
@@ -177,13 +190,9 @@ export class ProjectSnapshotService {
     validator.validate(projectData);
     await this.applyReports(config, root, projectData, validator);
 
-    const automated = projectData.features
-      .flatMap((feature) => feature.groups)
-      .flatMap((group) => group.assertions)
-      .filter((assertion) => assertion.isAutomated).length;
-    const total = projectData.features
-      .flatMap((feature) => feature.groups)
-      .reduce((count, group) => count + group.assertions.length, 0);
+    const { totalCount: total, automatedCount: automated } = assertionCounts(
+      projectData.features,
+    );
     this.snapshot = {
       revision,
       project: projectData.project,
@@ -199,18 +208,14 @@ export class ProjectSnapshotService {
       storageAreas: config.yml.files
         .filter((pattern) => !pattern.startsWith('!'))
         .map((pattern) => ({ pattern, rootPath: root, directories: [] })),
-      trees: (projectData.trees || []).map(
-        ({ code, title, attributes: groupBy }) => ({
-          code,
-          title,
+      trees: (projectData.trees || []).map(({ code, title, attributes: groupBy }) => {
+        const root = treeNode(
+          projectData.features,
           groupBy,
-          root: treeNode(
-            projectData.features,
-            groupBy,
-            projectData.attributes ?? [],
-          ),
-        }),
-      ),
+          projectData.attributes ?? [],
+        );
+        return { code, title, groupBy, totalCount: root.totalCount, automatedCount: root.automatedCount, root };
+      }),
       dependencyGraph: graph(projectData.features),
     };
     this.publish();
