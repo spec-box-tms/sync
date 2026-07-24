@@ -9,12 +9,7 @@
           <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
             Отменить
           </button>
-          <button
-            size="s"
-            tuiButton
-            [disabled]="!hasChanges()"
-            (click)="saveChanges()"
-          >
+          <button size="s" tuiButton [disabled]="!hasChanges()" (click)="saveChanges()">
             Сохранить
           </button>
         }
@@ -27,18 +22,26 @@
           {{ _feature.code }}
         </tui-copy>
       </div>
-      <feature-history-selector [featureCode]="_feature.code" />
+      <feature-history-selector
+        [featureCode]="_feature.code"
+        [value]="compareWith()"
+        (valueChange)="compareWith.set($event)"
+      />
     </div>
-    @if (editing()) {
-      <div class="editor">
-        <feature-editor #editor [featureCode]="_feature.code" (canClose)="exitEditing()" />
-      </div>
+    @if (compareWith(); as _compareWith) {
+      <feature-compare [feature]="_feature" [origin]="_compareWith" />
     } @else {
-      <div class="content">
-        <tui-scrollbar>
-          <feature-content [feature]="_feature" />
-        </tui-scrollbar>
-      </div>
+      @if (editing()) {
+        <div class="editor">
+          <feature-editor #editor [featureCode]="_feature.code" (canClose)="exitEditing()" />
+        </div>
+      } @else {
+        <div class="content">
+          <tui-scrollbar>
+            <feature-content [feature]="_feature" />
+          </tui-scrollbar>
+        </div>
+      }
     }
   } @else {
     ничего не выбрано

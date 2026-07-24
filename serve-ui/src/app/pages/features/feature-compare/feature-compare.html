@@ -1,0 +1,42 @@
+<section class="comparison">
+  <header class="origin">
+    <div>
+      <div class="origin-label">Сравнение с версией</div>
+      <div>{{ origin().message }}</div>
+    </div>
+    <div class="origin-meta">
+      <code>{{ shortOriginCommit() }}</code>
+      <span>{{ origin().author }}</span>
+      <time [attr.datetime]="origin().date">{{ origin().date | date: 'dd.MM.yyyy HH:mm' }}</time>
+    </div>
+  </header>
+
+  @if (originFeature()) {
+    <div class="statistics" aria-label="Статистика изменений">
+      @if (addedAssertions()) {
+        <span appearance="positive" tuiBadge>Проверки +{{ addedAssertions() }}</span>
+      }
+      @if (addedAttributes()) {
+        <span appearance="positive" tuiBadge>Атрибуты +{{ addedAttributes() }}</span>
+      }
+      @if (removedAssertions()) {
+        <span appearance="negative" tuiBadge>Проверки −{{ removedAssertions() }}</span>
+      }
+      @if (removedAttributes()) {
+        <span appearance="negative" tuiBadge>Атрибуты −{{ removedAttributes() }}</span>
+      }
+      @if (changedAssertions()) {
+        <span appearance="warning" tuiBadge>Проверки изменены: {{ changedAssertions() }}</span>
+      }
+      @if (changedAttributes()) {
+        <span appearance="warning" tuiBadge>Атрибуты изменены: {{ changedAttributes() }}</span>
+      }
+      @if (titleChanged()) {
+        <span appearance="warning" tuiBadge>Заголовок изменён</span>
+      }
+      @if (descriptionChanged()) {
+        <span appearance="warning" tuiBadge>Описание изменено</span>
+      }
+    </div>
+  }
+</section>

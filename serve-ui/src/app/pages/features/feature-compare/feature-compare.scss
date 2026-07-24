@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.comparison {
+  padding: 0 2rem 1rem;
+}
+
+.origin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.origin-label,
+.origin-meta {
+  color: var(--tui-text-secondary);
+  font: var(--tui-typography-body-xs);
+}
+
+.origin-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statistics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

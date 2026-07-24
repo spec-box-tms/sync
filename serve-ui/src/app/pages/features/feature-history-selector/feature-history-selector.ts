@@ -32,5 +32,5 @@ export class FeatureHistorySelector {
     return null;
   });
 
-  value = model<string | null>(null);
+  value = model<FeatureHistory | null>(null);
 }

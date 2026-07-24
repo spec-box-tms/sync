@@ -10,7 +10,6 @@ import { LinkComponent } from './link/link.component';
 import { ListItemComponent } from './list-item/list-item.component';
 import { MermaidService } from './mermaid/mermaid.service';
 import { ParagraphComponent } from './paragraph/paragraph.component';
-import { PrismService } from './prism/prism.service';
 import { TableComponent } from './table/table.component';
 import { TextComponent } from './text/text.component';
 import { ListComponent } from './list/list.component';
@@ -46,7 +45,6 @@ export function provideMarkdown() {
       },
     },
     MarkdownService,
-    PrismService,
     MermaidService,
   ];
 }
