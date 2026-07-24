@@ -1,18 +1,12 @@
-import { JsonPipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ProjectService } from '../../core/project.service';
-import { FeatureTree as FeatureTreeModel } from '../../model/feature-tree.model';
-import { FeatureList } from './feature-list/feature-list';
-import { FeatureTree } from './feature-tree/feature-tree';
-import { NavControls } from './nav-controls/nav-controls';
-import { ActiveFeatureService } from './active-feature.service';
-import { FeatureContent } from './feature-content/feature-content';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Feature } from '../../model/feature.model';
-import { FeaturePagePresenter } from './feature-page-presenter/feature-page-presenter';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { TuiNotification } from '@taiga-ui/core';
+import { ProjectService } from '../../core/project.service';
+import { ActiveFeatureService } from './active-feature.service';
+import { FeaturePagePresenter } from './feature-page-presenter/feature-page-presenter';
 @Component({
-  imports: [FeaturePagePresenter],
+  imports: [FeaturePagePresenter, TuiNotification],
   selector: 'features-page',
   templateUrl: 'features-page.html',
   styleUrl: 'features-page.scss',
@@ -25,6 +19,16 @@ export class FeaturesPage {
   private readonly queryFeature = computed(() => this.queryParams()?.['feature'] ?? null);
 
   readonly projectSnapshotResource = inject(ProjectService).projectResource;
+
+  readonly errors = computed(() => {
+    if (this.projectSnapshotResource.hasValue()) {
+      const diagnostics = this.projectSnapshotResource.value().diagnostics;
+      if (diagnostics.length) {
+        return diagnostics;
+      }
+    }
+    return null;
+  });
 
   readonly activeFeature = computed(() => {
     const queryFeature = this.queryFeature();
@@ -50,4 +54,11 @@ export class FeaturesPage {
   });
 
   readonly featureCodes = signal<string[]>([]);
+
+  severityToAppearance(severity: string): string {
+    if (severity === 'error') {
+      return 'negative';
+    }
+    return 'info';
+  }
 }

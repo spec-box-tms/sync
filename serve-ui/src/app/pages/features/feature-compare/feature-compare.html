@@ -1,42 +1,147 @@
-<section class="comparison">
-  <header class="origin">
-    <div>
-      <div class="origin-label">Сравнение с версией</div>
-      <div>{{ origin().message }}</div>
-    </div>
-    <div class="origin-meta">
-      <code>{{ shortOriginCommit() }}</code>
-      <span>{{ origin().author }}</span>
-      <time [attr.datetime]="origin().date">{{ origin().date | date: 'dd.MM.yyyy HH:mm' }}</time>
-    </div>
-  </header>
-
-  @if (originFeature()) {
-    <div class="statistics" aria-label="Статистика изменений">
-      @if (addedAssertions()) {
-        <span appearance="positive" tuiBadge>Проверки +{{ addedAssertions() }}</span>
-      }
-      @if (addedAttributes()) {
-        <span appearance="positive" tuiBadge>Атрибуты +{{ addedAttributes() }}</span>
-      }
-      @if (removedAssertions()) {
-        <span appearance="negative" tuiBadge>Проверки −{{ removedAssertions() }}</span>
-      }
-      @if (removedAttributes()) {
-        <span appearance="negative" tuiBadge>Атрибуты −{{ removedAttributes() }}</span>
-      }
-      @if (changedAssertions()) {
-        <span appearance="warning" tuiBadge>Проверки изменены: {{ changedAssertions() }}</span>
-      }
-      @if (changedAttributes()) {
-        <span appearance="warning" tuiBadge>Атрибуты изменены: {{ changedAttributes() }}</span>
-      }
-      @if (titleChanged()) {
-        <span appearance="warning" tuiBadge>Заголовок изменён</span>
-      }
-      @if (descriptionChanged()) {
-        <span appearance="warning" tuiBadge>Описание изменено</span>
-      }
-    </div>
-  }
+<section class="origin">
+  <div>
+    <div class="origin-label">Сравнение с версией</div>
+    <div>{{ origin().message }}</div>
+  </div>
+  <div class="origin-meta">
+    <code>{{ shortOriginCommit() }}</code>
+    <span>{{ origin().author }}</span>
+    <time [attr.datetime]="origin().date">{{ origin().date | date: 'dd.MM.yyyy HH:mm' }}</time>
+  </div>
 </section>
+
+@if (originFeature(); as _origin) {
+  <div class="statistics" aria-label="Статистика изменений">
+    @if (addedAssertions()) {
+      <span appearance="positive" tuiBadge>Проверки +{{ addedAssertions() }}</span>
+    }
+    @if (addedAttributes()) {
+      <span appearance="positive" tuiBadge>Атрибуты +{{ addedAttributes() }}</span>
+    }
+    @if (removedAssertions()) {
+      <span appearance="negative" tuiBadge>Проверки −{{ removedAssertions() }}</span>
+    }
+    @if (removedAttributes()) {
+      <span appearance="negative" tuiBadge>Атрибуты −{{ removedAttributes() }}</span>
+    }
+    @if (changedAssertions()) {
+      <span appearance="warning" tuiBadge>Проверки изменены: {{ changedAssertions() }}</span>
+    }
+    @if (changedAttributes()) {
+      <span appearance="warning" tuiBadge>Атрибуты изменены: {{ changedAttributes() }}</span>
+    }
+    @if (titleChanged()) {
+      <span appearance="warning" tuiBadge>Заголовок изменён</span>
+    }
+    @if (descriptionChanged()) {
+      <span appearance="warning" tuiBadge>Описание изменено</span>
+    }
+  </div>
+
+  <div class="changes" aria-label="Изменения">
+    @if (titleChanged()) {
+      <section class="part">
+        <h3>Заголовок</h3>
+        <div class="diff-line removed">{{ _origin.title }}</div>
+        <div class="diff-line added">{{ feature().title }}</div>
+      </section>
+    }
+
+    @if (descriptionChanged()) {
+      <section class="part">
+        <h3>Описание</h3>
+        <div class="diff-line removed">
+          @if (_origin.description) {
+            <markdown [value]="_origin.description" />
+          } @else {
+            -
+          }
+        </div>
+        <div class="diff-line added">
+          @if (feature().description) {
+            <markdown [value]="feature().description" />
+          } @else {
+            -
+          }
+        </div>
+      </section>
+    }
+
+    @if (addedAttributes() || changedAttributes() || removedAttributes()) {
+      <section class="part">
+        <h3>Атрибуты</h3>
+        @for (item of addedAttributeItems(); track item.code) {
+          <article class="change-item">
+            <h4>{{ item.code }}</h4>
+            <div class="diff-line added">+ {{ item.code }}: {{ item.values.join(', ') }}</div>
+          </article>
+        }
+        @for (item of changedAttributeItems(); track item.code) {
+          <article class="change-item">
+            <h4>{{ item.code }}</h4>
+            <div class="diff-line removed">− {{ item.code }}: {{ item.origin.join(', ') }}</div>
+            <div class="diff-line added">+ {{ item.code }}: {{ item.values.join(', ') }}</div>
+          </article>
+        }
+        @for (item of removedAttributeItems(); track item.code) {
+          <article class="change-item">
+            <h4>{{ item.code }}</h4>
+            <div class="diff-line removed">− {{ item.code }}: {{ item.values.join(', ') }}</div>
+          </article>
+        }
+      </section>
+    }
+
+    @if (addedAssertions() || changedAssertions() || removedAssertions()) {
+      <section class="part">
+        <h3>Проверки</h3>
+        @for (item of addedAssertionItems(); track item.groupTitle + item.assertion.title) {
+          <article class="change-item">
+            <h4>{{ item.groupTitle }}:</h4>
+            <div class="diff-line added">
+              <markdown [value]="item.assertion.title" />
+            </div>
+            @if (item.assertion.description) {
+              Описание:
+              <div class="diff-line added">
+                <markdown [value]="item.assertion.description" />
+              </div>
+            }
+          </article>
+        }
+        @for (item of changedAssertionItems(); track item.groupTitle + item.assertion.title) {
+          <article class="change-item">
+            <h4>{{ item.groupTitle }}:</h4>
+            <markdown [value]="item.assertion.title" />
+            @if (item.origin.description !== item.assertion.description) {
+              Описание:
+              <div class="diff-line removed">
+                @if (item.origin.description) {
+                  <markdown [value]="item.origin.description" />
+                } @else {
+                  -
+                }
+              </div>
+              <div class="diff-line added">
+                @if (item.assertion.description) {
+                  <markdown [value]="item.assertion.description" />
+                } @else {
+                  -
+                }
+              </div>
+            }
+          </article>
+        }
+        @for (item of removedAssertionItems(); track item.groupTitle + item.assertion.title) {
+          <article class="change-item">
+            <h4>{{ item.groupTitle }}:</h4>
+            <markdown [value]="item.assertion.title" />
+            <div class="diff-line removed">
+              − {{ item.assertion.description || item.assertion.title }}
+            </div>
+          </article>
+        }
+      </section>
+    }
+  </div>
+}

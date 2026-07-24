@@ -21,15 +21,6 @@ description: |-
   - GET /api/events — SSE-уведомления: $serve-events-get.
 
   Не-API маршруты Angular SPA возвращают его index.html: $serve-static-ui.
-
-  ```mermaid
-  flowchart TD
-    A[Christmas] -->|Get money| B(Go shopping)
-    B --> C{Let me think}
-    C -->|One| D[Laptop]
-    C -->|Two| E[iPhone]
-    C -->|Three| F[fa:fa-car Car]
-  ```
 definitions:
   tool:
     - serve

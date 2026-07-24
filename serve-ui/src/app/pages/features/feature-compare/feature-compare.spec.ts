@@ -22,6 +22,25 @@ const originCommit: FeatureHistory = {
 };
 
 describe('FeatureCompare', () => {
+  it('ignores changes to assertion automation', () => {
+    const current = feature({
+      groups: [{ title: 'Вход', assertions: [{ title: 'Проверка', isAutomated: true }] }],
+    });
+    const origin = feature({
+      groups: [{ title: 'Вход', assertions: [{ title: 'Проверка', isAutomated: false }] }],
+    });
+    const fixture = TestBed.createComponent(FeatureCompare);
+    fixture.componentRef.setInput('feature', current);
+    fixture.componentRef.setInput('origin', originCommit);
+    Object.defineProperty(fixture.componentInstance, 'originFeatureResource', {
+      value: { hasValue: () => true, value: () => origin },
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.changedAssertions()).toBe(0);
+    expect(fixture.nativeElement.textContent).not.toContain('Проверки');
+  });
+
   it('does not report changes until the origin feature is loaded', () => {
     const fixture = TestBed.createComponent(FeatureCompare);
     fixture.componentRef.setInput('feature', feature({}));
@@ -89,7 +108,21 @@ describe('FeatureCompare', () => {
     expect(content).toContain('Атрибуты −1');
     expect(content).toContain('Проверки изменены: 1');
     expect(content).toContain('Атрибуты изменены: 1');
-    expect(content).toContain('Заголовок изменён');
-    expect(content).toContain('Описание изменено');
+    expect(content).toContain('Заголовок');
+    expect(content).toContain('Описание');
+    expect(content).toContain('Атрибуты');
+    expect(content).toContain('Проверки');
+    expect(content).toContain('Вход: Добавлено');
+    expect(content).toContain('added: value');
+    expect(content).toContain('Проверки изменены: 1');
+    expect(content).toContain('Вход: Изменилось');
+    expect(content).toContain('старое');
+    expect(content).toContain('новое');
+    expect(content).toContain('changed: old');
+    expect(content).toContain('changed: new');
+    expect(content).toContain('Вход: Удалено');
+    expect(content).toContain('removed: value');
+    expect(fixture.nativeElement.querySelectorAll('.diff-line.added').length).toBeGreaterThan(0);
+    expect(fixture.nativeElement.querySelectorAll('.diff-line.removed').length).toBeGreaterThan(0);
   });
 });

@@ -1,9 +1,25 @@
 @if (projectSnapshotResource.hasValue()) {
-  <feature-page-presenter
-    [projectSnapshot]="projectSnapshotResource.value()"
-    [activeFeature]="activeFeature()"
-    [activeTree]="activeTree()"
-  />
+  @if (errors(); as _errors) {
+    <div class="error-container">
+      @for (error of _errors; track $index) {
+        <div tuiNotification [appearance]="severityToAppearance(error.severity)">
+          <div tuiTitle>
+            {{ error.code }}
+          </div>
+          {{ error.message }}
+          <div class="">
+            {{ error.path }}
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <feature-page-presenter
+      [projectSnapshot]="projectSnapshotResource.value()"
+      [activeFeature]="activeFeature()"
+      [activeTree]="activeTree()"
+    />
+  }
 } @else {
   Загрузка...
 }

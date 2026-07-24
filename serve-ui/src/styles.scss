@@ -19,6 +19,16 @@ md-code {
     border-radius: 8px;
   }
 
+  .hljs-ln {
+    table-layout: fixed;
+  }
+
+  .hljs-ln-code {
+    inline-size: 100%;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+  }
+
   .hljs-addition {
     color: var(--tui-text-positive);
     background: var(--tui-background-positive);
@@ -36,14 +46,14 @@ md-code {
 
   .hljs-ln-numbers {
     width: 1%;
-    padding-right: .75rem !important;
+    padding-right: 0.75rem !important;
     color: var(--tui-text-tertiary);
     text-align: right;
     user-select: none;
   }
 
   .hljs-ln-code {
-    padding-left: .75rem !important;
+    padding-left: 0.75rem !important;
   }
 
   .hljs-ln-code:hover {
@@ -62,7 +72,7 @@ md-code {
   .hljs {
     display: block;
     overflow-x: auto;
-    padding: .5em;
+    padding: 0.5em;
     color: var(--tui-text-primary);
   }
 
@@ -173,13 +183,13 @@ md-code {
   .hljs-ln-numbers {
     inline-size: 1rem;
     padding-inline-end: 1em !important;
-    opacity: .3;
+    opacity: 0.3;
     text-align: end;
     vertical-align: top;
   }
 
   .hljs-ln td:not(.hljs-ln-numbers):hover {
     outline: 1px solid var(--tui-border-normal);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
   }
 }

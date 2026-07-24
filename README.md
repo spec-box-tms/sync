@@ -77,7 +77,7 @@
 ### Локальный просмотр спецификаций
 
 ```sh
-npx spec-box serve --port 0
+npx spec-box serve --port 3030
 ```
 
 Команда выведет фактический loopback URL (`http://127.0.0.1:<port>`). Она не обращается к `api.host` и не запускает тесты.

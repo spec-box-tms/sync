@@ -3,15 +3,19 @@
     <div class="header">
       <h2>{{ _feature.title }}</h2>
       <div class="actions">
-        @if (!editing()) {
-          <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
+        @if (!compareWith()) {
+          @if (!editing()) {
+            <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
+          } @else {
+            <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
+              Отменить
+            </button>
+            <button size="s" tuiButton [disabled]="!hasChanges()" (click)="saveChanges()">
+              Сохранить
+            </button>
+          }
         } @else {
-          <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
-            Отменить
-          </button>
-          <button size="s" tuiButton [disabled]="!hasChanges()" (click)="saveChanges()">
-            Сохранить
-          </button>
+          <button size="s" tuiButton (click)="compareWith.set(null)">Выйти из сравнения</button>
         }
       </div>
     </div>
@@ -29,7 +33,11 @@
       />
     </div>
     @if (compareWith(); as _compareWith) {
-      <feature-compare [feature]="_feature" [origin]="_compareWith" />
+      <div class="content">
+        <tui-scrollbar>
+          <feature-compare [feature]="_feature" [origin]="_compareWith" />
+        </tui-scrollbar>
+      </div>
     } @else {
       @if (editing()) {
         <div class="editor">
