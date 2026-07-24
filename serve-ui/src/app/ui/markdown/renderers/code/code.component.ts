@@ -1,14 +1,15 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RendererBase } from '../renderer-base';
 import { Tokens } from 'marked';
-import { PrismComponent } from '../prism/prism.component';
-import { MermaidComponent } from "../mermaid/mermaid.component";
+import { Highlight } from 'ngx-highlightjs';
+import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
+import { MermaidComponent } from '../mermaid/mermaid.component';
+import { RendererBase } from '../renderer-base';
 
 @Component({
   selector: 'md-code',
   standalone: true,
-  imports: [PrismComponent, MermaidComponent],
+  imports: [Highlight, MermaidComponent, HighlightLineNumbers],
   templateUrl: './code.component.html',
   styleUrl: './code.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

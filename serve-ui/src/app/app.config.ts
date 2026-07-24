@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { API_URL } from './core/api-url.token';
 import { provideMonaco } from './ui/markdown-editor/provide-monaco';
+import { provideHighlightOptions } from 'ngx-highlightjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +16,10 @@ export const appConfig: ApplicationConfig = {
       provide: API_URL,
       useValue: ``,
     },
+    provideHighlightOptions({
+      fullLibraryLoader: () => import('highlight.js'),
+      lineNumbersLoader: () => import('ngx-highlightjs/line-numbers')
+    }),
     provideMonaco(),
   ],
 };

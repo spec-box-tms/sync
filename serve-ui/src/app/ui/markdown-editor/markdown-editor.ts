@@ -34,7 +34,7 @@ export class MarkdownEditor {
   editValue = signal<string>('');
 
   editorOptions = {
-    theme: 'vs-light',
+    theme: 'vs-dark',
     language: 'yaml',
     minimap: { enabled: false },
     automaticLayout: true,

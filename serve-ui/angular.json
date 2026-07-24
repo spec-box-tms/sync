@@ -30,11 +30,6 @@
               },
               {
                 "glob": "**/*",
-                "input": "node_modules/prismjs/components",
-                "output": "/assets/prismjs/components"
-              },
-              {
-                "glob": "**/*",
                 "input": "node_modules/mermaid/dist/",
                 "output": "/assets/mermaid/"
               },
@@ -52,8 +47,7 @@
             "styles": [
               "node_modules/@taiga-ui/styles/taiga-ui-theme.less",
               "node_modules/@taiga-ui/styles/taiga-ui-fonts.less",
-              "src/styles.scss",
-              "node_modules/prismjs/themes/prism.min.css"
+              "src/styles.scss"
             ]
           },
           "configurations": {
