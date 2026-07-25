@@ -1,12 +1,27 @@
-<tui-root>
+<tui-root [attr.tuiTheme]="theme()">
   <div class="header">
-    <img class="logo" src="favicon.ico" alt="Spec Box TMS">
-    <h2>
-      SpecBoxTMS
-      @if (title(); as _title) {
-        - {{ _title }}
-      }
-    </h2>
+    <div class="title">
+      <img class="logo" src="favicon.ico" alt="Spec Box TMS" />
+      <h2>
+        SpecBoxTMS
+        @if (title(); as _title) {
+          - {{ _title }}
+        }
+      </h2>
+    </div>
+    <div class="suffix">
+      <diagnostics />
+      <button
+        tuiIconButton
+        appearance="secondary"
+        size="s"
+        [style.border-radius.%]="100"
+        [iconStart]="themeButtonIcon()"
+        (click)="toggleTheme()"
+      >
+        Тема
+      </button>
+    </div>
   </div>
   <main>
     <router-outlet />

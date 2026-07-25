@@ -12,7 +12,7 @@ description: |-
     project?: { title?: string; description?: string; repository?: string };
     attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
     treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
-    features: Array<Feature & { gitStatus: GitStatus }>;
+    features: Array<Feature>;
     diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
     coverage: { total: number; automated: number; uncovered: number };
     storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
@@ -23,6 +23,8 @@ description: |-
   type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode };
   type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
   ```
+
+  Модель `Feature` соответствует $serve-feature-get
 definitions:
   tool:
     - serve

@@ -58,8 +58,8 @@
           }
         </div>
         <div class="diff-line added">
-          @if (feature().description) {
-            <markdown [value]="feature().description" />
+          @if (feature().description; as _description) {
+            <markdown [value]="_description" />
           } @else {
             -
           }

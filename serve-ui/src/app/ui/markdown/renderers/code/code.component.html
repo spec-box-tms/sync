@@ -4,5 +4,15 @@
   <pre>
     <code [highlight]="token().text" [language]="token().lang ?? 'text'" lineNumbers>
     </code>
+    <button
+      class="copy"
+      appearance="secondary"
+      iconStart="@tui.clipboard"
+      size="s"
+      [tuiButtonCopy]="token().text"
+      type="button"
+    >
+      Скопировать
+    </button>
   </pre>
 }

@@ -1,0 +1,108 @@
+@if (projectResource.isLoading()) {
+  <tui-loader />
+} @else {
+  @if (hasErrors()) {
+    @if (info().length) {
+      <tui-badged-content>
+        <tui-badge-notification size="s" tuiSlot="top">
+          {{ info().length }}
+        </tui-badge-notification>
+        <div
+          size="s"
+          tuiAvatar="@tui.info"
+          appearance="info"
+          [round]="false"
+          tuiDropdownLimitWidth="min"
+          [tuiDropdown]="infoDropdown"
+          [(tuiDropdownOpen)]="infoOpen"
+        ></div>
+      </tui-badged-content>
+    }
+    @if (warnings().length) {
+      <tui-badged-content>
+        <tui-badge-notification size="s" tuiSlot="top">
+          {{ warnings().length }}
+        </tui-badge-notification>
+        <div
+          size="s"
+          tuiAvatar="@tui.triangle-alert"
+          appearance="warning"
+          [round]="false"
+          tuiDropdownLimitWidth="min"
+          [tuiDropdown]="warningsDropdown"
+          [(tuiDropdownOpen)]="warningsOpen"
+        ></div>
+      </tui-badged-content>
+    }
+    @if (errors().length) {
+      <tui-badged-content>
+        <tui-badge-notification size="s" tuiSlot="top">
+          {{ errors().length }}
+        </tui-badge-notification>
+        <div
+          size="s"
+          tuiAvatar="@tui.circle-x"
+          appearance="negative"
+          [round]="false"
+          tuiDropdownLimitWidth="min"
+          [tuiDropdown]="errorsDropdown"
+          [(tuiDropdownOpen)]="errorsOpen"
+        ></div>
+      </tui-badged-content>
+    }
+  } @else {
+    <div
+      tuiHint="Все проверки прошли успешно"
+      size="s"
+      tuiAvatar="@tui.circle-check-big"
+      appearance="positive"
+      [round]="false"
+    ></div>
+  }
+}
+
+<ng-template #infoDropdown>
+  <tui-data-list [style.max-inline-size.rem]="35">
+    @for (item of info(); track $index) {
+      <div tuiNotification size="s" [appearance]="severityToAppearance(item.severity)">
+        <div tuiTitle>
+          {{ item.code }}
+        </div>
+        {{ item.message }}
+        <div class="">
+          {{ item.path }}
+        </div>
+      </div>
+    }
+  </tui-data-list>
+</ng-template>
+<ng-template #warningsDropdown>
+  <tui-data-list [style.max-inline-size.rem]="35">
+    @for (item of warnings(); track $index) {
+      <div tuiOption tuiNotification size="s" [appearance]="severityToAppearance(item.severity)">
+        <div tuiTitle>
+          {{ item.code }}
+        </div>
+        {{ item.message }}
+        <div class="">
+          {{ item.path }}
+        </div>
+      </div>
+    }
+  </tui-data-list>
+</ng-template>
+<ng-template #errorsDropdown>
+  <tui-data-list [style.max-inline-size.rem]="35">
+    @for (item of errors(); track $index) {
+      <div tuiOption tuiNotification size="s" [appearance]="severityToAppearance(item.severity)">
+        <div tuiTitle>
+          {{ item.code }}
+        </div>
+        {{ item.message }}
+        <div class="">
+          {{ item.path }}
+        </div>
+      </div>
+    }
+  </tui-data-list>
+</ng-template>

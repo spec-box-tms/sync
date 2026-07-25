@@ -3,7 +3,9 @@
     <attribute [attributeCode]="attribute.code" [attributeValues]="attribute.values" />
   }
 </div>
-<markdown [value]="feature().description" />
+@if (feature().description; as _description) {
+  <markdown [value]="_description" />
+}
 
 @for (group of feature().groups; track group.title) {
   <feature-group [group]="group" />

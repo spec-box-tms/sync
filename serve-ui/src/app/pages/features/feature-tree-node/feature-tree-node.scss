@@ -6,12 +6,7 @@
   display: flex;
   flex-direction: column;
   margin-left: 1em;
-  max-height: 0;
   overflow-y: hidden;
-  transition: max-height 0.8s ease;
-  &.expanded {
-    max-height: 1000px;
-  }
   border-left: var(--tui-border-normal) 1px solid;
 }
 .item {
@@ -19,7 +14,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.4rem;
-  color: var(--tui-text-primary-on-accent-1);
 
   padding: 4px 12px;
   border-radius: 4px;
