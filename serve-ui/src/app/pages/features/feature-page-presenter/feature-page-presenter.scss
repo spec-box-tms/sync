@@ -1,21 +1,21 @@
 :host {
   display: flex;
   height: 100%;
+  padding: 1em;
+  gap: 1em;
 }
 
 .tree-container {
   display: flex;
+  flex-basis: 30%;
+  flex-grow: 1;
   flex-direction: column;
-  padding: 1em;
-  width: 360px;
-  max-width: 360px;
-  flex-shrink: 0;
   gap: 1em;
 }
 
 .content {
-  flex-grow: 1;
   height: 100%;
-  padding: 1em;
+  flex-basis: 70%;
+  flex-grow: 1;
   overflow: hidden;
 }

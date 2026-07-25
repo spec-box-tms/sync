@@ -3,7 +3,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.4rem;
-  color: var(--tui-text-primary-on-accent-1);
 
   padding: 4px 12px;
   border-radius: 4px;
@@ -13,6 +12,7 @@
   }
 
   &.active {
+    color: var(--tui-text-primary-on-accent-1);
     background: var(--tui-background-accent-1);
     &:hover {
       background: var(--tui-background-accent-1-hover);
@@ -20,7 +20,8 @@
   }
 }
 
-.title, .suffix {
+.title,
+.suffix {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;

@@ -4,8 +4,8 @@ main {
 
 .header {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
+  justify-content: space-between;
   padding: 1em 1em;
   height: 46px;
   background-color: var(--tui-background-neutral-1);
@@ -14,5 +14,15 @@ main {
     width: 2rem;
     height: 2rem;
     filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+  }
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .suffix {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 }

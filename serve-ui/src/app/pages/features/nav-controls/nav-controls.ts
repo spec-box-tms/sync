@@ -4,6 +4,7 @@ import { FeatureTree } from '../../../model/feature-tree.model';
 import { ProjectSnapshot } from '../../../model/project-snapshot.model';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { TuiIcon, TuiInput, tuiItemsHandlersProvider } from '@taiga-ui/core';
+import { Feature } from '../../../model/feature.model';
 
 @Component({
   selector: 'nav-controls',
@@ -27,19 +28,36 @@ export class NavControls {
 
   constructor() {
     effect(() => {
-      const search = this.search()?.toLowerCase();
-      const features = this.projectSnapshot().features.filter((ft) => {
-        if (!search) {
-          return true;
-        }
-        return (
-          ft.title.toLowerCase().indexOf(search) >= 0 || ft.code.toLowerCase().indexOf(search) >= 0
-        );
-      });
+      const features = this.matchFeatures(this.search(), this.projectSnapshot().features);
 
       features.sort((a, b) => a.title.localeCompare(b.title, 'ru-Ru'));
       const featureCodes = features.map((ft) => ft.code);
       this.featureCodes.emit(featureCodes);
+    });
+  }
+
+  private matchFeatures(search: string | undefined, features: Feature[]): Feature[] {
+    if (!search || !search.trim()) {
+      return [...features];
+    }
+
+    const terms = search
+      .trim()
+      .split(/\s+/)
+      .map((term) => new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
+    return features.filter((feature) => {
+      const text = [
+        feature.code,
+        feature.title,
+        feature.description,
+        ...feature.groups.flatMap((group) => [
+          group.title,
+          ...group.assertions.flatMap((assertion) => [assertion.title, assertion.description]),
+        ]),
+      ].join('\n');
+
+      return terms.every((term) => term.test(text));
     });
   }
 }

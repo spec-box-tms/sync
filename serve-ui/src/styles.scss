@@ -10,23 +10,46 @@ body {
 md-code {
   display: block;
 
+  pre {
+    position: relative;
+    margin: 0;
+    white-space: normal;
+  }
+
   .hljs {
     display: block;
     overflow-x: auto;
-    padding: 1rem;
-    color: var(--tui-text-primary);
     background: var(--tui-background-base);
+    color: var(--tui-text-primary);
+    padding: 1rem 0.2em;
     border-radius: 8px;
   }
 
   .hljs-ln {
+    width: 100%;
     table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0.4em 0;
+  }
+
+  .hljs-ln-numbers {
+    width: 1.5em;
+    color: var(--tui-text-tertiary);
+    text-align: right;
+    vertical-align: top;
+    user-select: none;
+    opacity: 0.5;
   }
 
   .hljs-ln-code {
     inline-size: 100%;
+    padding-left: 0.2rem !important;
     white-space: pre-wrap !important;
     overflow-wrap: anywhere;
+    &:hover {
+      background: var(--tui-background-base-alt);
+      outline: 1px solid var(--tui-border-hover);
+    }
   }
 
   .hljs-addition {
@@ -37,43 +60,6 @@ md-code {
   .hljs-deletion {
     color: var(--tui-text-negative);
     background: var(--tui-background-negative);
-  }
-
-  .hljs-ln {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .hljs-ln-numbers {
-    width: 1%;
-    padding-right: 0.75rem !important;
-    color: var(--tui-text-tertiary);
-    text-align: right;
-    user-select: none;
-  }
-
-  .hljs-ln-code {
-    padding-left: 0.75rem !important;
-  }
-
-  .hljs-ln-code:hover {
-    background: var(--tui-background-base-alt);
-    outline: 1px solid var(--tui-border-hover);
-  }
-}
-
-md-code {
-  pre {
-    position: relative;
-    margin: 0;
-    white-space: normal;
-  }
-
-  .hljs {
-    display: block;
-    overflow-x: auto;
-    padding: 0.5em;
-    color: var(--tui-text-primary);
   }
 
   .hljs-subst,
@@ -170,22 +156,9 @@ md-code {
     font-weight: 700;
   }
 
-  .hljs-ln {
-    inline-size: 100%;
-    border-collapse: collapse;
-  }
-
   .hljs-ln td {
     padding: 0;
     white-space: pre;
-  }
-
-  .hljs-ln-numbers {
-    inline-size: 1rem;
-    padding-inline-end: 1em !important;
-    opacity: 0.3;
-    text-align: end;
-    vertical-align: top;
   }
 
   .hljs-ln td:not(.hljs-ln-numbers):hover {

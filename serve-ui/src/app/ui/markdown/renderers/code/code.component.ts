@@ -5,11 +5,12 @@ import { Highlight } from 'ngx-highlightjs';
 import { HighlightLineNumbers } from 'ngx-highlightjs/line-numbers';
 import { MermaidComponent } from '../mermaid/mermaid.component';
 import { RendererBase } from '../renderer-base';
+import { TuiButtonCopy } from '@taiga-ui/kit';
 
 @Component({
   selector: 'md-code',
   standalone: true,
-  imports: [Highlight, MermaidComponent, HighlightLineNumbers],
+  imports: [Highlight, MermaidComponent, HighlightLineNumbers, TuiButtonCopy],
   templateUrl: './code.component.html',
   styleUrl: './code.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
