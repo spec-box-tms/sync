@@ -17,13 +17,15 @@ export class FeaturesPage {
   private readonly queryParams = toSignal(this.activatedRoute.queryParams);
   private readonly queryTree = computed(() => this.queryParams()?.['tree'] ?? null);
   private readonly queryFeature = computed(() => this.queryParams()?.['feature'] ?? null);
+  
+  readonly queryMode = computed(() => this.queryParams()?.['mode'] ?? null);
 
   readonly projectSnapshotResource = inject(ProjectService).projectResource;
 
   readonly errors = computed(() => {
     if (this.projectSnapshotResource.hasValue()) {
       const diagnostics = this.projectSnapshotResource.value().diagnostics;
-      const errors = diagnostics.filter(d=>d.severity === 'error');
+      const errors = diagnostics.filter((d) => d.severity === 'error');
       if (errors.length) {
         return errors;
       }

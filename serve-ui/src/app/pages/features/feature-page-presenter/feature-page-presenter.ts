@@ -24,6 +24,7 @@ export class FeaturePagePresenter {
   readonly projectSnapshot = input.required<ProjectSnapshot>();
   readonly activeTree = input.required<FeatureTreeModel | null>();
   readonly activeFeature = input.required<Feature | null>();
+  readonly mode = input.required<string | null>();
 
   readonly featureCodes = signal<string[]>([]);
 
