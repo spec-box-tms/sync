@@ -20,6 +20,17 @@
       </div>
     </div>
     <div class="details">
+      <a
+        [routerLink]="['graph']"
+        [queryParams]="{ feature: _feature?.code }"
+        tuiButton
+        size="s"
+        appearance="secondary"
+      >
+        <tui-icon icon="@tui.waypoints" /> Зависимости
+      </a>
+    </div>
+    <div class="details">
       <div>
         <b>Код:</b>
         <tui-copy>

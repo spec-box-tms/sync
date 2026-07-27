@@ -1,5 +1,5 @@
 import { Component, computed, input, signal, viewChild } from '@angular/core';
-import { TuiButton, TuiScrollbar } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiScrollbar } from '@taiga-ui/core';
 import { TuiCopy } from '@taiga-ui/kit';
 import { Feature } from '../../../model/feature.model';
 import { FeatureContent } from '../feature-content/feature-content';
@@ -7,6 +7,7 @@ import { FeatureEditor } from '../feature-editor/feature-editor';
 import { FeatureCompare } from '../feature-compare/feature-compare';
 import { FeatureHistorySelector } from '../feature-history-selector/feature-history-selector';
 import { FeatureHistory } from '../../../model/feature-history.model';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'feature-presenter',
@@ -18,9 +19,11 @@ import { FeatureHistory } from '../../../model/feature-history.model';
     FeatureHistorySelector,
     FeatureContent,
     TuiButton,
+    TuiIcon,
     FeatureEditor,
     FeatureCompare,
-  ],
+    RouterLink
+],
 })
 export class FeaturePresenter {
   readonly feature = input.required<Feature | null>();

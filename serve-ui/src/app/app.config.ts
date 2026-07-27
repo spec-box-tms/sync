@@ -1,6 +1,6 @@
 import { provideTaiga } from '@taiga-ui/core';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 import { API_URL } from './core/api-url.token';
@@ -10,7 +10,7 @@ import { provideHighlightOptions } from 'ngx-highlightjs';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideTaiga(),
     {
       provide: API_URL,
