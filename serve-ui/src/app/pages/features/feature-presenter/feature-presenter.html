@@ -3,33 +3,67 @@
     <div class="header">
       <h2>{{ _feature.title }}</h2>
       <div class="actions">
-        @if (!compareWith()) {
-          @if (!editing()) {
-            <button size="s" tuiButton (click)="enterEditing()">Редактировать</button>
-          } @else {
-            <button size="s" appearance="secondary" tuiButton (click)="exitEditing()">
+        @switch (mode()) {
+          @case ('view') {
+            <a
+              tuiButton
+              size="s"
+              appearance="secondary"
+              [routerLink]="[]"
+              [queryParams]="{ mode: 'graph' }"
+              queryParamsHandling="merge"
+            >
+              <tui-icon icon="@tui.waypoints" /> Зависимости
+            </a>
+            <a
+              size="s"
+              tuiButton
+              [routerLink]="[]"
+              [queryParams]="{ mode: 'edit' }"
+              queryParamsHandling="merge"
+            >
+              <tui-icon icon="@tui.pencil" />Редактировать
+            </a>
+          }
+          @case ('edit') {
+            <a
+              size="s"
+              appearance="secondary"
+              tuiButton
+              [routerLink]="[]"
+              [queryParams]="{ mode: 'view' }"
+              queryParamsHandling="merge"
+            >
               Отменить
-            </button>
+            </a>
             <button size="s" tuiButton [disabled]="!hasChanges()" (click)="saveChanges()">
               Сохранить
             </button>
           }
-        } @else {
-          <button size="s" tuiButton (click)="compareWith.set(null)">Выйти из сравнения</button>
+          @case ('compare') {
+            <a
+              size="s"
+              tuiButton
+              [routerLink]="[]"
+              [queryParams]="{ mode: 'view' }"
+              queryParamsHandling="merge"
+              >Выйти из сравнения</a
+            >
+          }
+          @case ('graph') {
+            <a
+              size="s"
+              tuiButton
+              [routerLink]="[]"
+              [queryParams]="{ mode: 'view' }"
+              queryParamsHandling="merge"
+              >Выйти из зависимостей</a
+            >
+          }
         }
       </div>
     </div>
-    <div class="details">
-      <a
-        [routerLink]="['graph']"
-        [queryParams]="{ feature: _feature?.code }"
-        tuiButton
-        size="s"
-        appearance="secondary"
-      >
-        <tui-icon icon="@tui.waypoints" /> Зависимости
-      </a>
-    </div>
+    <div class="details"></div>
     <div class="details">
       <div>
         <b>Код:</b>
@@ -40,21 +74,30 @@
       <feature-history-selector
         [featureCode]="_feature.code"
         [value]="compareWith()"
-        (valueChange)="compareWith.set($event)"
+        (valueChange)="onCompareWithChange($event)"
       />
     </div>
-    @if (compareWith(); as _compareWith) {
-      <div class="content">
-        <tui-scrollbar>
-          <feature-compare [feature]="_feature" [origin]="_compareWith" />
-        </tui-scrollbar>
-      </div>
-    } @else {
-      @if (editing()) {
+    @switch (mode()) {
+      @case ('compare') {
+        @if (compareWith(); as _compareWith) {
+          <div class="content">
+            <tui-scrollbar>
+              <feature-compare [feature]="_feature" [origin]="_compareWith" />
+            </tui-scrollbar>
+          </div>
+        }
+      }
+      @case ('edit') {
         <div class="editor">
-          <feature-editor #editor [featureCode]="_feature.code" (canClose)="exitEditing()" />
+          <feature-editor #editor [featureCode]="_feature.code" (canClose)="enterView()" />
         </div>
-      } @else {
+      }
+      @case ('graph') {
+        <div class="content">
+          <graph [project]="project()" [featureCode]="_feature.code" />
+        </div>
+      }
+      @case ('view') {
         <div class="content">
           <tui-scrollbar>
             <feature-content [feature]="_feature" />

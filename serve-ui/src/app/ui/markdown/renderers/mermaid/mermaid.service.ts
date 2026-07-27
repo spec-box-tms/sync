@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Service } from '@angular/core';
 import type { Mermaid } from 'mermaid';
 import { from, map, shareReplay } from 'rxjs';
 
 declare const mermaid: Mermaid;
 
-@Injectable()
+@Service()
 export class MermaidService {
   private isLoaded = false;
   private mermaidLoader?: Promise<void>;
