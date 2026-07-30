@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TuiNotification } from '@taiga-ui/core';
 import { ProjectService } from '../../core/project.service';
 import { ActiveFeatureService } from './active-feature.service';
 import { FeaturePagePresenter } from './feature-page-presenter/feature-page-presenter';
+import { Title } from '@angular/platform-browser';
 @Component({
   imports: [FeaturePagePresenter, TuiNotification],
   selector: 'features-page',
@@ -13,11 +14,12 @@ import { FeaturePagePresenter } from './feature-page-presenter/feature-page-pres
   providers: [ActiveFeatureService],
 })
 export class FeaturesPage {
+  private readonly titleService = inject(Title);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly queryParams = toSignal(this.activatedRoute.queryParams);
   private readonly queryTree = computed(() => this.queryParams()?.['tree'] ?? null);
   private readonly queryFeature = computed(() => this.queryParams()?.['feature'] ?? null);
-  
+
   readonly queryMode = computed(() => this.queryParams()?.['mode'] ?? null);
 
   readonly projectSnapshotResource = inject(ProjectService).projectResource;
@@ -57,6 +59,22 @@ export class FeaturesPage {
   });
 
   readonly featureCodes = signal<string[]>([]);
+
+  constructor() {
+    effect(() => {
+      if (this.projectSnapshotResource.hasValue()) {
+        const activeFeature = this.activeFeature();
+        const project = this.projectSnapshotResource.value();
+        if (activeFeature) {
+          this.titleService.setTitle(`${project.project?.title ?? 'SpecBoxTMS'} - ${activeFeature.title}`);
+        } else {
+          this.titleService.setTitle(`${project.project?.title ?? 'SpecBoxTMS'}`);
+        }
+      } else {
+        this.titleService.setTitle('SpecBoxTMS');
+      }
+    });
+  }
 
   severityToAppearance(severity: string): string {
     if (severity === 'error') {
