@@ -1,3 +1,8 @@
 @for (node of tree().root.children; track node.valueCode) {
-  <feature-tree-node [node]="node" />
+  <feature-tree-node
+    [node]="node"
+    [nodePath]="node.valueCode"
+    [expandedNodes]="expandedNodes()"
+    (expandedChange)="toggleExpanded($event)"
+  />
 }

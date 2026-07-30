@@ -8,7 +8,7 @@
 
   <tui-scrollbar>
     @if (activeTree(); as _activeTree) {
-      <feature-tree [tree]="_activeTree" />
+      <feature-tree [tree]="_activeTree" [activeFeatureCode]="activeFeature()?.code ?? null" />
     } @else {
       <feature-list [featureCodes]="featureCodes()" />
     }
@@ -16,5 +16,5 @@
 </section>
 
 <section class="content">
-  <feature-presenter [feature]="activeFeature()" [project]="projectSnapshot()" [mode]="mode()"/>
+  <feature-presenter [feature]="activeFeature()" [project]="projectSnapshot()" [mode]="mode()" />
 </section>

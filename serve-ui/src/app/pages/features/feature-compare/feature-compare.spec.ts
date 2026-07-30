@@ -12,6 +12,7 @@ const feature = (overrides: Partial<Feature>): Feature => ({
   fileName: 'login.spec.yml',
   filePath: 'specs/login.spec.yml',
   ...overrides,
+  gitStatus: overrides.gitStatus ?? 'clean',
 });
 
 const originCommit: FeatureHistory = {
@@ -112,15 +113,15 @@ describe('FeatureCompare', () => {
     expect(content).toContain('Описание');
     expect(content).toContain('Атрибуты');
     expect(content).toContain('Проверки');
-    expect(content).toContain('Вход: Добавлено');
+    expect(content).toContain('Вход:Добавлено');
     expect(content).toContain('added: value');
     expect(content).toContain('Проверки изменены: 1');
-    expect(content).toContain('Вход: Изменилось');
+    expect(content).toContain('Вход:Изменилось');
     expect(content).toContain('старое');
     expect(content).toContain('новое');
     expect(content).toContain('changed: old');
     expect(content).toContain('changed: new');
-    expect(content).toContain('Вход: Удалено');
+    expect(content).toContain('Вход:Удалено');
     expect(content).toContain('removed: value');
     expect(fixture.nativeElement.querySelectorAll('.diff-line.added').length).toBeGreaterThan(0);
     expect(fixture.nativeElement.querySelectorAll('.diff-line.removed').length).toBeGreaterThan(0);
