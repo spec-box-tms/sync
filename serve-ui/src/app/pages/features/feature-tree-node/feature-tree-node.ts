@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FeatureTreeNode as FeatureTreeNodeModel } from '../../../model/feature-tree.model';
 import { FeatureItem } from '../feature-item/feature-item';
 import { TuiIcon } from '@taiga-ui/core';
@@ -12,9 +12,12 @@ import { TuiIcon } from '@taiga-ui/core';
 })
 export class FeatureTreeNode {
   readonly node = input.required<FeatureTreeNodeModel>();
-  readonly expanded = signal(false);
+  readonly nodePath = input.required<string>();
+  readonly expandedNodes = input<ReadonlySet<string>>(new Set());
+  readonly expandedChange = output<string>();
+  readonly expanded = computed(() => this.expandedNodes().has(this.nodePath()));
 
   toggleExpanded() {
-    this.expanded.update((v) => !v);
+    this.expandedChange.emit(this.nodePath());
   }
 }

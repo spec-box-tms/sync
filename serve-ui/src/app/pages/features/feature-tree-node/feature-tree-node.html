@@ -21,7 +21,12 @@
 <div class="children" [class.expanded]="expanded()">
   @if (expanded()) {
     @for (childNode of node().children; track childNode.valueCode) {
-      <feature-tree-node [node]="childNode" />
+      <feature-tree-node
+        [node]="childNode"
+        [nodePath]="nodePath() + '/' + childNode.valueCode"
+        [expandedNodes]="expandedNodes()"
+        (expandedChange)="expandedChange.emit($event)"
+      />
     }
     @for (featureCode of node().features; track featureCode) {
       <feature-item [featureCode]="featureCode" />
