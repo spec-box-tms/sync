@@ -12,8 +12,8 @@ import { specTest } from './spec-name';
 type Project = Awaited<ReturnType<typeof createProject>>;
 type Snapshot = { revision: number; features: Array<{ code: string; title: string; filePath: string }>; diagnostics: Array<{ code: string }> };
 type Statement =
-  | { type: 'assert'; title: string; description?: string; isAutomated: boolean }
-  | { type: 'propose'; title: string; description?: string; isAutomated: false };
+  | { type: 'assert'; title: string; description?: string; status: 'automated' | 'skipped' | 'failed' | 'not-automated' }
+  | { type: 'propose'; title: string; description?: string };
 type Feature = {
   code: string;
   title: string;

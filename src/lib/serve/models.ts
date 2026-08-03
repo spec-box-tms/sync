@@ -20,12 +20,21 @@ export interface DirectoryNode {
   children: DirectoryNode[];
 }
 
+export interface StatementCounters {
+  failed: number;
+  skipped: number;
+  notAutomated: number;
+  automated: number;
+  propose: number;
+}
+
 export interface FeatureTreeNode {
   attributeCode?: string;
   valueCode?: string;
   valueTitle?: string;
   totalCount: number;
   automatedCount: number;
+  counters: StatementCounters;
   features: string[];
   children: FeatureTreeNode[];
 }
@@ -37,9 +46,9 @@ export interface ProjectSnapshot {
   treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
   features: Array<Feature & { gitStatus: GitStatus }>;
   diagnostics: Diagnostic[];
-  coverage: { total: number; automated: number; uncovered: number };
+  coverage: { total: number; automated: number; uncovered: number; counters: StatementCounters };
   storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
-  trees: Array<{ code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode }>;
+  trees: Array<{ code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; counters: StatementCounters; root: FeatureTreeNode }>;
   dependencyGraph: {
     nodes: Array<{ code: string; title?: string; exists: boolean }>;
     edges: Array<{ from: string; to: string; resolved: boolean }>;
@@ -55,13 +64,12 @@ export type FeatureStatementResponse =
       type: 'assert';
       title: string;
       description?: string;
-      isAutomated: boolean;
+      status: 'automated' | 'skipped' | 'failed' | 'not-automated';
     }
   | {
       type: 'propose';
       title: string;
       description?: string;
-      isAutomated: false;
     };
 
 export interface FeatureResponse {

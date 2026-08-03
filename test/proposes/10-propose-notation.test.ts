@@ -12,7 +12,6 @@ type RuntimeStatement = {
   type?: 'assert' | 'propose';
   title: string;
   description?: string;
-  isAutomated: boolean;
 };
 
 const decode = (items: string) =>
@@ -57,7 +56,7 @@ const linkedProject = (link: string) =>
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Формат YAML',
   'Элементы assert и propose могут находиться в одной группе specs-unit в любом порядке',
   () => {
@@ -70,7 +69,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Формат YAML',
   'Элемент propose содержит строковое название в поле propose и может содержать строковое поле description',
   () => {
@@ -78,16 +77,15 @@ specTest(
       type: 'propose',
       title: 'Later',
       description: 'Details',
-      isAutomated: false,
     });
   },
 );
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Формат YAML',
-  'Каждый элемент группы specs-unit содержит ровно одно из полей assert и propose',
+  'Каждый элемент группы specs-unit содержит ровно одно из полей assert или propose',
   () => {
     assert.doesNotThrow(() => decode('- assert: Now'));
     assert.doesNotThrow(() => decode('- propose: Later'));
@@ -96,7 +94,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Формат YAML',
   'Элемент с одновременными полями assert и propose или без обоих полей отклоняется как некорректный YAML спецификации',
   () => {
@@ -107,7 +105,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Формат YAML',
   'Существующие спецификации только с элементами assert остаются корректными без миграции',
   () => {
@@ -117,7 +115,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Правила утверждений',
   'Порядок assert и propose из YAML сохраняется в модели проекта',
   () => {
@@ -130,7 +128,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Правила утверждений',
   'Два элемента одной группы с одинаковым названием считаются дубликатами независимо от их типа',
   () => {
@@ -143,7 +141,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Правила утверждений',
   'Замена поля propose на assert переводит существующее утверждение из запланированного в обязательное',
   () => {
@@ -154,7 +152,7 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Правила утверждений',
   'Ссылки на фичи в названии и description элемента propose валидируются так же, как ссылки элемента assert',
   () => {
@@ -169,9 +167,9 @@ specTest(
 
 specTest(
   'propose-notation',
-  'Предложения в YAML-спецификации',
+  'Propose в YAML-спецификации',
   'Правила утверждений',
-  'Неразрешённая ссылка из propose создаёт существующую диагностику отсутствующей ссылки',
+  'Ссылки на фичи в названии и description элемента propose валидируются так же, как ссылки элемента assert',
   () => {
     const validator = new Validator({});
     validator.validate(linkedProject('$missing'));

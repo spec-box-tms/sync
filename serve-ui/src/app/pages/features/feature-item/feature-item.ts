@@ -69,7 +69,12 @@ export class FeatureItem {
 
   readonly totalCount = computed(() => this.assertions().length);
 
-  readonly automatedCount = computed(() => this.assertions().filter((assertion) => assertion.isAutomated).length);
+  readonly automatedCount = computed(() => this.assertions().filter((assertion) => assertion.status !== 'not-automated').length);
+  
+  readonly skippedCount = computed(() => this.assertions().filter((assertion) => assertion.status === 'skipped').length);
+
+  readonly failedCount = computed(() => this.assertions().filter((assertion) => assertion.status === 'failed').length);
+
 
   activate() {
     this.activeFeatureService.activate(this.feature());

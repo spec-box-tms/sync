@@ -1,11 +1,11 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FeatureTreeNode as FeatureTreeNodeModel } from '../../../model/feature-tree.model';
 import { FeatureItem } from '../feature-item/feature-item';
-import { TuiIcon } from '@taiga-ui/core';
+import { TuiIcon, TuiHintDirective } from '@taiga-ui/core';
 
 @Component({
   standalone: true,
-  imports: [FeatureItem, TuiIcon],
+  imports: [FeatureItem, TuiIcon, TuiHintDirective],
   selector: 'feature-tree-node',
   templateUrl: 'feature-tree-node.html',
   styleUrl: 'feature-tree-node.scss',

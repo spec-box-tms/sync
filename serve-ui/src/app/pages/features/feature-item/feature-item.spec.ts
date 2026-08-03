@@ -17,9 +17,9 @@ describe('FeatureItem', () => {
       groups: [{
         title: 'Поток',
         assertions: [
-          { type: 'assert' as const, title: 'Required', isAutomated: true },
-          { type: 'propose' as const, title: 'Later', isAutomated: false as const },
-          { type: 'propose' as const, title: 'Much later', isAutomated: false as const },
+          { type: 'assert' as const, title: 'Required', status: 'automated' as const },
+          { type: 'propose' as const, title: 'Later' },
+          { type: 'propose' as const, title: 'Much later' },
         ],
       }],
     };

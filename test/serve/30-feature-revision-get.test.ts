@@ -78,8 +78,8 @@ specTest(
       title: 'Feature one',
       attributes: {},
       groups: [{ title: 'Group', assertions: [
-        { type: 'assert', title: 'Works', isAutomated: false },
-        { type: 'propose', title: 'Later', isAutomated: false },
+        { type: 'assert', title: 'Works', status: 'not-automated' },
+        { type: 'propose', title: 'Later' },
       ] }],
       filePath: 'specs/feature.spec.yml',
     });

@@ -91,6 +91,7 @@ export type LoaderError = {
   filePath: string;
   fileType: 'config' | 'feature';
   description: string;
+  severity?: 'info' | 'warning' | 'error';
 };
 export type JestUnusedTestError = {
   type: 'jest-unused';

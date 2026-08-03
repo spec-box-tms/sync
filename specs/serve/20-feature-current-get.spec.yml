@@ -32,8 +32,8 @@ specs-unit:
     - assert: GET /api/features/:code возвращает текущую фичу с HTTP 200
     - assert: Ответ содержит код, название, необязательное описание, атрибуты, группы утверждений, относительный путь файла, optimisticLock и gitStatus
     - assert: gitStatus текущей фичи равен clean, modified или untracked по состоянию её YAML-файла в Git
-    - assert: Каждый assert ответа содержит type равный assert и вычисленный признак isAutomated
-    - assert: Каждый propose ответа содержит type равный propose и isAutomated равный false
+    - assert: Каждый assert ответа содержит type равный assert и вычисленный status
+    - assert: Каждый propose ответа содержит type равный propose
     - assert: У фичи без атрибутов и групп ответ содержит attributes как {} и groups как []
     - assert: У фичи без YAML-описания поле description отсутствует в ответе
     - assert: optimisticLock текущей фичи равен MD5 исходных байтов её YAML-файла

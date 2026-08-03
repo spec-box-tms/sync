@@ -27,7 +27,7 @@ describe('NavControls', () => {
                 type: 'assert',
                 title: 'Сброс',
                 description: 'Отправить пароль',
-                isAutomated: false,
+                status: 'not-automated',
               },
             ],
           },

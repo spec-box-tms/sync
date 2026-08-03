@@ -1,6 +1,6 @@
 {
     "name": "spec-box-tms-sync",
-    "version": "1.0.7",
+    "version": "1.1.1",
     "private": false,
     "bin": {
         "spec-box": "./bin/spec-box"
@@ -16,7 +16,7 @@
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",
         "test": "npm run test:serve && npm run test:unit",
-        "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=junit test/serve/*.test.ts test/proposes/*.test.ts > test-results/junit.xml",
+        "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results/junit.xml test/{cli,proposes,serve}/**/*.test.ts",
         "test:unit": "node --test -r ts-node/register test/helpers/*.test.ts",
         "test-ext": "./bin/spec-box sync",
         "version-beta": "npm version prerelease --preid beta",

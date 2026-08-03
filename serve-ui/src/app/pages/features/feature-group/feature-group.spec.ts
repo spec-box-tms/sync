@@ -8,9 +8,9 @@ describe('FeatureGroup', () => {
     fixture.componentRef.setInput('group', {
       title: 'Поток',
       assertions: [
-        { type: 'assert', title: 'First', isAutomated: true },
-        { type: 'propose', title: 'Later', isAutomated: false },
-        { type: 'assert', title: 'Third', isAutomated: false },
+        { type: 'assert', title: 'First', status: 'automated' },
+        { type: 'propose', title: 'Later' },
+        { type: 'assert', title: 'Third', status: 'not-automated' },
       ],
     });
 

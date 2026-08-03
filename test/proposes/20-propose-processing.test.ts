@@ -26,12 +26,11 @@ const projectData = (): ProjectData => ({
         {
           title: 'Flow',
           assertions: [
-            { type: 'assert', title: 'Required', isAutomated: false },
+            { type: 'assert', title: 'Required', status: 'not-automated' },
             {
               type: 'propose',
               title: 'Planned $target',
               description: 'Later details',
-              isAutomated: false,
             },
           ],
         },
@@ -114,35 +113,36 @@ const withCoverageProject = async <T>(
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Автоматизация и покрытие',
-  'Сопоставление с отчётами Jest и JUnit выполняется только для элементов типа assert',
+  'Не выполняется сопоставление propose с отчётами о тестах',
   () => {
     const statements = applyMatchingReport();
-    assert.equal(statements[0].isAutomated, true);
+    assert.equal(statements[0].type, 'assert');
+    assert.equal(statements[0].status, 'automated');
   },
 );
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Автоматизация и покрытие',
   'Элемент propose остаётся неавтоматизированным при наличии теста с совпадающим составным именем',
   () => {
     const statements = applyMatchingReport();
-    assert.equal(statements[1].isAutomated, false);
+    assert.equal(statements[1].type, 'propose');
   },
 );
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Автоматизация и покрытие',
   'Propose не входит в total, automated и uncovered проекта, деревьев и списка фич',
   () =>
     withCoverageProject(async ({ service }) => {
       const snapshot = await service.refresh();
-      assert.deepEqual(snapshot.coverage, { total: 1, automated: 1, uncovered: 0 });
+      assert.deepEqual(snapshot.coverage, { total: 1, automated: 1, uncovered: 0, counters: { failed: 0, skipped: 0, notAutomated: 0, automated: 1, propose: 1 } });
       assert.deepEqual(
         {
           total: snapshot.trees[0].totalCount,
@@ -155,9 +155,9 @@ specTest(
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Автоматизация и покрытие',
-  'После замены propose на assert утверждение участвует в сопоставлении тестов и показателях покрытия при следующем пересчёте проекта',
+  'Не выполняется сопоставление propose с отчётами о тестах',
   () =>
     withCoverageProject(async ({ service, featurePath, featureSource }) => {
       await service.refresh();
@@ -166,13 +166,13 @@ specTest(
         featureSource.replace('    - propose: Planned', '    - assert: Planned'),
       );
       const snapshot = await service.refresh();
-      assert.deepEqual(snapshot.coverage, { total: 2, automated: 1, uncovered: 1 });
+      assert.deepEqual(snapshot.coverage, { total: 2, automated: 1, uncovered: 1, counters: { failed: 0, skipped: 0, notAutomated: 1, automated: 1, propose: 0 } });
     }),
 );
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Остальная обработка',
   'Propose участвует в построении графа зависимостей по ссылкам из названия и description',
   () =>
@@ -204,7 +204,7 @@ specTest(
 
 specTest(
   'propose-processing',
-  'Обработка предложений',
+  'Обработка propose',
   'Остальная обработка',
   'Markdown-экспорт включает propose в исходной группе и порядке и явно помечает его как предложение',
   () => {

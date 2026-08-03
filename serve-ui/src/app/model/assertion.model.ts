@@ -4,5 +4,5 @@ type BaseStatement = {
 };
 
 export type Assertion =
-  | (BaseStatement & { type: 'assert'; isAutomated: boolean })
-  | (BaseStatement & { type: 'propose'; isAutomated: false });
+  | (BaseStatement & { type: 'assert'; status: 'automated' | 'skipped' | 'failed' | 'not-automated' })
+  | (BaseStatement & { type: 'propose' });
