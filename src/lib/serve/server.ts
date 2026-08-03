@@ -10,7 +10,7 @@ import { GitAdapter, gitAdapter } from './git';
 import { parse } from 'yaml';
 import { parseObject } from '../utils';
 import { entityDecoder, Statement as YamlStatement } from '../yaml/models';
-import { RootConfig } from '../config/models';
+import { RootConfig, testReportConfigs } from '../config/models';
 
 export interface StartServerOptions {
   projectRoot: string;
@@ -41,7 +41,7 @@ const historicalStatement = (
         ...(statement.description === undefined
           ? {}
           : { description: statement.description }),
-        isAutomated: false,
+        status: 'not-automated',
       }
     : {
         type: 'propose',
@@ -49,7 +49,6 @@ const historicalStatement = (
         ...(statement.description === undefined
           ? {}
           : { description: statement.description }),
-        isAutomated: false,
       };
 
 const staticRoot = (pattern: string) => {
@@ -91,8 +90,8 @@ export const startServer = async ({
       file(configPath),
       file(resolve(root, config.yml.metaPath || '.spec-box-meta.yml')),
       ...config.yml.files.filter((pattern) => !pattern.startsWith('!')).map((pattern) => ({ path: resolve(root, staticRoot(pattern)), recursive: true })),
-      ...(config.jest ? [file(resolve(root, config.jest.reportPath))] : []),
-      ...(config.JUnit ? [file(resolve(root, config.JUnit.reportPath))] : []),
+      ...testReportConfigs(config.jest).map(({ reportPath }) => file(resolve(root, reportPath))),
+      ...testReportConfigs(config.JUnit).map(({ reportPath }) => file(resolve(root, reportPath))),
     ];
   };
   const configureWatchers = () => {

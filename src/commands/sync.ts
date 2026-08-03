@@ -6,6 +6,7 @@ import { loadJestReport } from '../lib/test-matcher/jest';
 import { loadJUnitReport } from '../lib/test-matcher/junit';
 import { uploadEntities } from '../lib/upload/upload-entities';
 import { CommonOptions } from '../lib/utils';
+import { testReportConfigs } from '../lib/config/models';
 
 export const cmdSync: CommandModule<{}, CommonOptions> = {
   command: 'sync',
@@ -21,16 +22,22 @@ export const cmdSync: CommandModule<{}, CommonOptions> = {
       validation
     );
 
-    if (jest) {
-      const jestReport = await loadJestReport(jest.reportPath, projectPath);
-
-      applyTestReport(validationContext, projectData, jestReport, jest.keys);
+    for (const reportConfig of testReportConfigs(jest)) {
+      try {
+        const report = await loadJestReport(reportConfig.reportPath, projectPath);
+        applyTestReport(validationContext, projectData, report, reportConfig.keys);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
     }
 
-    if (JUnit) {
-      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath, JUnit.property);
-
-      applyTestReport(validationContext, projectData, junitReport, JUnit.keys);
+    for (const reportConfig of testReportConfigs(JUnit)) {
+      try {
+        const report = await loadJUnitReport(reportConfig.reportPath, projectPath, reportConfig.property);
+        applyTestReport(validationContext, projectData, report, reportConfig.keys);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      }
     }
 
     validationContext.printReport();

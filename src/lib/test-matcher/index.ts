@@ -1,19 +1,24 @@
 import {
   AssertionContext,
+  AssertionStatus,
   getAttributesContext,
   getKey,
   ProjectData,
 } from '../domain';
 import { Validator } from '../validators';
-import { AssertionStatus, TestReport } from './models';
+import { AssertionStatus as TestStatus, TestReport } from './models';
 
 export const getFullName = (...parts: string[]) => parts.join(' ');
 
-export const ignoredStatuses = new Set<AssertionStatus>([
-  'pending',
-  'todo',
-  'skipped',
-]);
+const status = (value: TestStatus): AssertionStatus =>
+  value === 'failed' ? 'failed' : value === 'passed' ? 'automated' : 'skipped';
+
+const priority: Record<AssertionStatus, number> = {
+  'not-automated': 0,
+  skipped: 1,
+  automated: 2,
+  failed: 3,
+};
 
 export const applyTestReport = (
   validationContext: Validator,
@@ -21,19 +26,21 @@ export const applyTestReport = (
   report: TestReport,
   keyParts: string[]
 ) => {
-  const names = new Map<string, string[]>();
+  const names = new Map<string, { paths: string[]; status: AssertionStatus }>();
 
-  for (let { name, filePath } of report.testResults) {
-    const paths = names.get(name) || [];
-    paths.push(filePath || '');
-    names.set(name, paths);
+  for (let { name, filePath, status: testStatus } of report.testResults) {
+    const result = names.get(name) || { paths: [], status: 'not-automated' as const };
+    result.paths.push(filePath || '');
+    const next = status(testStatus);
+    if (priority[next] > priority[result.status]) result.status = next;
+    names.set(name, result);
   }
 
   const searchNames = [...names.keys()];
 
   const attributesCtx = getAttributesContext(attributes);
 
-  // заполняем поле isAutomated
+  // заполняем статус assert
   for (let {
     title: featureTitle,
     code: featureCode,
@@ -61,22 +68,22 @@ export const applyTestReport = (
         const parts = getKey(keyParts, assertionCtx, attributesCtx);
         const fullName = getFullName(...parts);
 
-        const fullyEquals = names.has(fullName);
-        if (fullyEquals) {
-          assertion.isAutomated = true;
-          names.delete(fullName);
-        }
-        const partlyEquals = searchNames.find(name => name.endsWith(fullName));
-        if(partlyEquals) {
-          assertion.isAutomated = true;
-          names.delete(partlyEquals);
+        const matchedName = names.has(fullName)
+          ? fullName
+          : searchNames.find((name) => names.has(name) && name.endsWith(fullName));
+        if (matchedName) {
+          const result = names.get(matchedName);
+          if (result && priority[result.status] > priority[assertion.status]) {
+            assertion.status = result.status;
+          }
+          names.delete(matchedName);
         }
       }
     }
   }
   Array.from(names.keys()).forEach((name) => {
-    const paths = names.get(name);
-    paths?.forEach((path) =>
+    const result = names.get(name);
+    result?.paths.forEach((path) =>
       validationContext.registerJestUnusedTests(name, path)
     );
   });

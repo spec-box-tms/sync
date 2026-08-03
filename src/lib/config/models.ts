@@ -91,6 +91,11 @@ export const testReportConfigDecoder = d.intersect(
   }),
 );
 
+export const testReportConfigsDecoder = d.union(
+  testReportConfigDecoder,
+  d.array(testReportConfigDecoder),
+);
+
 export const configDecoder = d.intersect(
   d.struct({
     api: apiConfigDecoder,
@@ -100,8 +105,8 @@ export const configDecoder = d.intersect(
   d.partial({
     projectPath: d.string,
     validation: validationConfigDecoder,
-    jest: testReportConfigDecoder,
-    JUnit: testReportConfigDecoder,
+    jest: testReportConfigsDecoder,
+    JUnit: testReportConfigsDecoder,
     markdown: markdownConfigDecoder,
   }),
 );
@@ -111,6 +116,7 @@ export type ApiConfig = d.TypeOf<typeof apiConfigDecoder>;
 export type YmlConfig = d.TypeOf<typeof ymlConfigDecoder>;
 export type MarkdownConfig = d.TypeOf<typeof markdownConfigDecoder>;
 export type TestConfig = d.TypeOf<typeof testReportConfigDecoder>;
+export type TestConfigs = d.TypeOf<typeof testReportConfigsDecoder>;
 export type ValidationConfig = d.TypeOf<typeof validationConfigDecoder>;
 export type ValidationSeverity = d.TypeOf<typeof validationSeverityDecoder>;
 
@@ -118,3 +124,6 @@ export type Meta = d.TypeOf<typeof metaDecoder>;
 export type Tree = d.TypeOf<typeof treeDecoder>;
 export type Attribute = d.TypeOf<typeof attributeDecoder>;
 export type AttributeValue = d.TypeOf<typeof attributeValueDecoder>;
+
+export const testReportConfigs = (config?: TestConfigs): TestConfig[] =>
+  config ? (Array.isArray(config) ? config : [config]) : [];

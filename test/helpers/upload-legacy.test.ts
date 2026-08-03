@@ -8,12 +8,11 @@ test('legacy upload keeps assertions and omits proposes', () => {
     mapGroup({
       title: 'Flow',
       assertions: [
-        { type: 'assert', title: 'Required', isAutomated: true },
+        { type: 'assert', title: 'Required', status: 'automated' },
         {
           type: 'propose',
           title: 'Planned',
           description: 'Later',
-          isAutomated: false,
         },
       ],
     }),

@@ -8,6 +8,7 @@ import { YamlFile, Statement as YmlStatement } from '../yaml';
 import {
   Assertion,
   AssertionGroup,
+  AssertionStatus,
   Attribute,
   AttributeValue,
   Feature,
@@ -22,6 +23,7 @@ export type { AssertionContext, AttributesContext } from './keys';
 export type {
   Assertion,
   AssertionGroup,
+  AssertionStatus,
   Attribute,
   AttributeValue,
   Feature,
@@ -37,13 +39,12 @@ const mapStatement = (statement: YmlStatement): Statement =>
         type: 'assert',
         title: statement.assert,
         description: statement.description,
-        isAutomated: false,
+        status: 'not-automated',
       }
     : {
         type: 'propose',
         title: statement.propose,
         description: statement.description,
-        isAutomated: false,
       };
 
 const mapGroup = ([title, list]: [string, YmlStatement[]]): AssertionGroup => {

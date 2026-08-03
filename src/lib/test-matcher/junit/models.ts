@@ -15,19 +15,20 @@ const singleItemOrArray = <T>(decoder: d.Decoder<unknown, T>) =>
 export type JUnitStatuses = 'skipped' | 'failed' | 'passed';
 
 const junitTestCaseStatusDecoder = d.partial({
-  skipped: d.string,
+  skipped: singleItemOrArray(d.union(d.string, d.UnknownRecord)),
   failed: d.string,
+  failure: singleItemOrArray(d.union(d.string, d.UnknownRecord)),
 });
 
 export type JUnitTestCaseStatus = d.TypeOf<typeof junitTestCaseStatusDecoder>;
 
 const mapStatus = (testCase: JUnitTestCaseStatus): JUnitStatuses => {
-  const { skipped, failed } = testCase;
+  const { skipped, failed, failure } = testCase;
+  if (failed !== undefined || failure !== undefined) {
+    return 'failed';
+  }
   if (skipped !== undefined) {
     return 'skipped';
-  }
-  if (failed !== undefined) {
-    return 'failed';
   }
   return 'passed';
 };

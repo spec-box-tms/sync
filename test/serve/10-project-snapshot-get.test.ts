@@ -205,7 +205,7 @@ specTest('serve-project-get', 'GET /api/project', 'Покрытие и зави�
   try {
     await writeFile(join(project.root, 'jest.json'), JSON.stringify({ startTime: 0, numTotalTests: 1, testResults: [{ name: 'spec.ts', status: 'failed', message: '', startTime: 0, endTime: 1, assertionResults: [{ title: 'Works', fullName: 'Feature one Group Works', ancestorTitles: ['Feature one', 'Group'], status: 'failed' }] }] }));
     await writeFile(join(project.root, '.tms.json'), JSON.stringify({ api: { host: 'https://example.invalid', project: 'test' }, yml: { files: ['specs/**/*.spec.yml'] }, jest: { reportPath: 'jest.json', keys: ['featureTitle', 'groupTitle', 'assertionTitle'] } }));
-    assert.equal((await new ProjectSnapshotService(project.root).refresh()).features[0].groups[0].assertions[0].isAutomated, true);
+    assert.equal((await new ProjectSnapshotService(project.root).refresh()).features[0].groups[0].assertions[0].status, 'failed');
   } finally { await project.dispose(); }
 });
 

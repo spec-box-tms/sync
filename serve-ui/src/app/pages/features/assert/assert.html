@@ -11,14 +11,12 @@
   </div>
 
   @if (assertion().type === 'propose') {
-    <div
-      tuiBadge
-      appearance="neutral"
-      tuiStatus
-      size="m"
-      tuiHint="Предложение"
-    ></div>
-  } @else if (assertion().isAutomated) {
+    <div tuiBadge appearance="neutral" size="m" tuiHint="Предложение">
+      <tui-icon  icon="@tui.circle-dashed" size="m" />
+    </div>
+  } @else if (status() === 'failed') {
+    <div tuiBadge appearance="negative" tuiStatus size="m" tuiHint="Проверка не пройдена"></div>
+  } @else if (status() === 'automated') {
     <div
       tuiBadge
       appearance="positive"
@@ -26,10 +24,18 @@
       size="m"
       tuiHint="Проверка автоматизирована"
     ></div>
+  } @else if (status() === 'skipped') {
+    <div
+      tuiBadge
+      appearance="warning"
+      tuiStatus
+      size="m"
+      tuiHint="Проверка пропущена"
+    ></div>
   } @else {
     <div
       tuiBadge
-      appearance="negative"
+      appearance="neutral"
       tuiStatus
       size="m"
       tuiHint="Нет автоматической проверки"

@@ -17,12 +17,12 @@ import { DEFAULT_API_OPTIONS, normalizePath } from '../utils';
 const mapAssertion = ({
   title,
   description,
-  isAutomated,
+  status,
 }: Assertion): SpecBoxWebApiModelUploadAssertionModel => {
   return {
     title,
     description,
-    isAutomated,
+    isAutomated: status !== 'not-automated',
   };
 };
 

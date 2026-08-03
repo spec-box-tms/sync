@@ -3,14 +3,15 @@ interface StatementBase {
   description?: string;
 }
 
+export type AssertionStatus = 'automated' | 'skipped' | 'failed' | 'not-automated';
+
 export interface Assertion extends StatementBase {
   type: 'assert';
-  isAutomated: boolean;
+  status: AssertionStatus;
 }
 
 export interface Propose extends StatementBase {
   type: 'propose';
-  isAutomated: false;
 }
 
 export type Statement = Assertion | Propose;

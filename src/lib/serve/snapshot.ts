@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { glob } from 'fast-glob';
 
 import { loadConfig, loadMeta } from '../config';
-import { RootConfig } from '../config/models';
+import { RootConfig, TestConfig, testReportConfigs } from '../config/models';
 import { processYamlFiles } from '../domain';
 import { Assertion, Attribute, Feature, ProjectData } from '../domain/models';
 import { applyTestReport } from '../test-matcher';
@@ -46,7 +46,9 @@ const toDiagnostic = (
 ): Diagnostic => ({
   code: error.type,
   severity:
-    validator.severity[error.type] === 'warning'
+    error.type === 'loader-error' && error.severity
+      ? error.severity
+      : validator.severity[error.type] === 'warning'
       ? 'warning'
       : validator.severity[error.type] === 'info'
         ? 'info'
@@ -61,7 +63,7 @@ const assertionCounts = (features: Feature[]) => {
   ).filter((statement): statement is Assertion => statement.type === 'assert');
   return {
     totalCount: assertions.length,
-    automatedCount: assertions.filter((assertion) => assertion.isAutomated)
+    automatedCount: assertions.filter((assertion) => assertion.status !== 'not-automated')
       .length,
   };
 };
@@ -236,15 +238,10 @@ export class ProjectSnapshotService {
     data: ProjectData,
     validator: Validator,
   ) {
-    const reports = [
-      config.jest && ([config.jest, loadJestReport] as const),
-      config.JUnit && ([config.JUnit, loadJUnitReport] as const),
-    ].filter(Boolean) as Array<
-      readonly [
-        NonNullable<RootConfig['jest']>,
-        typeof loadJestReport | typeof loadJUnitReport,
-      ]
-    >;
+    const reports: Array<readonly [TestConfig, typeof loadJestReport | typeof loadJUnitReport]> = [
+      ...testReportConfigs(config.jest).map((report) => [report, loadJestReport] as const),
+      ...testReportConfigs(config.JUnit).map((report) => [report, loadJUnitReport] as const),
+    ];
     for (const [reportConfig, load] of reports) {
       try {
         const report =
@@ -257,6 +254,7 @@ export class ProjectSnapshotService {
           error,
           reportConfig.reportPath,
           'feature',
+          (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'warning' : undefined,
         );
       }
     }

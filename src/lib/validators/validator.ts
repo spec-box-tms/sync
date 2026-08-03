@@ -83,9 +83,13 @@ export class Validator {
   registerLoaderError(
     error: unknown,
     filePath: string,
-    fileType: LoaderError['fileType']
+    fileType: LoaderError['fileType'],
+    severity?: LoaderError['severity'],
   ) {
-    this.loaderErrors.push(getLoaderError(error, filePath, fileType));
+    this.loaderErrors.push({
+      ...getLoaderError(error, filePath, fileType),
+      ...(severity ? { severity } : {}),
+    });
   }
 
   registerJestUnusedTests(test: string, filePath: string) {

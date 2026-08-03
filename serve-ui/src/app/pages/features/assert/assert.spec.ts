@@ -9,7 +9,6 @@ describe('Assert', () => {
       type: 'propose',
       title: 'Будущее поведение',
       description: 'Later details',
-      isAutomated: false,
     });
 
     await fixture.whenStable();
@@ -30,14 +29,14 @@ describe('Assert', () => {
   });
 
   it.each([
-    { isAutomated: true, appearance: 'positive' },
-    { isAutomated: false, appearance: 'negative' },
-  ])('keeps the $appearance automation status for assertions', async ({ isAutomated, appearance }) => {
+    { status: 'automated' as const, appearance: 'positive' },
+    { status: 'not-automated' as const, appearance: 'neutral' },
+  ])('renders the $status status for assertions', async ({ status, appearance }) => {
     const fixture = TestBed.createComponent(Assert);
     fixture.componentRef.setInput('assertion', {
       type: 'assert',
       title: 'Обязательное поведение',
-      isAutomated,
+      status,
     });
 
     await fixture.whenStable();

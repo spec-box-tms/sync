@@ -5,6 +5,7 @@ import { loadConfig } from '../lib/config';
 import { uploadTestStat } from '../lib/upload/upload-jest-stat';
 import { loadJestReport } from '../lib/test-matcher/jest';
 import { loadJUnitReport } from '../lib/test-matcher/junit';
+import { testReportConfigs } from '../lib/config/models';
 
 export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
   command: 'upload-stat',
@@ -14,21 +15,19 @@ export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
 
     const { api, jest, JUnit, projectPath } = await loadConfig(config);
 
-    if (!jest && !JUnit) {
+    if (!testReportConfigs(jest).length && !testReportConfigs(JUnit).length) {
       console.log('Jest settings are not specified');
       process.exit(1);
     }
 
-    if (jest) {
-      const jestReport = await loadJestReport(jest.reportPath, projectPath);
-
-      await uploadTestStat(jestReport, api, version);
+    for (const reportConfig of testReportConfigs(jest)) {
+      const report = await loadJestReport(reportConfig.reportPath, projectPath);
+      await uploadTestStat(report, api, version);
     }
 
-    if (JUnit) {
-      const junitReport = await loadJUnitReport(JUnit.reportPath, projectPath);
-
-      await uploadTestStat(junitReport, api, version);
+    for (const reportConfig of testReportConfigs(JUnit)) {
+      const report = await loadJUnitReport(reportConfig.reportPath, projectPath, reportConfig.property);
+      await uploadTestStat(report, api, version);
     }
   },
 };

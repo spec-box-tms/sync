@@ -35,8 +35,14 @@ export class Assert {
 
   title = computed(() => this.assertion().title);
   description = computed(() => this.assertion().description);
-  isAutomated = computed(() => this.assertion().isAutomated);
   path = computed(() => `$${this.feature().code} / ${this.group().title} / ${this.title()}`);
+  status = computed(() => {
+    const assertion = this.assertion();
+    if (assertion.type === 'assert') {
+      return assertion.status;
+    }
+    return null;
+  });
 
   toggleExpanded() {
     this.expanded.update((v) => !v);

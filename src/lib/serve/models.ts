@@ -55,13 +55,12 @@ export type FeatureStatementResponse =
       type: 'assert';
       title: string;
       description?: string;
-      isAutomated: boolean;
+      status: 'automated' | 'skipped' | 'failed' | 'not-automated';
     }
   | {
       type: 'propose';
       title: string;
       description?: string;
-      isAutomated: false;
     };
 
 export interface FeatureResponse {
