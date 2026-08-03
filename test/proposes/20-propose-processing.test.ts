@@ -118,6 +118,7 @@ specTest(
   'Не выполняется сопоставление propose с отчётами о тестах',
   () => {
     const statements = applyMatchingReport();
+    assert.equal(statements[0].type, 'assert');
     assert.equal(statements[0].status, 'automated');
   },
 );
@@ -141,7 +142,7 @@ specTest(
   () =>
     withCoverageProject(async ({ service }) => {
       const snapshot = await service.refresh();
-      assert.deepEqual(snapshot.coverage, { total: 1, automated: 1, uncovered: 0 });
+      assert.deepEqual(snapshot.coverage, { total: 1, automated: 1, uncovered: 0, counters: { failed: 0, skipped: 0, notAutomated: 0, automated: 1, propose: 1 } });
       assert.deepEqual(
         {
           total: snapshot.trees[0].totalCount,
@@ -165,7 +166,7 @@ specTest(
         featureSource.replace('    - propose: Planned', '    - assert: Planned'),
       );
       const snapshot = await service.refresh();
-      assert.deepEqual(snapshot.coverage, { total: 2, automated: 1, uncovered: 1 });
+      assert.deepEqual(snapshot.coverage, { total: 2, automated: 1, uncovered: 1, counters: { failed: 0, skipped: 0, notAutomated: 1, automated: 1, propose: 0 } });
     }),
 );
 

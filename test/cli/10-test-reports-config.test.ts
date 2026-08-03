@@ -28,7 +28,6 @@ const config = (reports: Record<string, unknown>) => JSON.stringify({
 
 specTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Текущая нотация', 'Корневые опциональные поля jest и JUnit задают по одному отчёту соответствующего формата', async () => {
   const project = await createProject();
-  assert(false);
   try {
     await writeFile(join(project.root, '.tms.json'), config({ jest: { reportPath: 'jest.json', keys: ['featureTitle'] } }));
     const loaded = await loadConfig(join(project.root, '.tms.json'));
@@ -37,7 +36,7 @@ specTest('cli-test-reports-config', 'Конфигурация отчётов т�
   } finally { await project.dispose(); }
 });
 
-skipTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Текущая нотация', 'Одиночная настройка отчёта содержит строковый reportPath и массив keys', async () => {
+specTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Текущая нотация', 'Одиночная настройка отчёта содержит строковый reportPath и массив keys', async () => {
   const project = await createProject();
   try {
     await writeFile(join(project.root, '.tms.json'), config({ JUnit: { reportPath: 'test-results/junit.xml', keys: ['featureCode', 'assertionTitle'] } }));
@@ -103,7 +102,7 @@ specTest('cli-test-reports-config', 'Конфигурация отчётов т�
     await writeFile(join(project.root, 'test-results', 'junit-one.xml'), '<testsuites><testcase name="feature-one Feature one Group JUnit one"/></testsuites>');
     await writeFile(join(project.root, 'test-results', 'junit-two.xml'), '<testsuites><testcase name="feature-one Feature one Group JUnit two"/></testsuites>');
     await writeFile(join(project.root, '.tms.json'), config({ jest: [{ reportPath: 'jest-one.json', keys: ['featureTitle', 'groupTitle', 'assertionTitle'] }, { reportPath: 'jest-two.json', keys: ['featureTitle', 'groupTitle', 'assertionTitle'] }], JUnit: [{ reportPath: 'test-results/junit-one.xml', keys: ['featureCode', 'featureTitle', 'groupTitle', 'assertionTitle'] }, { reportPath: 'test-results/junit-two.xml', keys: ['featureCode', 'featureTitle', 'groupTitle', 'assertionTitle'] }] }));
-    assert.deepEqual((await new ProjectSnapshotService(project.root).refresh()).coverage, { total: 4, automated: 4, uncovered: 0 });
+    assert.deepEqual((await new ProjectSnapshotService(project.root).refresh()).coverage, { total: 4, automated: 4, uncovered: 0, counters: { failed: 0, skipped: 0, notAutomated: 0, automated: 4, propose: 0 } });
   } finally { await project.dispose(); }
 });
 
@@ -115,7 +114,7 @@ specTest('cli-test-reports-config', 'Конфигурация отчётов т�
     await writeFile(join(project.root, 'jest.json'), report('Jest'));
     await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites><testcase name="feature-one Feature one Group JUnit"/></testsuites>');
     await writeFile(join(project.root, '.tms.json'), config({ jest: { reportPath: 'jest.json', keys: ['featureTitle', 'groupTitle', 'assertionTitle'] }, JUnit: [{ reportPath: 'test-results/junit.xml', keys: ['featureCode', 'featureTitle', 'groupTitle', 'assertionTitle'] }] }));
-    assert.deepEqual((await new ProjectSnapshotService(project.root).refresh()).coverage, { total: 2, automated: 2, uncovered: 0 });
+    assert.deepEqual((await new ProjectSnapshotService(project.root).refresh()).coverage, { total: 2, automated: 2, uncovered: 0, counters: { failed: 0, skipped: 0, notAutomated: 0, automated: 2, propose: 0 } });
   } finally { await project.dispose(); }
 });
 
@@ -139,4 +138,16 @@ specTest('cli-test-reports-config', 'Конфигурация отчётов т�
     const snapshot = await new ProjectSnapshotService(project.root).refresh();
     assert.equal(snapshot.diagnostics.find(({ path }) => path === 'test-results/junit.xml')?.severity, 'warning');
   } finally { await project.dispose(); }
+});
+
+specTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Проверки отчётов', 'Этот тест должен быть пройден', async () => {
+  assert(true);
+});
+
+specTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Проверки отчётов', 'Этот тест должен быть провален', async () => {
+  assert(false);
+});
+
+skipTest('cli-test-reports-config', 'Конфигурация отчётов тестов CLI', 'Проверки отчётов', 'Этот тест должен быть пропущен', async () => {
+  assert(false);
 });

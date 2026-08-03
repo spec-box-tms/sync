@@ -5,7 +5,7 @@ import { glob } from 'fast-glob';
 import { loadConfig, loadMeta } from '../config';
 import { RootConfig, TestConfig, testReportConfigs } from '../config/models';
 import { processYamlFiles } from '../domain';
-import { Assertion, Attribute, Feature, ProjectData } from '../domain/models';
+import { Attribute, Feature, ProjectData } from '../domain/models';
 import { applyTestReport } from '../test-matcher';
 import { loadJestReport } from '../test-matcher/jest';
 import { loadJUnitReport } from '../test-matcher/junit';
@@ -14,7 +14,7 @@ import { ValidationError } from '../validators/models';
 import { loadYaml, YamlFile } from '../yaml';
 
 import { getStatus } from './git';
-import { Diagnostic, FeatureTreeNode, ProjectSnapshot } from './models';
+import { Diagnostic, FeatureTreeNode, ProjectSnapshot, StatementCounters } from './models';
 
 const emptySnapshot = (
   revision: number,
@@ -25,7 +25,7 @@ const emptySnapshot = (
   attributes: [],
   treeDefinitions: [],
   features: [],
-  coverage: { total: 0, automated: 0, uncovered: 0 },
+  coverage: { total: 0, automated: 0, uncovered: 0, counters: { failed: 0, skipped: 0, notAutomated: 0, automated: 0, propose: 0 } },
   storageAreas: [],
   trees: [],
   dependencyGraph: { nodes: [], edges: [] },
@@ -58,13 +58,16 @@ const toDiagnostic = (
 });
 
 const assertionCounts = (features: Feature[]) => {
-  const assertions = features.flatMap((feature) =>
-    feature.groups.flatMap((group) => group.assertions),
-  ).filter((statement): statement is Assertion => statement.type === 'assert');
+  const counters: StatementCounters = { failed: 0, skipped: 0, notAutomated: 0, automated: 0, propose: 0 };
+  for (const statement of features.flatMap((feature) => feature.groups.flatMap((group) => group.assertions))) {
+    if (statement.type === 'propose') counters.propose += 1;
+    else if (statement.status === 'not-automated') counters.notAutomated += 1;
+    else counters[statement.status] += 1;
+  }
   return {
-    totalCount: assertions.length,
-    automatedCount: assertions.filter((assertion) => assertion.status !== 'not-automated')
-      .length,
+    totalCount: counters.failed + counters.skipped + counters.notAutomated + counters.automated,
+    automatedCount: counters.failed + counters.skipped + counters.automated,
+    counters,
   };
 };
 
@@ -193,7 +196,7 @@ export class ProjectSnapshotService {
     validator.validate(projectData);
     await this.applyReports(config, root, projectData, validator);
 
-    const { totalCount: total, automatedCount: automated } = assertionCounts(
+    const { totalCount: total, automatedCount: automated, counters } = assertionCounts(
       projectData.features,
     );
     this.snapshot = {
@@ -210,7 +213,7 @@ export class ProjectSnapshotService {
       diagnostics: validator.errors.map((item) =>
         toDiagnostic(item, validator),
       ),
-      coverage: { total, automated, uncovered: total - automated },
+      coverage: { total, automated, uncovered: total - automated, counters },
       storageAreas: config.yml.files
         .filter((pattern) => !pattern.startsWith('!'))
         .map((pattern) => ({ pattern, rootPath: root, directories: [] })),
@@ -220,7 +223,7 @@ export class ProjectSnapshotService {
           groupBy,
           projectData.attributes ?? [],
         );
-        return { code, title, groupBy, totalCount: root.totalCount, automatedCount: root.automatedCount, root };
+        return { code, title, groupBy, totalCount: root.totalCount, automatedCount: root.automatedCount, counters: root.counters, root };
       }),
       dependencyGraph: graph(projectData.features),
     };

@@ -42,7 +42,11 @@
   white-space: nowrap;
   font: var(--tui-typography-body-xs);
   color: var(--tui-text-secondary);
-  &.zero {
+  
+  .skipped {
+    color: var(--tui-status-warning);
+  }
+  .failed {
     color: var(--tui-text-negative);
   }
 }

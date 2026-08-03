@@ -11,9 +11,18 @@
   </div>
   <div class="suffix">
     @if (node().totalCount > 0) {
-      <span class="counters" [class.zero]="node().automatedCount === 0">
-        {{ node().automatedCount }} / {{ node().totalCount }}
-      </span>
+      <div class="counters">
+        <span tuiHint="Автоматизировано" tuiHintAppearance="floating"> {{ node().automatedCount }} / </span>
+        @if (node().counters.skipped) {
+          <span class="skipped" tuiHint="Пропущено" tuiHintAppearance="floating"> {{ node().counters.skipped }} / </span>
+        }
+        @if (node().counters.failed) {
+          <span class="failed" tuiHint="Провалено" tuiHintAppearance="floating"> {{ node().counters.failed }} / </span>
+        }
+        <span tuiHint="Всего" tuiHintAppearance="floating">
+          {{ node().totalCount }}
+        </span>
+      </div>
     }
     <div class="status" [class]="node().gitStatus"></div>
   </div>

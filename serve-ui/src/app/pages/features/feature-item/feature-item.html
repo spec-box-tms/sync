@@ -15,9 +15,24 @@
 
     <div class="suffix">
       @if (totalCount() > 0) {
-        <span class="counters" [class.zero]="automatedCount() === 0">
-          {{ automatedCount() }} / {{ totalCount() }}
-        </span>
+        <div class="counters">
+          <span tuiHint="Автоматизировано" tuiHintAppearance="floating">
+            {{ automatedCount() }} /
+          </span>
+          @if (skippedCount()) {
+            <span class="skipped" tuiHint="Пропущено" tuiHintAppearance="floating">
+              {{ skippedCount() }} /
+            </span>
+          }
+          @if (failedCount()) {
+            <span class="failed" tuiHint="Провалено" tuiHintAppearance="floating">
+              {{ failedCount() }} /
+            </span>
+          }
+          <span tuiHint="Всего" tuiHintAppearance="floating">
+            {{ totalCount() }}
+          </span>
+        </div>
       }
       <span class="status" [class]="_feature.gitStatus">
         {{ gitStatusToLetter(_feature.gitStatus) }}

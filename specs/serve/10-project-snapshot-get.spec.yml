@@ -7,6 +7,7 @@ description: |-
   ```ts
   type Severity = 'info' | 'warning' | 'error';
   type GitStatus = 'clean' | 'modified' | 'untracked';
+  type StatementCounters = { failed: number; skipped: number; notAutomated: number; automated: number; propose: number };
   type ProjectSnapshot = {
     revision: number;
     project?: { title?: string; description?: string; repository?: string };
@@ -14,14 +15,14 @@ description: |-
     treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
     features: Array<Feature>;
     diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
-    coverage: { total: number; automated: number; uncovered: number };
+    coverage: { total: number; automated: number; uncovered: number; counters: StatementCounters };
     storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
     trees: FeatureTree[];
     dependencyGraph: { nodes: Array<{ code: string; title?: string; exists: boolean }>; edges: Array<{ from: string; to: string; resolved: boolean }> };
   };
   type DirectoryNode = { name: string; path: string; children: DirectoryNode[] };
-  type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode };
-  type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
+  type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; counters: StatementCounters; root: FeatureTreeNode };
+  type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; counters: StatementCounters; features: string[]; children: FeatureTreeNode[] };
   ```
 
   Модель `Feature` соответствует $serve-feature-get
@@ -37,6 +38,7 @@ specs-unit:
         ```ts
          type Severity = 'info' | 'warning' | 'error';
          type GitStatus = 'clean' | 'modified' | 'untracked';
+         type StatementCounters = { failed: number; skipped: number; notAutomated: number; automated: number; propose: number };
          type ProjectSnapshot = {
            revision: number;
            project?: { title?: string; description?: string; repository?: string };
@@ -44,14 +46,14 @@ specs-unit:
            treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;
            features: Array<Feature & { gitStatus: GitStatus }>;
            diagnostics: Array<{ code: string; severity: Severity; path: string; message: string }>;
-           coverage: { total: number; automated: number; uncovered: number };
+           coverage: { total: number; automated: number; uncovered: number; counters: StatementCounters };
            storageAreas: Array<{ pattern: string; rootPath: string; directories: DirectoryNode[] }>;
            trees: FeatureTree[];
            dependencyGraph: { nodes: Array<{ code: string; title?: string; exists: boolean }>; edges: Array<{ from: string; to: string; resolved: boolean }> };
          };
          type DirectoryNode = { name: string; path: string; children: DirectoryNode[] };
-         type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; root: FeatureTreeNode };
-         type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; features: string[]; children: FeatureTreeNode[] };
+         type FeatureTree = { code: string; title: string; groupBy: string[]; totalCount: number; automatedCount: number; counters: StatementCounters; root: FeatureTreeNode };
+         type FeatureTreeNode = { attributeCode?: string; valueCode?: string; valueTitle?: string; totalCount: number; automatedCount: number; counters: StatementCounters; features: string[]; children: FeatureTreeNode[] };
          ```
     - assert: Корректный ProjectSnapshot содержит ревизию, сведения о проекте, атрибуты, определения деревьев, фичи, диагностики, покрытие, области хранения, деревья и граф зависимостей
     - assert: Каждая фича ProjectSnapshot сохраняет type каждого assert и propose
@@ -62,6 +64,9 @@ specs-unit:
     - assert: Каждое дерево и его ветви содержат количество всех и автоматизированных assert входящих фич
   Покрытие и зависимости:
     - assert: Покрытие в ProjectSnapshot показывает количество всех, автоматизированных и непокрытых assert по загруженным отчётам Jest и JUnit
+    - assert: Поле coverage и каждое дерево с его ветвями содержат counters с числом failed, skipped, notAutomated, automated assert и числом propose
+    - assert: Каждый assert увеличивает ровно один из counters failed, skipped, notAutomated или automated в соответствии со своим status, а каждый propose увеличивает только counters propose
+    - assert: Для каждого набора counters total или totalCount равен сумме failed, skipped, notAutomated и automated, а propose не входит в total, totalCount, automated, automatedCount или uncovered
     - assert: Плоский JUnit-отчёт Node.js сопоставляет testcase с утверждением по составному имени
     - assert: Признак автоматизации утверждения означает его сопоставление с тестом в текущем отчёте и не зависит от успешности запуска теста
     - assert: Граф зависимостей содержит вершины существующих фич и рёбра для ссылок между фичами
