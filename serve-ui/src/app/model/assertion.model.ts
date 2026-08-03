@@ -1,5 +1,8 @@
-export type Assertion = {
+type BaseStatement = {
   title: string;
   description?: string;
-  isAutomated: boolean;
 };
+
+export type Assertion =
+  | (BaseStatement & { type: 'assert'; isAutomated: boolean })
+  | (BaseStatement & { type: 'proposal'; isAutomated: false });

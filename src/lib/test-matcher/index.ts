@@ -44,6 +44,9 @@ export const applyTestReport = (
   } of features) {
     for (let { title: groupTitle, assertions } of groups || []) {
       for (let assertion of assertions || []) {
+        if (assertion.type !== 'assert') {
+          continue;
+        }
         // TODO: перенести в domain?
         const assertionCtx: AssertionContext = {
           featureTitle,

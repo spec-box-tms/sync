@@ -1,0 +1,26 @@
+feature: Предложения в локальном редакторе
+code: serve-proposals
+description: |-
+  Показывает запланированные утверждения в локальном редакторе и отличает их
+  от обязательных assert без влияния на показатели автоматизации.
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+    - frontend
+specs-unit:
+  Локальный API:
+    - assert: ProjectSnapshot и ответы текущей и исторической фичи сохраняют type каждого assert и proposal
+    - assert: Proposal в ответе локального API имеет type равный proposal и isAutomated равный false
+    - assert: Показатели total, automated и uncovered в ProjectSnapshot и деревьях учитывают только assert
+    - assert: Граф зависимостей ProjectSnapshot содержит связи из названия и description proposal
+  Отображение:
+    - assert: Локальный редактор показывает assert и proposal в порядке исходного YAML
+    - assert: Proposal отображается с нейтральной меткой «Предложение» без индикатора отсутствующей автоматизации
+    - assert: Assert сохраняет существующий положительный или отрицательный индикатор автоматизации
+    - assert: Description элемента proposal отображается и раскрывается так же, как description элемента assert
+    - assert: Счётчик автоматизации фичи учитывает только assert и не меняется от добавления proposal
+  Сравнение ревизий:
+    - assert: Сравнение ревизий сопоставляет утверждения по группе и названию независимо от типа
+    - assert: Замена proposal на assert с тем же названием отображается как изменение типа одного утверждения, а не удаление и добавление

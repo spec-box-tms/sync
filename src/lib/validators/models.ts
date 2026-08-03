@@ -1,9 +1,9 @@
 import {
-  Assertion,
   AssertionGroup,
   Attribute,
   AttributeValue,
   Feature,
+  Statement,
   Tree,
 } from '../domain';
 
@@ -84,7 +84,7 @@ export type AssertionDuplicateError = {
   filePath: string;
   feature: Feature;
   assertionGroup: AssertionGroup;
-  assertion: Assertion;
+  assertion: Statement;
 };
 export type LoaderError = {
   type: 'loader-error';
