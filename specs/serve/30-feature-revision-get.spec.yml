@@ -12,10 +12,7 @@ description: |-
     attributes: Record<string, string[]>;
     groups: Array<{
       title: string;
-      assertions: Array<
-        | { type: 'assert'; title: string; description?: string; isAutomated: boolean }
-        | { type: 'proposal'; title: string; description?: string; isAutomated: false }
-      >;
+      assertions: Array<{ title: string; description?: string; isAutomated: boolean }>;
     }>;
     filePath: string;
   }
@@ -28,7 +25,6 @@ definitions:
 specs-unit:
   Успешный ответ:
     - assert: GET /api/features/:code?revision=:commit возвращает модель фичи из указанного коммита её истории с HTTP 200
-    - assert: Снимок фичи из Git-ревизии сохраняет type каждого assert и proposal
     - assert: Снимок фичи из Git-ревизии не содержит optimisticLock
   Недоступная ревизия:
     - assert: GET /api/features/:code?revision=:commit возвращает HTTP 404 при пустом или повторённом параметре revision

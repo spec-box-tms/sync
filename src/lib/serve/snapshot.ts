@@ -5,7 +5,7 @@ import { glob } from 'fast-glob';
 import { loadConfig, loadMeta } from '../config';
 import { RootConfig } from '../config/models';
 import { processYamlFiles } from '../domain';
-import { Assertion, Attribute, Feature, ProjectData } from '../domain/models';
+import { Attribute, Feature, ProjectData } from '../domain/models';
 import { applyTestReport } from '../test-matcher';
 import { loadJestReport } from '../test-matcher/jest';
 import { loadJUnitReport } from '../test-matcher/junit';
@@ -58,7 +58,7 @@ const toDiagnostic = (
 const assertionCounts = (features: Feature[]) => {
   const assertions = features.flatMap((feature) =>
     feature.groups.flatMap((group) => group.assertions),
-  ).filter((statement): statement is Assertion => statement.type === 'assert');
+  );
   return {
     totalCount: assertions.length,
     automatedCount: assertions.filter((assertion) => assertion.isAutomated)

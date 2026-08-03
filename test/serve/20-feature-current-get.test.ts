@@ -12,15 +12,13 @@ import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 
 type Project = Awaited<ReturnType<typeof createProject>>;
-type Statement =
-  | { type: 'assert'; title: string; description?: string; isAutomated: boolean }
-  | { type: 'proposal'; title: string; description?: string; isAutomated: false };
+type Snapshot = { revision: number; features: Array<{ code: string; title: string; filePath: string }>; diagnostics: Array<{ code: string }> };
 type Feature = {
   code: string;
   title: string;
   description?: string;
   attributes: Record<string, string[]>;
-  groups: Array<{ title: string; assertions: Statement[] }>;
+  groups: Array<{ title: string; assertions: Array<{ title: string; description?: string; isAutomated: boolean }> }>;
   filePath: string;
   optimisticLock: string;
   gitStatus: 'clean' | 'modified' | 'untracked';
@@ -89,25 +87,12 @@ specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный от�
   await git(project.root, ['init']);
 }));
 
-specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Каждый assert ответа содержит type равный assert и вычисленный признак isAutomated', () => withServer(async (url) => {
+specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Каждое утверждение ответа содержит вычисленный признак isAutomated', () => withServer(async (url) => {
   const current = await feature(url);
-  assert.equal(current.groups[0].assertions[0].type, 'assert');
   assert.equal(current.groups[0].assertions[0].isAutomated, true);
 }, async (project) => {
   await mkdir(join(project.root, 'test-results'), { recursive: true });
   await writeFile(join(project.root, 'test-results/junit.xml'), '<testsuites name="x" tests="1"><testsuite name="x" time="0" timestamp="2026-01-01T00:00:00.000Z"><testcase name="feature-one Feature one Group Works" status="passed"/></testsuite></testsuites>');
-}));
-
-specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'Каждый proposal ответа содержит type равный proposal и isAutomated равный false', () => withServer(async (url) => {
-  const current = await feature(url);
-  assert.deepEqual(current.groups[0].assertions[1], {
-    type: 'proposal',
-    title: 'Later',
-    description: 'Planned behavior',
-    isAutomated: false,
-  });
-}, async (project) => {
-  await writeFile(join(project.root, 'specs/feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n    - proposal: Later\n      description: Planned behavior\n');
 }));
 
 specTest('serve-feature-get', 'GET /api/features/:code', 'Успешный ответ', 'У фичи без атрибутов и групп ответ содержит attributes как {} и groups как []', () => withServer(async (url) => {

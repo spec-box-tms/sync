@@ -54,7 +54,7 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успеш
   assert.equal(snapshot.features[0].title, 'Changed');
 }));
 
-specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные названия assert или proposal и возвращает их в diagnostics нового ProjectSnapshot', () => withServer(async (url) => {
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные assert и возвращает их в diagnostics нового ProjectSnapshot', () => withServer(async (url) => {
   const response = await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url), 'code: feature-one\nfeature: Changed\nspecs-unit: [\n');
   assert.equal(response.status, 200);
   const snapshot = await response.json() as Snapshot & { diagnostics: Array<{ severity: string }> };
