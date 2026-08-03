@@ -37,6 +37,23 @@ specTest(
   'serve-project-get',
   'GET /api/project',
   'Успешный ответ',
+  'Каждая фича ProjectSnapshot сохраняет type каждого assert и propose',
+  async () => {
+    const project = await createProject();
+    try {
+      await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Required\n    - propose: Planned\n');
+      const snapshot = await new ProjectSnapshotService(project.root).refresh();
+      assert.deepEqual(snapshot.features[0].groups[0].assertions.map(({ type }) => type), ['assert', 'propose']);
+    } finally {
+      await project.dispose();
+    }
+  },
+);
+
+specTest(
+  'serve-project-get',
+  'GET /api/project',
+  'Успешный ответ',
   'Каждая фича ProjectSnapshot содержит gitStatus clean, modified или untracked по состоянию её YAML-файла в Git',
   async () => {
     const project = await createProject();
@@ -62,12 +79,12 @@ specTest(
   'serve-project-get',
   'GET /api/project',
   'Успешный ответ',
-  'Каждое дерево и его ветви содержат количество всех и автоматизированных утверждений входящих фич',
+  'Каждое дерево и его ветви содержат количество всех и автоматизированных assert входящих фич',
   async () => {
     const project = await createProject();
     try {
       await writeFile(join(project.root, '.spec-box-meta.yml'), 'title: Test\nattributes:\n  - code: tool\n    title: Инструмент\n    values:\n      - code: serve\n        title: Редактор\ntrees:\n  - code: by-tool\n    title: По инструменту\n    group-by: [tool]\n');
-      await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nattributes:\n  tool: [serve]\nspecs-unit:\n  Group:\n    - assert: Automated\n    - assert: Manual\n');
+      await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nattributes:\n  tool: [serve]\nspecs-unit:\n  Group:\n    - assert: Automated\n    - assert: Manual\n    - propose: Planned\n');
       await mkdir(join(project.root, 'test-results'));
       await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites><testcase name="feature-one Feature one Group Automated"/></testsuites>');
 
@@ -162,9 +179,10 @@ specTest('serve-project-get', 'GET /api/project', 'Успешный ответ',
   } finally { await server.close(); await project.dispose(); }
 });
 
-specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Покрытие в ProjectSnapshot показывает количество всех, автоматизированных и непокрытых утверждений по загруженным отчётам Jest и JUnit', async () => {
+specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Покрытие в ProjectSnapshot показывает количество всех, автоматизированных и непокрытых assert по загруженным отчётам Jest и JUnit', async () => {
   const project = await createProject();
   try {
+    await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n    - propose: Planned\n');
     await mkdir(join(project.root, 'test-results'));
     await writeFile(join(project.root, 'jest.json'), JSON.stringify({ startTime: 0, numTotalTests: 1, testResults: [{ name: 'spec.ts', status: 'passed', message: '', startTime: 0, endTime: 1, assertionResults: [{ title: 'Works', fullName: 'Feature one Group Works', ancestorTitles: ['Feature one', 'Group'], status: 'passed' }] }] }));
     await writeFile(join(project.root, 'test-results', 'junit.xml'), '<testsuites name="" tests="1"><testsuite name="" timestamp="2026-01-01T00:00:00.000Z" time="0"><testcase name="feature-one Feature one Group Works"/></testsuite></testsuites>');
@@ -199,6 +217,18 @@ specTest('serve-project-get', 'GET /api/project', 'Покрытие и зави�
     assert.deepEqual(snapshot.dependencyGraph.nodes.filter(({ exists }) => exists).map(({ code }) => code).sort(), ['feature-one', 'references']);
     assert.deepEqual(snapshot.dependencyGraph.edges, [{ from: 'references', to: 'feature-one', resolved: true }]);
   } finally { await project.dispose(); }
+});
+
+specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Граф зависимостей ProjectSnapshot содержит связи из названия и description propose', async () => {
+  const project = await createProject();
+  try {
+    await writeFile(join(project.root, 'specs', 'feature.spec.yml'), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - propose: Planned $target\n      description: Later\n');
+    await writeFile(join(project.root, 'specs', 'target.spec.yml'), 'code: target\nfeature: Target\n');
+    const snapshot = await new ProjectSnapshotService(project.root).refresh();
+    assert.deepEqual(snapshot.dependencyGraph.edges, [{ from: 'feature-one', to: 'target', resolved: true }]);
+  } finally {
+    await project.dispose();
+  }
 });
 
 specTest('serve-project-get', 'GET /api/project', 'Покрытие и зависимости', 'Неразрешённая ссылка добавляется в граф как несуществующая вершина и неразрешённое ребро вместе с диагностикой', async () => {

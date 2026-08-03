@@ -3,18 +3,15 @@ code: serve-proposes
 description: |-
   Показывает запланированные утверждения в локальном редакторе и отличает их
   от обязательных assert без влияния на показатели автоматизации.
+
+  Использует данные $serve-project-get, $serve-feature-get и
+  $serve-feature-revision-get.
 definitions:
   tool:
     - serve
   module:
-    - backend
     - frontend
 specs-unit:
-  Локальный API:
-    - assert: ProjectSnapshot и ответы текущей и исторической фичи сохраняют type каждого assert и propose
-    - assert: Propose в ответе локального API имеет type равный propose и isAutomated равный false
-    - assert: Показатели total, automated и uncovered в ProjectSnapshot и деревьях учитывают только assert
-    - assert: Граф зависимостей ProjectSnapshot содержит связи из названия и description propose
   Отображение:
     - assert: Локальный редактор показывает assert и propose в порядке исходного YAML
     - assert: Propose отображается с нейтральной меткой «Предложение» без индикатора отсутствующей автоматизации

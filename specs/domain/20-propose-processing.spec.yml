@@ -1,4 +1,4 @@
-feature: Обработка предложений
+feature: Обработка propose
 code: propose-processing
 description: |-
   Сохраняет тип propose при локальной обработке и экспорте Markdown, но исключает
@@ -6,10 +6,9 @@ description: |-
 
 specs-unit:
   Автоматизация и покрытие:
-    - assert: Сопоставление с отчётами Jest и JUnit выполняется только для элементов типа assert
+    - assert: Не выполняется сопоставление propose с отчётами о тестах
     - assert: Элемент propose остаётся неавтоматизированным при наличии теста с совпадающим составным именем
     - assert: Propose не входит в total, automated и uncovered проекта, деревьев и списка фич
-    - assert: После замены propose на assert утверждение участвует в сопоставлении тестов и показателях покрытия при следующем пересчёте проекта
   Синхронизация:
     - propose: Группа выгружается на удалённый сервер с assert и propose в исходном порядке
     - propose: Выгружаемый assert использует `type = assert` и вычисленным isAutomated
@@ -21,7 +20,6 @@ specs-unit:
 
 definitions:
   tool:
-    - validate
+    - cli
   module:
     - specs
-    - tests
