@@ -26,11 +26,16 @@ const mapAssertion = ({
   };
 };
 
-const mapGroup = ({
+export const mapGroup = ({
   title,
   assertions,
 }: AssertionGroup): SpecBoxWebApiModelUploadAssertionGroupModel => {
-  return { title, assertions: assertions.map(mapAssertion) };
+  return {
+    title,
+    assertions: assertions
+      .filter((statement): statement is Assertion => statement.type === 'assert')
+      .map(mapAssertion),
+  };
 };
 
 const mapFeature = ({

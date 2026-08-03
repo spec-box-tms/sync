@@ -50,18 +50,26 @@ export interface ProjectSnapshotService {
   snapshot: ProjectSnapshot;
 }
 
-export interface FeatureAssertionResponse {
-  title: string;
-  description?: string;
-  isAutomated: boolean;
-}
+export type FeatureStatementResponse =
+  | {
+      type: 'assert';
+      title: string;
+      description?: string;
+      isAutomated: boolean;
+    }
+  | {
+      type: 'proposal';
+      title: string;
+      description?: string;
+      isAutomated: false;
+    };
 
 export interface FeatureResponse {
   code: string;
   title: string;
   description?: string;
   attributes: Record<string, string[]>;
-  groups: Array<{ title: string; assertions: FeatureAssertionResponse[] }>;
+  groups: Array<{ title: string; assertions: FeatureStatementResponse[] }>;
   filePath: string;
   optimisticLock: string;
   gitStatus: GitStatus;

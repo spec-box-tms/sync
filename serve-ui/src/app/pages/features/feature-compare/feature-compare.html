@@ -113,6 +113,11 @@
           <article class="change-item">
             <h4>{{ item.groupTitle }}:</h4>
             <markdown [value]="item.assertion.title" />
+            @if (item.origin.type !== item.assertion.type) {
+              Тип:
+              <div class="diff-line removed">− {{ statementTypeTitle(item.origin.type) }}</div>
+              <div class="diff-line added">+ {{ statementTypeTitle(item.assertion.type) }}</div>
+            }
             @if (item.origin.description !== item.assertion.description) {
               Описание:
               <div class="diff-line removed">

@@ -26,6 +26,7 @@ const initializeHistory = async (project: Project) => {
   await runGit(project, ['init']);
   await runGit(project, ['config', 'user.name', 'Test User']);
   await runGit(project, ['config', 'user.email', 'test@example.com']);
+  await writeFile(join(project.root, featurePath), 'code: feature-one\nfeature: Feature one\nspecs-unit:\n  Group:\n    - assert: Works\n    - proposal: Later\n');
   const initial = await commit(project, 'Initial feature');
   await writeFile(join(project.root, featurePath), 'code: feature-one\nfeature: Changed feature\ndescription: Revision description\ndefinitions:\n  audience:\n    - user\nspecs-unit:\n  Changed group:\n    - assert: Changed assertion\n');
   const changed = await commit(project, 'Change feature');
@@ -76,9 +77,25 @@ specTest(
       code: 'feature-one',
       title: 'Feature one',
       attributes: {},
-      groups: [{ title: 'Group', assertions: [{ title: 'Works', isAutomated: false }] }],
+      groups: [{ title: 'Group', assertions: [
+        { type: 'assert', title: 'Works', isAutomated: false },
+        { type: 'proposal', title: 'Later', isAutomated: false },
+      ] }],
       filePath: 'specs/feature.spec.yml',
     });
+  }, { history: true }),
+);
+
+specTest(
+  'serve-feature-revision-get',
+  'GET /api/features/:code?revision=:commit',
+  'Успешный ответ',
+  'Снимок фичи из Git-ревизии сохраняет type каждого assert и proposal',
+  () => withServer(async (url, project) => {
+    const revision = (await runGit(project, ['rev-parse', 'HEAD~1'])).stdout.trim();
+    const response = await fetch(`${url}/api/features/feature-one?revision=${revision}`);
+    const historical = await response.json() as { groups: Array<{ assertions: Array<{ type: string }> }> };
+    assert.deepEqual(historical.groups[0].assertions.map(({ type }) => type), ['assert', 'proposal']);
   }, { history: true }),
 );
 
