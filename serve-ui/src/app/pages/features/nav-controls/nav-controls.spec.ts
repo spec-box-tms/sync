@@ -22,11 +22,18 @@ describe('NavControls', () => {
         groups: [
           {
             title: 'Учётная запись',
-            assertions: [{title: 'Сброс', description: 'Отправить пароль', isAutomated: false}],
+            assertions: [
+              {
+                type: 'assert',
+                title: 'Сброс',
+                description: 'Отправить пароль',
+                isAutomated: false,
+              },
+            ],
           },
         ],
       }),
-      feature({code: 'other', title: 'Другой доступ'}),
+      feature({ code: 'other', title: 'Другой доступ' }),
     ];
     const matchFeatures = (
       NavControls.prototype as unknown as {
@@ -34,8 +41,10 @@ describe('NavControls', () => {
       }
     ).matchFeatures;
 
-    expect(matchFeatures('reset доступ описание учётная сброс пароль', features).map((item) => item.code)).toEqual([
-      'reset-password',
-    ]);
+    expect(
+      matchFeatures('reset доступ описание учётная сброс пароль', features).map(
+        (item) => item.code,
+      ),
+    ).toEqual(['reset-password']);
   });
 });

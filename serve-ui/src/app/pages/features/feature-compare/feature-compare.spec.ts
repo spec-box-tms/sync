@@ -23,12 +23,37 @@ const originCommit: FeatureHistory = {
 };
 
 describe('FeatureCompare', () => {
-  it('ignores changes to assertion automation', () => {
+  it('shows proposal to assertion as one type change', async () => {
     const current = feature({
-      groups: [{ title: 'Вход', assertions: [{ title: 'Проверка', isAutomated: true }] }],
+      groups: [{ title: 'Вход', assertions: [{ type: 'assert', title: 'Проверка', isAutomated: false }] }],
     });
     const origin = feature({
-      groups: [{ title: 'Вход', assertions: [{ title: 'Проверка', isAutomated: false }] }],
+      groups: [{ title: 'Вход', assertions: [{ type: 'proposal', title: 'Проверка', isAutomated: false }] }],
+    });
+    const fixture = TestBed.createComponent(FeatureCompare);
+    fixture.componentRef.setInput('feature', current);
+    fixture.componentRef.setInput('origin', originCommit);
+    Object.defineProperty(fixture.componentInstance, 'originFeatureResource', {
+      value: { hasValue: () => true, value: () => origin },
+    });
+
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.addedAssertions()).toBe(0);
+    expect(fixture.componentInstance.removedAssertions()).toBe(0);
+    expect(fixture.componentInstance.changedAssertions()).toBe(1);
+    const content = fixture.nativeElement.textContent as string;
+    expect(content).toContain('Тип');
+    expect(content).toContain('Предложение');
+    expect(content).toContain('Проверка');
+  });
+
+  it('ignores changes to assertion automation', () => {
+    const current = feature({
+      groups: [{ title: 'Вход', assertions: [{ type: 'assert', title: 'Проверка', isAutomated: true }] }],
+    });
+    const origin = feature({
+      groups: [{ title: 'Вход', assertions: [{ type: 'assert', title: 'Проверка', isAutomated: false }] }],
     });
     const fixture = TestBed.createComponent(FeatureCompare);
     fixture.componentRef.setInput('feature', current);
@@ -61,9 +86,9 @@ describe('FeatureCompare', () => {
       groups: [{
         title: 'Вход',
         assertions: [
-          { title: 'Не изменилось', isAutomated: false },
-          { title: 'Изменилось', description: 'новое', isAutomated: true },
-          { title: 'Добавлено', isAutomated: false },
+          { type: 'assert', title: 'Не изменилось', isAutomated: false },
+          { type: 'assert', title: 'Изменилось', description: 'новое', isAutomated: true },
+          { type: 'assert', title: 'Добавлено', isAutomated: false },
         ],
       }],
     });
@@ -72,9 +97,9 @@ describe('FeatureCompare', () => {
       groups: [{
         title: 'Вход',
         assertions: [
-          { title: 'Не изменилось', isAutomated: false },
-          { title: 'Изменилось', description: 'старое', isAutomated: false },
-          { title: 'Удалено', isAutomated: false },
+          { type: 'assert', title: 'Не изменилось', isAutomated: false },
+          { type: 'assert', title: 'Изменилось', description: 'старое', isAutomated: false },
+          { type: 'assert', title: 'Удалено', isAutomated: false },
         ],
       }],
     });

@@ -1,11 +1,32 @@
-<div class="assert">
-  @if (assertion().isAutomated) {
-    <div appearance="positive" tuiBadge tuiStatus size="m" tuiHint="Проверка автоматизирована"></div>
+<div class="status">
+  @if (assertion().type === 'proposal') {
+    <div
+      tuiBadge
+      appearance="neutral"
+      tuiStatus
+      size="m"
+      tuiHint="Предложение"
+    ></div>
+  } @else if (assertion().isAutomated) {
+    <div
+      tuiBadge
+      appearance="positive"
+      tuiStatus
+      size="m"
+      tuiHint="Проверка автоматизирована"
+    ></div>
   } @else {
-    <div appearance="negative" tuiBadge tuiStatus size="m" tuiHint="Нет автоматической проверки"></div>
+    <div
+      tuiBadge
+      appearance="negative"
+      tuiStatus
+      size="m"
+      tuiHint="Нет автоматической проверки"
+    ></div>
   }
   <markdown [value]="title" />
 </div>
+
 @if (assertion().description; as _description) {
   <div class="expander" (click)="toggleExpanded()">
     @if (expanded()) {

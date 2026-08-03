@@ -70,7 +70,11 @@ export class FeatureCompare {
     const originAssertions = assertions(origin);
     return [...assertions(this.feature()).values()].flatMap((item) => {
       const originItem = originAssertions.get(`${item.groupTitle}\u0000${item.assertion.title}`);
-      if (!originItem || item.assertion.description === originItem.assertion.description) return [];
+      if (
+        !originItem ||
+        (item.assertion.description === originItem.assertion.description &&
+          item.assertion.type === originItem.assertion.type)
+      ) return [];
       return [{ ...item, origin: originItem.assertion }];
     });
   });
@@ -117,4 +121,8 @@ export class FeatureCompare {
     const origin = this.originFeature();
     return origin !== null && origin.description !== this.feature().description;
   });
+
+  statementTypeTitle(type: Assertion['type']) {
+    return type === 'proposal' ? 'Предложение' : 'Проверка';
+  }
 }

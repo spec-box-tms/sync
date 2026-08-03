@@ -1,15 +1,9 @@
 feature: Обработка предложений
 code: proposal-processing
 description: |-
-  Сохраняет тип proposal при экспорте и синхронизации, но исключает предложения
-  из автоматизации и показателей покрытия обязательных утверждений.
-definitions:
-  tool:
-    - validate
-    - sync
-  module:
-    - specs
-    - tests
+  Сохраняет тип proposal при локальной обработке и экспорте Markdown, но исключает
+  предложения из автоматизации и показателей покрытия обязательных утверждений.
+
 specs-unit:
   Автоматизация и покрытие:
     - assert: Сопоставление с отчётами Jest и JUnit выполняется только для элементов типа assert
@@ -17,10 +11,17 @@ specs-unit:
     - assert: Proposal не входит в total, automated и uncovered проекта, деревьев и списка фич
     - assert: После замены proposal на assert утверждение участвует в сопоставлении тестов и показателях покрытия при следующем пересчёте проекта
   Синхронизация:
-    - assert: Группа выгружается на удалённый сервер с assert и proposal в исходном порядке
-    - assert: Выгружаемый assert использует SpecBoxWebApiModelUploadAssertionModel с type равным assert и вычисленным isAutomated
-    - assert: Выгружаемый proposal использует SpecBoxWebApiModelUploadProposalModel с type равным proposal без данных автоматизации
-    - assert: При выгрузке proposal сохраняются его название и необязательное description
+    - proposal: Группа выгружается на удалённый сервер с assert и proposal в исходном порядке
+    - proposal: Выгружаемый assert использует `type = assert` и вычисленным isAutomated
+    - proposal: Выгружаемый proposal использует `type = proposal` без данных автоматизации
+    - proposal: При выгрузке proposal сохраняются его название и необязательное description
   Остальная обработка:
     - assert: Proposal участвует в построении графа зависимостей по ссылкам из названия и description
     - assert: Markdown-экспорт включает proposal в исходной группе и порядке и явно помечает его как предложение
+
+definitions:
+  tool:
+    - validate
+  module:
+    - specs
+    - tests
