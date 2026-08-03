@@ -3,5 +3,5 @@
 </h3>
 
 @for (assert of group().assertions; track assert.title) {
-  <assert [assertion]="assert" />
+  <assert [assertion]="assert" [group]="group()" [feature]="feature()" />
 }

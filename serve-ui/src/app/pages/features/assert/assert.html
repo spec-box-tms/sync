@@ -1,4 +1,15 @@
 <div class="status">
+  <div class="copy-path">
+    <button
+      iconStart="@tui.link"
+      size="xs"
+      tuiIconButton
+      appearance="flat"
+      [style.border-radius.%]="100"
+      (click)="copyPath()"
+    ></button>
+  </div>
+
   @if (assertion().type === 'proposal') {
     <div
       tuiBadge
@@ -24,10 +35,9 @@
       tuiHint="Нет автоматической проверки"
     ></div>
   }
-  <markdown [value]="title" />
+  <markdown [value]="title()" />
 </div>
-
-@if (assertion().description; as _description) {
+@if (description(); as _description) {
   <div class="expander" (click)="toggleExpanded()">
     @if (expanded()) {
       <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />
