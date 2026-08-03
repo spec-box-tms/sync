@@ -1,12 +1,36 @@
 <div class="assert">
-  @if (assertion().isAutomated) {
-    <div appearance="positive" tuiBadge tuiStatus size="m" tuiHint="Проверка автоматизирована"></div>
+  <div class="copy-path">
+    <button
+      iconStart="@tui.link"
+      size="xs"
+      tuiIconButton
+      appearance="flat"
+      [style.border-radius.%]="100"
+      (click)="copyPath()"
+    >
+      Путь
+    </button>
+  </div>
+  @if (isAutomated()) {
+    <div
+      appearance="positive"
+      tuiBadge
+      tuiStatus
+      size="m"
+      tuiHint="Проверка автоматизирована"
+    ></div>
   } @else {
-    <div appearance="negative" tuiBadge tuiStatus size="m" tuiHint="Нет автоматической проверки"></div>
+    <div
+      appearance="negative"
+      tuiBadge
+      tuiStatus
+      size="m"
+      tuiHint="Нет автоматической проверки"
+    ></div>
   }
-  <markdown [value]="title" />
+  <markdown [value]="title()" />
 </div>
-@if (assertion().description; as _description) {
+@if (description(); as _description) {
   <div class="expander" (click)="toggleExpanded()">
     @if (expanded()) {
       <tui-icon [style.font-size.px]="16" icon="@tui.chevron-down" />

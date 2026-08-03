@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { TuiCopy, TuiHighlight } from '@taiga-ui/kit';
+import { TuiCopy } from '@taiga-ui/kit';
 import { Feature } from '../../../model/feature.model';
 import { Markdown } from '../../../ui/markdown/markdown.component';
 import { Attribute } from '../attribute/attribute';
