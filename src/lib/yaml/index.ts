@@ -4,7 +4,7 @@ import { resolvePath, CWD, readYaml } from '../utils';
 import { entityDecoder, Entity } from './models';
 import { Validator } from '../validators';
 
-export type { Entity, Assertion } from './models';
+export type { Entity, Assertion, Propose, Statement } from './models';
 
 export interface YamlFile {
   content: Entity;

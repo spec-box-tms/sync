@@ -4,12 +4,12 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 
 import express from 'express';
 
-import { ProjectSnapshot } from './models';
+import { FeatureStatementResponse, ProjectSnapshot } from './models';
 import { FeatureService } from './features';
 import { GitAdapter, gitAdapter } from './git';
 import { parse } from 'yaml';
 import { parseObject } from '../utils';
-import { entityDecoder } from '../yaml/models';
+import { entityDecoder, Statement as YamlStatement } from '../yaml/models';
 import { RootConfig } from '../config/models';
 
 export interface StartServerOptions {
@@ -30,6 +30,27 @@ type RefreshableService = StartServerOptions['service'] & {
   config?: RootConfig;
   configPath?: string;
 };
+
+const historicalStatement = (
+  statement: YamlStatement,
+): FeatureStatementResponse =>
+  'assert' in statement
+    ? {
+        type: 'assert',
+        title: statement.assert,
+        ...(statement.description === undefined
+          ? {}
+          : { description: statement.description }),
+        isAutomated: false,
+      }
+    : {
+        type: 'propose',
+        title: statement.propose,
+        ...(statement.description === undefined
+          ? {}
+          : { description: statement.description }),
+        isAutomated: false,
+      };
 
 const staticRoot = (pattern: string) => {
   const parts = pattern.split(/[\\/]/);
@@ -159,7 +180,7 @@ export const startServer = async ({
           attributes: entity.definitions || {},
           groups: Object.entries(entity['specs-unit'] || {}).map(([title, assertions]) => ({
             title,
-            assertions: assertions.map(({ assert: assertionTitle, description }) => ({ title: assertionTitle, ...(description === undefined ? {} : { description }), isAutomated: false })),
+            assertions: assertions.map(historicalStatement),
           })),
           filePath: current.filePath,
         });

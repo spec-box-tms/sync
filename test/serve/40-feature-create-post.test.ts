@@ -11,12 +11,15 @@ import { specTest } from './spec-name';
 
 type Project = Awaited<ReturnType<typeof createProject>>;
 type Snapshot = { revision: number; features: Array<{ code: string; title: string; filePath: string }>; diagnostics: Array<{ code: string }> };
+type Statement =
+  | { type: 'assert'; title: string; description?: string; isAutomated: boolean }
+  | { type: 'propose'; title: string; description?: string; isAutomated: false };
 type Feature = {
   code: string;
   title: string;
   description?: string;
   attributes: Record<string, string[]>;
-  groups: Array<{ title: string; assertions: Array<{ title: string; description?: string; isAutomated: boolean }> }>;
+  groups: Array<{ title: string; assertions: Statement[] }>;
   filePath: string;
   optimisticLock: string;
 };

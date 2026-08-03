@@ -4,7 +4,7 @@ import {
   Tree as CfgTree,
 } from '../config';
 import { Meta } from '../config/models';
-import { YamlFile, Assertion as YmlAssertion } from '../yaml';
+import { YamlFile, Statement as YmlStatement } from '../yaml';
 import {
   Assertion,
   AssertionGroup,
@@ -12,6 +12,8 @@ import {
   AttributeValue,
   Feature,
   ProjectData,
+  Propose,
+  Statement,
   Tree,
 } from './models';
 
@@ -24,20 +26,28 @@ export type {
   AttributeValue,
   Feature,
   ProjectData,
+  Propose,
+  Statement,
   Tree,
 } from './models';
 
-const mapAssertion = ({
-  assert: title,
-  description,
-}: YmlAssertion): Assertion => ({
-  title,
-  description,
-  isAutomated: false,
-});
+const mapStatement = (statement: YmlStatement): Statement =>
+  'assert' in statement
+    ? {
+        type: 'assert',
+        title: statement.assert,
+        description: statement.description,
+        isAutomated: false,
+      }
+    : {
+        type: 'propose',
+        title: statement.propose,
+        description: statement.description,
+        isAutomated: false,
+      };
 
-const mapGroup = ([title, list]: [string, YmlAssertion[]]): AssertionGroup => {
-  const assertions = list.map(mapAssertion);
+const mapGroup = ([title, list]: [string, YmlStatement[]]): AssertionGroup => {
+  const assertions = list.map(mapStatement);
 
   return { title, assertions };
 };

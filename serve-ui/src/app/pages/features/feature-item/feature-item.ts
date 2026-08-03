@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { ProjectService } from '../../../core/project.service';
 import { TuiIcon } from '@taiga-ui/core';
 import { ActiveFeatureService } from '../active-feature.service';
@@ -57,21 +57,19 @@ export class FeatureItem {
     return feature;
   });
 
-  readonly totalCount = computed(() => {
+  readonly assertions = computed(() => {
     const feature = this.feature();
     if (!feature) {
-      return 0;
+      return [];
     }
-    return feature.groups.flatMap((group) => group.assertions).length;
+    return feature.groups
+      .flatMap((group) => group.assertions)
+      .filter((statement) => statement.type === 'assert');
   });
 
-  readonly automatedCount = computed(() => {
-    const feature = this.feature();
-    if (!feature) {
-      return 0;
-    }
-    return feature.groups.flatMap((group) => group.assertions.filter((a) => a.isAutomated)).length;
-  });
+  readonly totalCount = computed(() => this.assertions().length);
+
+  readonly automatedCount = computed(() => this.assertions().filter((assertion) => assertion.isAutomated).length);
 
   activate() {
     this.activeFeatureService.activate(this.feature());

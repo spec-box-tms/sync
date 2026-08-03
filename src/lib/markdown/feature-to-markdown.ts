@@ -1,4 +1,4 @@
-import { AssertionGroup, Feature } from "../domain";
+import { AssertionGroup, Feature, Statement } from "../domain";
 
 function mdFeatureTitle(feature: Feature) {
   let result = `# ${feature.title} ( ${feature.code} )\r\n\r\n`;
@@ -17,10 +17,11 @@ function mdDescriptionToQuote(description: string) {
   return `> ${quotedNewLines}`;
 }
 
-function mdFeatureAssertion(assertion: string, description?: string) {
-  let result = `- ${assertion.trim()}\r\n\r\n`;
-  if (description) {
-    result += `${mdDescriptionToQuote(description)}\r\n\r\n`;
+function mdFeatureStatement(statement: Statement) {
+  const label = statement.type === 'propose' ? '**Предложение:** ' : '';
+  let result = `- ${label}${statement.title.trim()}\r\n\r\n`;
+  if (statement.description) {
+    result += `${mdDescriptionToQuote(statement.description)}\r\n\r\n`;
   }
   return result;
 }
@@ -29,7 +30,7 @@ function mdFeatureGroup(assertionGroup: AssertionGroup) {
   let result = '';
   result += mdFeatureGroupTitle(assertionGroup.title);
   assertionGroup.assertions.forEach((assertion) => {
-    result += mdFeatureAssertion(assertion.title, assertion.description);
+    result += mdFeatureStatement(assertion);
   });
   return result;
 }

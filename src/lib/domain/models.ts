@@ -1,12 +1,23 @@
-export interface Assertion {
+interface StatementBase {
   title: string;
   description?: string;
+}
+
+export interface Assertion extends StatementBase {
+  type: 'assert';
   isAutomated: boolean;
 }
 
+export interface Propose extends StatementBase {
+  type: 'propose';
+  isAutomated: false;
+}
+
+export type Statement = Assertion | Propose;
+
 export interface AssertionGroup {
   title: string;
-  assertions: Assertion[];
+  assertions: Statement[];
 }
 
 export interface Feature {

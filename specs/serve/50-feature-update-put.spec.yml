@@ -14,7 +14,7 @@ specs-unit:
     - assert: PUT /api/features/:code/yaml принимает YAML в теле с Content-Type application/yaml; charset=utf-8 и актуальный If-Match
     - assert: PUT /api/features/:code/yaml записывает тело YAML без изменения комментариев, неизвестных полей, порядка ключей и форматирования
     - assert: PUT /api/features/:code/yaml с актуальным If-Match полностью пересчитывает проект и возвращает ProjectSnapshot с HTTP 200
-    - assert: PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные assert и возвращает их в diagnostics нового ProjectSnapshot
+    - assert: PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные названия assert или propose и возвращает их в diagnostics нового ProjectSnapshot
     - assert: Два одновременных PUT /api/features/:code/yaml с одним ETag сохраняют ровно одно тело
   Ошибки сохранения:
     - assert: PUT /api/features/:code/yaml возвращает HTTP 409 без тела и не меняет YAML-файл при отсутствующем или несовпавшем If-Match
