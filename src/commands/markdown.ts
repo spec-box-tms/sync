@@ -6,6 +6,7 @@ import { exportMarkdown } from "../lib/markdown";
 
 export const cmdMarkdown: CommandModule<{}, CommonOptions> = {
   command: 'markdown',
+  describe: 'Экспорт спецификаций в формате Markdown',
   handler: async (args) => {
     console.log('Export to Markdown');
     const { config } = args;

@@ -9,6 +9,7 @@ import { testReportConfigs } from '../lib/config/models';
 
 export const cmdValidateOnly: CommandModule<{}, CommonOptions> = {
   command: 'validate',
+  describe: 'Запустить валидацию данных',
   handler: async (args) => {
     console.log('VALIDATION');
 
