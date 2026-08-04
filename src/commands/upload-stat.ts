@@ -9,6 +9,7 @@ import { testReportConfigs } from '../lib/config/models';
 
 export const cmdUploadStat: CommandModule<{}, CommonOptions> = {
   command: 'upload-stat',
+  describe: 'Запустить выгрузку статистики о выполнении тестов',
   handler: async (args) => {
     console.log('Upload Jest stat');
     const { config, prjversion: version } = args;

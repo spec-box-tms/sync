@@ -10,6 +10,7 @@ import { testReportConfigs } from '../lib/config/models';
 
 export const cmdSync: CommandModule<{}, CommonOptions> = {
   command: 'sync',
+  describe: 'Запустить выгрузку, опционально указав версию',
   handler: async (args) => {
     console.log('SYNC');
     const { config, prjversion: version } = args;
