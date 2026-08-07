@@ -4,7 +4,7 @@ import { startServer } from '../lib/serve/server';
 import { ProjectSnapshotService } from '../lib/serve/snapshot';
 import { CommonOptions } from '../lib/utils';
 
-type ServeOptions = CommonOptions & { port: number };
+type ServeOptions = CommonOptions & { port: number; readOnly?: boolean };
 
 export const cmdServe: CommandModule<{}, ServeOptions> = {
   command: 'serve',
@@ -13,8 +13,12 @@ export const cmdServe: CommandModule<{}, ServeOptions> = {
     type: 'number',
     default: 0,
     describe: 'TCP-порт локального сервера',
+  }).option('read-only', {
+    type: 'boolean',
+    default: false,
+    describe: 'Запустить сервер без возможности изменять спецификации',
   }),
-  handler: async ({ port, config }) => {
+  handler: async ({ port, config, readOnly = false }) => {
     if (!Number.isInteger(port) || port < 0 || port > 65535) {
       throw new Error('--port должен быть целым числом от 0 до 65535');
     }
@@ -24,6 +28,7 @@ export const cmdServe: CommandModule<{}, ServeOptions> = {
       projectRoot: process.cwd(),
       port,
       service,
+      readOnly,
     });
     console.log(server.url);
   },

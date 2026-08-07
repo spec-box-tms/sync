@@ -1,0 +1,17 @@
+feature: GET /api/options
+code: serve-options-get
+description: |-
+  Возвращает параметры текущего экземпляра локального сервера serve.
+  ```ts
+  interface ServeOptionsResponse { readOnly: boolean; }
+  ```
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Режим сервера:
+    - assert: GET /api/options возвращает HTTP 200 и JSON с единственным boolean-полем readOnly
+    - assert: startServer без опции readOnly возвращает readOnly false
+    - assert: GET /api/options возвращает readOnly true для serve --read-only и false без флага

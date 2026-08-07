@@ -16,13 +16,21 @@ import { Title } from '@angular/platform-browser';
 export class FeaturesPage {
   private readonly titleService = inject(Title);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly projectService = inject(ProjectService);
   private readonly queryParams = toSignal(this.activatedRoute.queryParams);
   private readonly queryTree = computed(() => this.queryParams()?.['tree'] ?? null);
   private readonly queryFeature = computed(() => this.queryParams()?.['feature'] ?? null);
 
   readonly queryMode = computed(() => this.queryParams()?.['mode'] ?? null);
+  readonly readOnly = this.projectService.readOnly;
+  readonly mode = computed(() => {
+    const readOnly = this.readOnly();
+    const queryMode = this.queryMode();
 
-  readonly projectSnapshotResource = inject(ProjectService).projectResource;
+    return readOnly && queryMode === 'edit' ? 'view' : queryMode;
+  });
+
+  readonly projectSnapshotResource = this.projectService.projectResource;
 
   readonly errors = computed(() => {
     if (this.projectSnapshotResource.hasValue()) {
@@ -66,7 +74,9 @@ export class FeaturesPage {
         const activeFeature = this.activeFeature();
         const project = this.projectSnapshotResource.value();
         if (activeFeature) {
-          this.titleService.setTitle(`${project.project?.title ?? 'SpecBoxTMS'} - ${activeFeature.title}`);
+          this.titleService.setTitle(
+            `${project.project?.title ?? 'SpecBoxTMS'} - ${activeFeature.title}`,
+          );
         } else {
           this.titleService.setTitle(`${project.project?.title ?? 'SpecBoxTMS'}`);
         }

@@ -17,6 +17,7 @@ specs-unit:
     - assert: PUT /api/features/:code/yaml сохраняет ошибки YAML, неразрешённые ссылки и повторные названия assert или propose и возвращает их в diagnostics нового ProjectSnapshot
     - assert: Два одновременных PUT /api/features/:code/yaml с одним ETag сохраняют ровно одно тело
   Ошибки сохранения:
+    - assert: 'PUT /api/features/:code/yaml в режиме serve --read-only при валидном, неподдерживаемом или отсутствующем Content-Type возвращает HTTP 403 и JSON {"errors":[{"code":"read-only","message":"Сервер запущен в режиме только для чтения","path":""}]} и не меняет YAML-файл'
     - assert: PUT /api/features/:code/yaml возвращает HTTP 409 без тела и не меняет YAML-файл при отсутствующем или несовпавшем If-Match
     - assert: PUT /api/features/:code/yaml возвращает HTTP 404 без записи для отсутствующей фичи
     - assert: PUT /api/features/:code/yaml возвращает HTTP 415 без записи для JSON или неподдерживаемого Content-Type

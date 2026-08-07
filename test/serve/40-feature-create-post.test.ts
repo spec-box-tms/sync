@@ -24,12 +24,12 @@ type Feature = {
   optimisticLock: string;
 };
 
-const withServer = async (fn: (url: string, project: Project) => Promise<void>, setup?: (project: Project) => Promise<void>) => {
+const withServer = async (fn: (url: string, project: Project) => Promise<void>, setup?: (project: Project) => Promise<void>, readOnly = false) => {
   const project = await createProject();
   if (setup) await setup(project);
   const service = new ProjectSnapshotService(project.root);
   await service.refresh();
-  const server = await startServer({ projectRoot: project.root, port: 0, service });
+  const server = await startServer({ projectRoot: project.root, port: 0, service, readOnly });
   try {
     await fn(server.url, project);
   } finally {
@@ -43,6 +43,14 @@ const json = (url: string, method: 'POST' | 'PUT', body: unknown) => fetch(url, 
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify(body),
 });
+
+const readOnlyError = {
+  errors: [{
+    code: 'read-only',
+    message: 'Сервер запущен в режиме только для чтения',
+    path: '',
+  }],
+};
 
 const feature = async (url: string) => (await (await fetch(`${url}/api/features/feature-one`)).json()) as Feature;
 const updateBody = (current: Feature, changes: Partial<Feature> = {}) => ({
@@ -71,6 +79,24 @@ specTest('serve-feature-create-post', 'POST /api/features', 'Проверка з
 specTest('serve-feature-create-post', 'POST /api/features', 'Успешное создание', 'POST /api/features принимает только filePath, code и title', () => withServer(async (url) => {
   assert.equal((await json(`${url}/api/features`, 'POST', { filePath: 'specs/new.spec.yml', code: 'new', title: 'New', extra: true })).status, 400);
 }));
+
+specTest('serve-feature-create-post', 'POST /api/features', 'Проверка запроса', 'POST /api/features в режиме serve --read-only для валидного и некорректного JSON возвращает HTTP 403 и JSON {"errors":[{"code":"read-only","message":"Сервер запущен в режиме только для чтения","path":""}]} и не изменяет рабочую копию', () => withServer(async (url, project) => {
+  const original = await readFile(join(project.root, 'specs/feature.spec.yml'));
+  const responses = [
+    await json(`${url}/api/features`, 'POST', { filePath: 'specs/read-only/nested/feature.spec.yml', code: 'feature-two', title: 'Feature two' }),
+    await fetch(`${url}/api/features`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{',
+    }),
+  ];
+  for (const response of responses) {
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), readOnlyError);
+    assert.deepEqual(await readFile(join(project.root, 'specs/feature.spec.yml')), original);
+  }
+  await assert.rejects(stat(join(project.root, 'specs/read-only')));
+}, undefined, true));
 
 specTest('serve-feature-create-post', 'POST /api/features', 'Успешное создание', 'POST /api/features с допустимым уникальным путём, кодом и непустым названием создаёт недостающие родительские каталоги, минимально валидный YAML и возвращает пересчитанный ProjectSnapshot с HTTP 201', () => withServer(async (url, project) => {
   const response = await json(`${url}/api/features`, 'POST', { filePath: 'specs/new/deep/feature.spec.yml', code: 'feature-two', title: 'Feature two' });

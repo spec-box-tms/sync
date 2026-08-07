@@ -1,14 +1,22 @@
 import { httpResource } from '@angular/common/http';
-import { inject, Injectable, Service } from '@angular/core';
+import { computed, inject, Service } from '@angular/core';
 import { API_URL } from './api-url.token';
 import { ProjectSnapshot } from '../model/project-snapshot.model';
 import { Feature } from '../model/feature.model';
 import { FeatureTreeNode } from '../model/feature-tree.model';
 
+export interface ServeOptions {
+  readOnly: boolean;
+}
+
 @Service()
 export class ProjectService {
   private readonly apiUrl = inject(API_URL);
   private readonly events = new EventSource(`${this.apiUrl}/api/events`);
+  readonly optionsResource = httpResource<ServeOptions>(() => `${this.apiUrl}/api/options`);
+  readonly readOnly = computed(() =>
+    this.optionsResource.hasValue() ? this.optionsResource.value().readOnly : true,
+  );
   readonly projectResource = httpResource<ProjectSnapshot>(() => `${this.apiUrl}/api/project`, {
     parse: (value) => this.processTreeGitStatus(value as ProjectSnapshot),
   });

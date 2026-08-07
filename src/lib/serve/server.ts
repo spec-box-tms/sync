@@ -17,6 +17,7 @@ export interface StartServerOptions {
   port: number;
   service: { snapshot: ProjectSnapshot | Record<string, unknown> };
   git?: GitAdapter;
+  readOnly?: boolean;
 }
 
 export interface RunningServer {
@@ -63,6 +64,7 @@ export const startServer = async ({
   port,
   service,
   git = gitAdapter,
+  readOnly = false,
 }: StartServerOptions): Promise<RunningServer> => {
   const app = express();
   const clients = new Set<import('express').Response>();
@@ -116,6 +118,12 @@ export const startServer = async ({
       void refreshable?.refresh().then(configureWatchers).catch(() => undefined);
     }, 50);
   };
+  const rejectWhenReadOnly = (_req: express.Request, res: express.Response, next: express.NextFunction) =>
+    readOnly
+      ? res.status(403).json({ errors: [{ code: 'read-only', message: 'Сервер запущен в режиме только для чтения', path: '' }] })
+      : next();
+  app.post('/api/features', rejectWhenReadOnly);
+  app.put('/api/features/:code/yaml', rejectWhenReadOnly);
   app.use(express.json());
   app.use((error: Error & { body?: unknown }, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (req.path.endsWith('/yaml')) return res.sendStatus(415);
@@ -125,6 +133,7 @@ export const startServer = async ({
     return next(error);
   });
   app.get('/api/project', (_req, res) => res.json(service.snapshot));
+  app.get('/api/options', (_req, res) => res.json({ readOnly }));
   const features = refreshable ? new FeatureService(service as never) : undefined;
   if (service instanceof Object && 'subscribe' in service) {
     unsubscribe = (service as { subscribe(listener: (snapshot: ProjectSnapshot) => void): () => void }).subscribe(({ revision }) => {

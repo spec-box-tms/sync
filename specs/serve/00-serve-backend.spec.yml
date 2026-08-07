@@ -12,6 +12,7 @@ description: |-
   Внутренний API включает следующие маршруты:
 
   - GET /api/project — текущий снимок проекта: $serve-project-get.
+  - GET /api/options — параметры режима сервера: $serve-options-get.
   - GET /api/features/:code — текущая фича: $serve-feature-get.
   - GET /api/features/:code?revision=:commit — фича из Git-ревизии: $serve-feature-revision-get.
   - GET /api/features/:code/yaml — исходный YAML-файл: $serve-feature-yaml-get.
@@ -26,3 +27,7 @@ definitions:
     - serve
   module:
     - backend
+specs-unit:
+  Режим сервера:
+    - assert: serve без --read-only разбирает и передаёт в startServer значение false
+    - assert: serve с --read-only разбирает и передаёт в startServer значение true
