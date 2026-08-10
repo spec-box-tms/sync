@@ -20,6 +20,7 @@ const parseAndRun = async (args: string[]) => {
   const serverModule = localRequire('../../src/lib/serve/server') as {
     startServer: (options: {
       readOnly?: boolean;
+      service: ProjectSnapshotService;
     }) => Promise<{
       url: string;
       close(): Promise<void>;
@@ -29,8 +30,10 @@ const parseAndRun = async (args: string[]) => {
   const originalRefresh = ProjectSnapshotService.prototype.refresh;
   const originalLog = console.log;
   let propagated: boolean | undefined;
+  let snapshotReadOnly: boolean | undefined;
   serverModule.startServer = async (options) => {
     propagated = options.readOnly;
+    snapshotReadOnly = options.service.snapshot.readOnly;
     return { url: 'http://127.0.0.1:3000', close: async () => undefined };
   };
   ProjectSnapshotService.prototype.refresh = async () => ({}) as never;
@@ -42,7 +45,7 @@ const parseAndRun = async (args: string[]) => {
     ProjectSnapshotService.prototype.refresh = originalRefresh;
     console.log = originalLog;
   }
-  return { parsed: parsed.readOnly, propagated };
+  return { parsed: parsed.readOnly, propagated, snapshotReadOnly };
 };
 
 specTest(
@@ -51,7 +54,7 @@ specTest(
   'Режим сервера',
   'serve без --read-only разбирает и передаёт в startServer значение false',
   async () => {
-    assert.deepEqual(await parseAndRun([]), { parsed: false, propagated: false });
+    assert.deepEqual(await parseAndRun([]), { parsed: false, propagated: false, snapshotReadOnly: false });
   },
 );
 
@@ -61,6 +64,6 @@ specTest(
   'Режим сервера',
   'serve с --read-only разбирает и передаёт в startServer значение true',
   async () => {
-    assert.deepEqual(await parseAndRun(['--read-only']), { parsed: true, propagated: true });
+    assert.deepEqual(await parseAndRun(['--read-only']), { parsed: true, propagated: true, snapshotReadOnly: true });
   },
 );

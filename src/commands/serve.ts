@@ -22,7 +22,7 @@ export const cmdServe: CommandModule<{}, ServeOptions> = {
     if (!Number.isInteger(port) || port < 0 || port > 65535) {
       throw new Error('--port должен быть целым числом от 0 до 65535');
     }
-    const service = new ProjectSnapshotService(process.cwd(), config);
+    const service = new ProjectSnapshotService(process.cwd(), config, readOnly);
     await service.refresh();
     const server = await startServer({
       projectRoot: process.cwd(),

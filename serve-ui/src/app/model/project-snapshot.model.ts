@@ -4,6 +4,7 @@ import { FeatureTree } from './feature-tree.model';
 import { Feature } from './feature.model';
 
 export type ProjectSnapshot = {
+  readOnly: boolean;
   revision: number;
   project?: { title?: string; description?: string; repository?: string };
   attributes: Array<{

@@ -156,20 +156,58 @@ specTest(
   'serve-project-get',
   'GET /api/project',
   'Успешный ответ',
+  'Пустой ProjectSnapshot содержит обязательное boolean-поле readOnly',
+  async () => {
+    const project = await createProject();
+    try {
+      const snapshot = new ProjectSnapshotService(project.root).snapshot;
+      assert.equal(snapshot.revision, 0);
+      assert.equal(snapshot.readOnly, false);
+      assert.equal(typeof snapshot.readOnly, 'boolean');
+    } finally {
+      await project.dispose();
+    }
+  },
+);
+
+specTest(
+  'serve-project-get',
+  'GET /api/project',
+  'Успешный ответ',
+  'ProjectSnapshot сохраняет режим readOnly, переданный при создании сервиса',
+  async () => {
+    const project = await createProject();
+    try {
+      const snapshot = await new ProjectSnapshotService(project.root, '.tms.json', true).refresh();
+      assert.equal(snapshot.readOnly, true);
+    } finally {
+      await project.dispose();
+    }
+  },
+);
+
+specTest(
+  'serve-project-get',
+  'GET /api/project',
+  'Успешный ответ',
   'GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8',
   async () => {
+    const project = await createProject();
+    const service = new ProjectSnapshotService(project.root, '.tms.json', true);
+    await service.refresh();
     const server = await startServer({
-      projectRoot: process.cwd(),
+      projectRoot: project.root,
       port: 0,
-      service: { snapshot: { revision: 1, diagnostics: [] } },
+      service,
     });
     try {
       const response = await fetch(`${server.url}/api/project`);
       assert.equal(response.status, 200);
       assert.match(response.headers.get('content-type') || '', /^application\/json; charset=utf-8/);
-      assert.deepEqual(await response.json(), { revision: 1, diagnostics: [] });
+      assert.equal((await response.json()).readOnly, true);
     } finally {
       await server.close();
+      await project.dispose();
     }
   },
 );
@@ -196,9 +234,9 @@ specTest('serve-project-get', 'GET /api/project', 'Успешный ответ',
   } finally { await project.dispose(); }
 });
 
-specTest('serve-project-get', 'GET /api/project', 'Успешный ответ', 'При некорректной новой версии .tms.json работающий сервер возвращает ProjectSnapshot только с ревизией и диагностиками', async () => {
+specTest('serve-project-get', 'GET /api/project', 'Успешный ответ', 'При некорректной новой версии .tms.json работающий сервер возвращает ProjectSnapshot только с ревизией, readOnly и диагностиками', async () => {
   const project = await createProject();
-  const service = new ProjectSnapshotService(project.root);
+  const service = new ProjectSnapshotService(project.root, '.tms.json', true);
   await service.refresh();
   const server = await startServer({ projectRoot: project.root, port: 0, service });
   try {
@@ -207,7 +245,8 @@ specTest('serve-project-get', 'GET /api/project', 'Успешный ответ',
     const response = await fetch(`${server.url}/api/project`);
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), snapshot);
-    assert.deepEqual(Object.keys(snapshot).sort(), ['diagnostics', 'revision']);
+    assert.deepEqual(Object.keys(snapshot).sort(), ['diagnostics', 'readOnly', 'revision']);
+    assert.equal(snapshot.readOnly, true);
     assert.ok(snapshot.diagnostics.length > 0);
   } finally { await server.close(); await project.dispose(); }
 });

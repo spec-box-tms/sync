@@ -5,21 +5,18 @@ import { ProjectSnapshot } from '../model/project-snapshot.model';
 import { Feature } from '../model/feature.model';
 import { FeatureTreeNode } from '../model/feature-tree.model';
 
-export interface ServeOptions {
-  readOnly: boolean;
-}
-
 @Service()
 export class ProjectService {
   private readonly apiUrl = inject(API_URL);
   private readonly events = new EventSource(`${this.apiUrl}/api/events`);
-  readonly optionsResource = httpResource<ServeOptions>(() => `${this.apiUrl}/api/options`);
-  readonly readOnly = computed(() =>
-    this.optionsResource.hasValue() ? this.optionsResource.value().readOnly : true,
-  );
+
   readonly projectResource = httpResource<ProjectSnapshot>(() => `${this.apiUrl}/api/project`, {
     parse: (value) => this.processTreeGitStatus(value as ProjectSnapshot),
   });
+
+  readonly readOnly = computed(() =>
+    this.projectResource.hasValue() ? this.projectResource.value().readOnly : true,
+  );
 
   constructor() {
     this.events.addEventListener('project-updated', () => this.projectResource.reload());

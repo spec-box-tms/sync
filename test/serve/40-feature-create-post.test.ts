@@ -10,7 +10,7 @@ import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 
 type Project = Awaited<ReturnType<typeof createProject>>;
-type Snapshot = { revision: number; features: Array<{ code: string; title: string; filePath: string }>; diagnostics: Array<{ code: string }> };
+type Snapshot = { revision: number; readOnly: boolean; features: Array<{ code: string; title: string; filePath: string }>; diagnostics: Array<{ code: string }> };
 type Statement =
   | { type: 'assert'; title: string; description?: string; status: 'automated' | 'skipped' | 'failed' | 'not-automated' }
   | { type: 'propose'; title: string; description?: string };
@@ -102,6 +102,7 @@ specTest('serve-feature-create-post', 'POST /api/features', 'Успешное с
   const response = await json(`${url}/api/features`, 'POST', { filePath: 'specs/new/deep/feature.spec.yml', code: 'feature-two', title: 'Feature two' });
   assert.equal(response.status, 201);
   const snapshot = await response.json() as Snapshot;
+  assert.equal(snapshot.readOnly, false);
   assert.ok(snapshot.features.some((item) => item.code === 'feature-two'));
   assert.equal(await readFile(join(project.root, 'workspace/specs/new/deep/feature.spec.yml'), 'utf8'), 'code: feature-two\nfeature: Feature two\n');
 }, useProjectPath));

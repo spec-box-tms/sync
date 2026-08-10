@@ -133,7 +133,6 @@ export const startServer = async ({
     return next(error);
   });
   app.get('/api/project', (_req, res) => res.json(service.snapshot));
-  app.get('/api/options', (_req, res) => res.json({ readOnly }));
   const features = refreshable ? new FeatureService(service as never) : undefined;
   if (service instanceof Object && 'subscribe' in service) {
     unsubscribe = (service as { subscribe(listener: (snapshot: ProjectSnapshot) => void): () => void }).subscribe(({ revision }) => {

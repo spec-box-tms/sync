@@ -8,7 +8,7 @@ import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 
 type Project = Awaited<ReturnType<typeof createProject>>;
-type Snapshot = { revision: number; features: Array<{ code: string; title: string }> };
+type Snapshot = { revision: number; readOnly: boolean; features: Array<{ code: string; title: string }> };
 
 const source = '# comment\nfeature: Changed\nunknown: true\ncode: feature-one\n';
 const readOnlyError = {
@@ -74,6 +74,7 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успеш
   assert.equal(response.status, 200);
   const snapshot = await response.json() as Snapshot;
   assert.equal(snapshot.revision, 2);
+  assert.equal(snapshot.readOnly, false);
   assert.equal(snapshot.features[0].title, 'Changed');
 }));
 
