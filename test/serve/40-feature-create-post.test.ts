@@ -80,7 +80,7 @@ specTest('serve-feature-create-post', 'POST /api/features', 'Успешное с
   assert.equal((await json(`${url}/api/features`, 'POST', { filePath: 'specs/new.spec.yml', code: 'new', title: 'New', extra: true })).status, 400);
 }));
 
-specTest('serve-feature-create-post', 'POST /api/features', 'Проверка запроса', 'POST /api/features в режиме serve --read-only для валидного и некорректного JSON возвращает HTTP 403 и JSON {"errors":[{"code":"read-only","message":"Сервер запущен в режиме только для чтения","path":""}]} и не изменяет рабочую копию', () => withServer(async (url, project) => {
+specTest('serve-feature-create-post', 'POST /api/features', 'Проверка запроса', 'В режиме только для чтения POST /api/features возвращает HTTP 403 и не изменяет рабочую копию', () => withServer(async (url, project) => {
   const original = await readFile(join(project.root, 'specs/feature.spec.yml'));
   const responses = [
     await json(`${url}/api/features`, 'POST', { filePath: 'specs/read-only/nested/feature.spec.yml', code: 'feature-two', title: 'Feature two' }),

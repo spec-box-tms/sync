@@ -174,43 +174,41 @@ specTest(
   'serve-project-get',
   'GET /api/project',
   'Успешный ответ',
-  'ProjectSnapshot сохраняет режим readOnly, переданный при создании сервиса',
+  'Корректный ProjectSnapshot содержит обязательное boolean-поле readOnly',
   async () => {
     const project = await createProject();
     try {
       const snapshot = await new ProjectSnapshotService(project.root, '.tms.json', true).refresh();
       assert.equal(snapshot.readOnly, true);
+      assert.equal(typeof snapshot.readOnly, 'boolean');
     } finally {
       await project.dispose();
     }
   },
 );
 
-specTest(
-  'serve-project-get',
-  'GET /api/project',
-  'Успешный ответ',
-  'GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8',
-  async () => {
-    const project = await createProject();
-    const service = new ProjectSnapshotService(project.root, '.tms.json', true);
-    await service.refresh();
-    const server = await startServer({
-      projectRoot: project.root,
-      port: 0,
-      service,
+specTest('serve-project-get', 'GET /api/project', 'Успешный ответ', 'GET /api/project возвращает текущий ProjectSnapshot с HTTP 200 и JSON в кодировке UTF-8', async () => {
+  const server = await startServer({
+    projectRoot: process.cwd(),
+    port: 0,
+    service: { snapshot: { revision: 1, diagnostics: [], readOnly: true } },
+  });
+  try {
+    const response = await fetch(`${server.url}/api/project`);
+    assert.equal(response.status, 200);
+    assert.match(
+      response.headers.get('content-type') || '',
+      /^application\/json; charset=utf-8/,
+    );
+    assert.deepEqual(await response.json(), {
+      revision: 1,
+      diagnostics: [],
+      readOnly: true,
     });
-    try {
-      const response = await fetch(`${server.url}/api/project`);
-      assert.equal(response.status, 200);
-      assert.match(response.headers.get('content-type') || '', /^application\/json; charset=utf-8/);
-      assert.equal((await response.json()).readOnly, true);
-    } finally {
-      await server.close();
-      await project.dispose();
-    }
-  },
-);
+  } finally {
+    await server.close();
+  }
+});
 
 specTest('serve-project-get', 'GET /api/project', 'Успешный ответ', 'При ошибке YAML, мета-файла или отчёта ProjectSnapshot сохраняет данные остальных корректных файлов и содержит соответствующую диагностику', async () => {
   const project = await createProject();

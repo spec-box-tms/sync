@@ -9,52 +9,87 @@ import { specTest } from '../serve/spec-name';
 
 const localRequire = createRequire(__filename);
 
-const parseAndRun = async (args: string[]) => {
-  if (typeof cmdServe.builder !== 'function') throw new Error('Expected a command builder');
+type ParsedServeOptions = {
+  port: number;
+  readOnly?: boolean;
+  config?: string;
+};
+
+type StartServerOptions = {
+  readOnly?: boolean;
+  service: ProjectSnapshotService;
+};
+
+type StartServerModule = {
+  startServer: (options: StartServerOptions) => Promise<{
+    url: string;
+    close(): Promise<void>;
+  }>;
+};
+
+const parseServeOptions = async (args: string[]) => {
+  if (typeof cmdServe.builder !== 'function')
+    throw new Error('Expected a command builder');
+
   const parser = await cmdServe.builder(yargs([]) as never);
-  const parsed = await parser.parseAsync(args) as {
-    port: number;
-    readOnly?: boolean;
-    config?: string;
-  };
-  const serverModule = localRequire('../../src/lib/serve/server') as {
-    startServer: (options: {
-      readOnly?: boolean;
-      service: ProjectSnapshotService;
-    }) => Promise<{
-      url: string;
-      close(): Promise<void>;
-    }>;
-  };
+  return (await parser.parseAsync(args)) as ParsedServeOptions;
+};
+
+const captureStartServerOptions = () => {
+  const serverModule = localRequire('../../src/lib/serve/server') as StartServerModule;
   const originalStartServer = serverModule.startServer;
+  let received: StartServerOptions | undefined;
+
+  serverModule.startServer = async (options) => {
+    received = options;
+    return { url: 'test', close: async () => undefined };
+  };
+
+  return {
+    received: () => received,
+    restore: () => {
+      serverModule.startServer = originalStartServer;
+    },
+  };
+};
+
+const parseAndRun = async (args: string[]) => {
+  const parsed = await parseServeOptions(args);
+  const startServer = captureStartServerOptions();
   const originalRefresh = ProjectSnapshotService.prototype.refresh;
   const originalLog = console.log;
-  let propagated: boolean | undefined;
-  let snapshotReadOnly: boolean | undefined;
-  serverModule.startServer = async (options) => {
-    propagated = options.readOnly;
-    snapshotReadOnly = options.service.snapshot.readOnly;
-    return { url: 'http://127.0.0.1:3000', close: async () => undefined };
-  };
+
   ProjectSnapshotService.prototype.refresh = async () => ({}) as never;
   console.log = () => undefined;
+
   try {
-    await (cmdServe.handler as (options: typeof parsed) => Promise<void>)(parsed);
+    await (cmdServe.handler as (options: typeof parsed) => Promise<void>)(
+      parsed,
+    );
+    const options = startServer.received();
+    return {
+      parsed: parsed.readOnly,
+      propagated: options?.readOnly,
+      snapshotReadOnly: options?.service.snapshot.readOnly,
+    };
   } finally {
-    serverModule.startServer = originalStartServer;
+    startServer.restore();
     ProjectSnapshotService.prototype.refresh = originalRefresh;
     console.log = originalLog;
   }
-  return { parsed: parsed.readOnly, propagated, snapshotReadOnly };
 };
 
 specTest(
   'serve-backend',
   'Локальный backend serve',
   'Режим сервера',
-  'serve без --read-only разбирает и передаёт в startServer значение false',
+  'команда serve с --read-only запускает сервер в режиме чтения',
   async () => {
-    assert.deepEqual(await parseAndRun([]), { parsed: false, propagated: false, snapshotReadOnly: false });
+    assert.deepEqual(await parseAndRun(['--read-only']), {
+      parsed: true,
+      propagated: true,
+      snapshotReadOnly: true,
+    });
   },
 );
 
@@ -62,8 +97,12 @@ specTest(
   'serve-backend',
   'Локальный backend serve',
   'Режим сервера',
-  'serve с --read-only разбирает и передаёт в startServer значение true',
+  'команда serve без --read-only запускает сервер в режиме записи и чтения',
   async () => {
-    assert.deepEqual(await parseAndRun(['--read-only']), { parsed: true, propagated: true, snapshotReadOnly: true });
+    assert.deepEqual(await parseAndRun([]), {
+      parsed: false,
+      propagated: false,
+      snapshotReadOnly: false,
+    });
   },
 );

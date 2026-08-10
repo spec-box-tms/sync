@@ -48,7 +48,7 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успеш
   assert.equal(response.status, 200);
 }));
 
-specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'PUT /api/features/:code/yaml в режиме serve --read-only при валидном, неподдерживаемом или отсутствующем Content-Type возвращает HTTP 403 и JSON {"errors":[{"code":"read-only","message":"Сервер запущен в режиме только для чтения","path":""}]} и не меняет YAML-файл', () => withServer(async (url, project) => {
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'В режиме только для чтения PUT /api/features/:code/yaml возвращает HTTP 403 и не меняет YAML-файл', () => withServer(async (url, project) => {
   const path = join(project.root, 'specs/feature.spec.yml');
   const original = await readFile(path);
   const etag = await currentEtag(url);

@@ -28,5 +28,5 @@ definitions:
     - backend
 specs-unit:
   Режим сервера:
-    - assert: serve без --read-only разбирает и передаёт в startServer значение false
-    - assert: serve с --read-only разбирает и передаёт в startServer значение true
+    - assert: команда serve с --read-only запускает сервер в режиме чтения
+    - assert: команда serve без --read-only запускает сервер в режиме записи и чтения
