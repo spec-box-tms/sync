@@ -8,15 +8,22 @@ import { createProject } from './fixtures';
 import { specTest } from './spec-name';
 
 type Project = Awaited<ReturnType<typeof createProject>>;
-type Snapshot = { revision: number; features: Array<{ code: string; title: string }> };
+type Snapshot = { revision: number; readOnly: boolean; features: Array<{ code: string; title: string }> };
 
 const source = '# comment\nfeature: Changed\nunknown: true\ncode: feature-one\n';
+const readOnlyError = {
+  errors: [{
+    code: 'read-only',
+    message: 'Сервер запущен в режиме только для чтения',
+    path: '',
+  }],
+};
 
-const withServer = async (fn: (url: string, project: Project) => Promise<void>) => {
+const withServer = async (fn: (url: string, project: Project) => Promise<void>, readOnly = false) => {
   const project = await createProject();
   const service = new ProjectSnapshotService(project.root);
   await service.refresh();
-  const server = await startServer({ projectRoot: project.root, port: 0, service });
+  const server = await startServer({ projectRoot: project.root, port: 0, service, readOnly });
   try {
     await fn(server.url, project);
   } finally {
@@ -41,6 +48,22 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успеш
   assert.equal(response.status, 200);
 }));
 
+specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Ошибки сохранения', 'В режиме только для чтения PUT /api/features/:code/yaml возвращает HTTP 403 и не меняет YAML-файл', () => withServer(async (url, project) => {
+  const path = join(project.root, 'specs/feature.spec.yml');
+  const original = await readFile(path);
+  const etag = await currentEtag(url);
+  for (const [body, contentType] of [
+    [source, 'application/yaml; charset=utf-8'],
+    [source, 'application/json'],
+    [Buffer.from(source), undefined],
+  ] as const) {
+    const response = await putYaml(`${url}/api/features/feature-one/yaml`, etag, body, contentType);
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), readOnlyError);
+    assert.deepEqual(await readFile(path), original);
+  }
+}, true));
+
 specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успешное сохранение', 'PUT /api/features/:code/yaml записывает тело YAML без изменения комментариев, неизвестных полей, порядка ключей и форматирования', () => withServer(async (url, project) => {
   await putYaml(`${url}/api/features/feature-one/yaml`, await currentEtag(url));
   assert.deepEqual(await readFile(join(project.root, 'specs/feature.spec.yml')), Buffer.from(source));
@@ -51,6 +74,7 @@ specTest('serve-feature-update-put', 'PUT /api/features/:code/yaml', 'Успеш
   assert.equal(response.status, 200);
   const snapshot = await response.json() as Snapshot;
   assert.equal(snapshot.revision, 2);
+  assert.equal(snapshot.readOnly, false);
   assert.equal(snapshot.features[0].title, 'Changed');
 }));
 

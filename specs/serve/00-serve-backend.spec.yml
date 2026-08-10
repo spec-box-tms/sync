@@ -26,3 +26,7 @@ definitions:
     - serve
   module:
     - backend
+specs-unit:
+  Режим сервера:
+    - assert: команда serve с --read-only запускает сервер в режиме чтения
+    - assert: команда serve без --read-only запускает сервер в режиме записи и чтения

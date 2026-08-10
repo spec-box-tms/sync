@@ -10,6 +10,7 @@ import { FeatureHistorySelector } from '../feature-history-selector/feature-hist
 import { Graph } from '../graph/graph';
 import { ProjectSnapshot } from '../../../model/project-snapshot.model';
 import { Router, RouterLink } from '@angular/router';
+import { ProjectService } from '../../../core/project.service';
 
 @Component({
   selector: 'feature-presenter',
@@ -30,6 +31,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class FeaturePresenter {
   private readonly router = inject(Router);
+  readonly readOnly = inject(ProjectService).readOnly;
   readonly mode = input.required<'view' | 'edit' | 'compare' | 'graph', string | null>({
     transform: (queryMode) => {
       if (queryMode === 'edit') {
@@ -50,7 +52,6 @@ export class FeaturePresenter {
   readonly editor = viewChild<FeatureEditor>('editor');
   readonly compareWith = signal<FeatureHistory | null>(null);
   readonly graphMode = signal<boolean>(false);
-
   hasChanges = computed(() => this.editor()?.hasChanges());
 
   saveChanges() {

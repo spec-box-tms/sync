@@ -41,6 +41,7 @@ export interface FeatureTreeNode {
 
 export interface ProjectSnapshot {
   revision: number;
+  readOnly: boolean;
   project?: { title?: string; description?: string; repository?: string };
   attributes: Array<{ code: string; title: string; values: Array<{ code: string; title: string }> }>;
   treeDefinitions: Array<{ code: string; title: string; groupBy: string[] }>;

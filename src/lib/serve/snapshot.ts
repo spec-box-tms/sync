@@ -19,8 +19,10 @@ import { Diagnostic, FeatureTreeNode, ProjectSnapshot, StatementCounters } from 
 const emptySnapshot = (
   revision: number,
   diagnostics: Diagnostic[],
+  readOnly: boolean,
 ): ProjectSnapshot => ({
   revision,
+  readOnly,
   diagnostics,
   attributes: [],
   treeDefinitions: [],
@@ -34,9 +36,11 @@ const emptySnapshot = (
 const invalidConfigSnapshot = (
   revision: number,
   diagnostics: Diagnostic[],
+  readOnly: boolean,
 ): ProjectSnapshot =>
   ({
     revision,
+    readOnly,
     diagnostics,
   }) as ProjectSnapshot;
 
@@ -144,14 +148,17 @@ const graph = (features: Feature[]) => {
 };
 
 export class ProjectSnapshotService {
-  public snapshot: ProjectSnapshot = emptySnapshot(0, []);
+  public snapshot: ProjectSnapshot;
   public config?: RootConfig;
   private readonly listeners = new Set<(snapshot: ProjectSnapshot) => void>();
 
   constructor(
     public readonly projectRoot: string,
     public readonly configPath = '.tms.json',
-  ) {}
+    public readonly readOnly = false,
+  ) {
+    this.snapshot = emptySnapshot(0, [], readOnly);
+  }
 
   subscribe(listener: (snapshot: ProjectSnapshot) => void) {
     this.listeners.add(listener);
@@ -169,6 +176,7 @@ export class ProjectSnapshotService {
       this.snapshot = invalidConfigSnapshot(
         revision,
         validator.errors.map((item) => toDiagnostic(item, validator)),
+        this.readOnly,
       );
       this.publish();
       return this.snapshot;
@@ -201,6 +209,7 @@ export class ProjectSnapshotService {
     );
     this.snapshot = {
       revision,
+      readOnly: this.readOnly,
       project: projectData.project,
       attributes: projectData.attributes || [],
       treeDefinitions: (projectData.trees || []).map(
