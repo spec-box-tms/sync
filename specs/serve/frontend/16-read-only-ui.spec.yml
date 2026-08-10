@@ -1,0 +1,15 @@
+feature: Интерфейс только для чтения
+code: serve-read-only-ui
+description: |-
+  Ограничивает доступные в Angular-интерфейсе действия в соответствии с
+  полем ProjectSnapshot.readOnly в ответе GET /api/project, сохраняя просмотр
+  фичи доступным.
+definitions:
+  tool:
+    - serve
+  module:
+    - frontend
+specs-unit:
+  Ограничение редактирования:
+    - assert: В режиме только для чтения отсутствует кнопка Редактировать
+    - assert: В режиме только для чтения недоступен редактор фичи

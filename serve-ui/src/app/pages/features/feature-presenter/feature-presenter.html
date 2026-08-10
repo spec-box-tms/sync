@@ -15,15 +15,17 @@
             >
               <tui-icon icon="@tui.waypoints" /> Зависимости
             </a>
-            <a
-              size="s"
-              tuiButton
-              [routerLink]="[]"
-              [queryParams]="{ mode: 'edit' }"
-              queryParamsHandling="merge"
-            >
-              <tui-icon icon="@tui.pencil" />Редактировать
-            </a>
+            @if (!readOnly()) {
+              <a
+                size="s"
+                tuiButton
+                [routerLink]="[]"
+                [queryParams]="{ mode: 'edit' }"
+                queryParamsHandling="merge"
+              >
+                <tui-icon icon="@tui.pencil" />Редактировать
+              </a>
+            }
           }
           @case ('edit') {
             <a

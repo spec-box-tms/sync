@@ -32,3 +32,4 @@ specs-unit:
     - assert: POST /api/features отклоняет HTTP 400 некорректное тело или неизвестное поле
     - assert: Каждый ответ HTTP 400 содержит errors с code, message и JSON Pointer path для каждой найденной ошибки
     - assert: Отклонённый POST /api/features не создаёт каталогов и не изменяет файлы рабочей копии
+    - assert: В режиме только для чтения POST /api/features возвращает HTTP 403 и не изменяет рабочую копию
