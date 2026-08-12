@@ -1,15 +1,23 @@
 import { parseStringPromise } from 'xml2js';
 import { parseObject, readTextFile } from '../../utils';
 import { AssertionResult, TestReport } from '../models';
-import { JUnitReport, junitReportDecoder, JUnitTestCaseProperty, JUnitTestSuite } from './models';
+import {
+  JUnitReport,
+  junitReportDecoder,
+  JUnitTestCaseProperty,
+  JUnitTestSuite,
+} from './models';
 
-const getPropertyValue = (properties?: JUnitTestCaseProperty[], property?: string): string | undefined => {
-  if(!properties || !property) {
+const getPropertyValue = (
+  properties?: JUnitTestCaseProperty[],
+  property?: string,
+): string | undefined => {
+  if (!properties || !property) {
     return undefined;
   }
 
-  return properties.find(p => p.name === property)?.value;
-}
+  return properties.find((p) => p.name === property)?.value;
+};
 
 const mapTestResults = (
   testResult: JUnitTestSuite[],
@@ -50,10 +58,11 @@ const mapTestReport = (
   const { testsuites } = junitReport;
   const { tests: total, name } = testsuites;
 
-  const startTime = testsuites.testsuite.reduce(
+  const minSuiteTimestamp = testsuites.testsuite.reduce(
     (acc, item) => Math.min(acc, item.timestamp.getTime()),
-    Number.MAX_VALUE
+    Number.MAX_VALUE,
   );
+  const startTime = testsuites.testsuite.length ? minSuiteTimestamp : 0;
 
   // Сумма затраченного времени на все тест сьюты
   const duration =
@@ -77,6 +86,23 @@ export const loadJUnitReport = async (
     explicitArray: false,
     mergeAttrs: true,
   });
-  const entity = parseObject(data, junitReportDecoder);
+  const emptyJunitReport = {
+   testsuites: {
+      name: '',
+      tests: '0',
+      testsuite: [],
+    },
+  };
+  const normalizedData =
+    data &&
+    typeof data === 'object' &&
+    !Array.isArray(data) &&
+    'testsuites' in data &&
+    data.testsuites === ''
+      ? emptyJunitReport
+      : data;
+
+  const entity = parseObject(normalizedData, junitReportDecoder);
+
   return mapTestReport(entity, property);
 };
