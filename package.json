@@ -21,8 +21,7 @@
         "test-ext": "./bin/spec-box sync",
         "version-beta": "npm version prerelease --preid beta",
         "publish-beta": "npm publish --tag beta",
-        "test:ui": "npm --prefix ./serve-ui test -- --watch=false --reporters=junit --reporters=default --output-file=../test-results/serve-ui-junit.xml && npm run test:markdown",
-        "test:markdown": "npm --prefix ./serve-ui test -- --watch=false --include=src/app/ui/markdown/markdown.component.spec.ts --reporters=junit --reporters=default --output-file=../test-results/markdown-junit.xml"
+        "test:ui": "npm --prefix ./serve-ui test -- --watch=false --reporters=junit --reporters=default --output-file=../test-results/serve-ui-junit.xml && npm run test:markdown"
     },
     "license": "MIT",
     "dependencies": {

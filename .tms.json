@@ -12,7 +12,7 @@
       "keys": ["featureCode", "featureTitle", "groupTitle", "assertionTitle"]
     },
     {
-      "reportPath": "test-results/markdown-junit.xml",
+      "reportPath": "test-results/serve-ui-junit.xml",
       "keys": ["featureCode", "featureTitle", "groupTitle", "assertionTitle"]
     }
   ]
