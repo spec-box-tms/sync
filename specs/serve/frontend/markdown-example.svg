@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="160" viewBox="0 0 640 160" role="img" aria-labelledby="title desc">
+  <title id="title">Доступ к локальному файлу</title>
+  <desc id="desc">Markdown передаёт путь в API, которое возвращает файл.</desc>
+  <rect width="640" height="160" rx="16" fill="#f1f5f9"/>
+  <g fill="#ffffff" stroke="#64748b" stroke-width="2">
+    <rect x="20" y="45" width="160" height="70" rx="10"/>
+    <rect x="240" y="45" width="160" height="70" rx="10"/>
+    <rect x="460" y="45" width="160" height="70" rx="10"/>
+  </g>
+  <path d="M190 80h38m-8-8 8 8-8 8M410 80h38m-8-8 8 8-8 8" fill="none" stroke="#2563eb" stroke-width="3"/>
+  <g fill="#0f172a" font-family="sans-serif" font-size="18" text-anchor="middle">
+    <text x="100" y="87">Markdown</text>
+    <text x="320" y="87">/api/files</text>
+    <text x="540" y="87">Файл</text>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 {
     "name": "spec-box-tms-sync",
-    "version": "1.2.0",
+    "version": "1.2.2",
     "private": false,
     "bin": {
         "spec-box": "./bin/spec-box"
@@ -15,12 +15,14 @@
         "build": "sh ./utils/build.sh",
         "prepublishOnly": "npm run build",
         "generate-api": "./utils/generate-api.sh",
-        "test": "npm run test:serve && npm run test:unit",
+        "test": "npm run test:serve && npm run test:unit && npm run test:ui",
         "test:serve": "mkdir -p test-results && node --test -r ts-node/register --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results/junit.xml test/{cli,proposes,serve}/**/*.test.ts",
         "test:unit": "node --test -r ts-node/register test/helpers/*.test.ts",
         "test-ext": "./bin/spec-box sync",
         "version-beta": "npm version prerelease --preid beta",
-        "publish-beta": "npm publish --tag beta"
+        "publish-beta": "npm publish --tag beta",
+        "test:ui": "npm --prefix ./serve-ui test -- --watch=false --reporters=junit --reporters=default --output-file=../test-results/serve-ui-junit.xml && npm run test:markdown",
+        "test:markdown": "npm --prefix ./serve-ui test -- --watch=false --include=src/app/ui/markdown/markdown.component.spec.ts --reporters=junit --reporters=default --output-file=../test-results/markdown-junit.xml"
     },
     "license": "MIT",
     "dependencies": {

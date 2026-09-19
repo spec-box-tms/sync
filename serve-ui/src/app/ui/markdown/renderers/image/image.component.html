@@ -1,0 +1,5 @@
+@if (isHtml()) {
+  <iframe [src]="frameSrc()" [title]="title || text" sandbox></iframe>
+} @else {
+  <img [src]="src" [alt]="text" [title]="title" />
+}
