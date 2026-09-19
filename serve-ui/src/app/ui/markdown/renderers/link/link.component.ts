@@ -4,6 +4,7 @@ import { TuiLink } from '@taiga-ui/core';
 import { Tokens } from 'marked';
 import { ForTokenDirective } from '../for-token.directive';
 import { RendererBase } from '../renderer-base';
+import { resourceUrl } from '../../resource-url';
 
 @Component({
   selector: 'a[mdLink]',
@@ -19,6 +20,6 @@ import { RendererBase } from '../renderer-base';
 })
 export class LinkComponent extends RendererBase<Tokens.Link> {
   get href() {
-    return this.token().href;
+    return resourceUrl(this.token().href);
   }
 }

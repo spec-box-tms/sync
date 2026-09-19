@@ -13,7 +13,7 @@ describe('Assert', () => {
 
     await fixture.whenStable();
 
-    const status = fixture.nativeElement.querySelector('[tuiStatus]') as HTMLElement;
+    const status = fixture.nativeElement.querySelector('[tuiBadge]') as HTMLElement;
     expect(status).not.toBeNull();
     expect(status.getAttribute('appearance')).toBe('neutral');
     expect(status.textContent?.trim()).toBe('');
@@ -41,8 +41,8 @@ describe('Assert', () => {
 
     await fixture.whenStable();
 
-    const status = fixture.nativeElement.querySelector('[tuiStatus]');
-    expect(status).not.toBeNull();
-    expect(status.getAttribute('appearance')).toBe(appearance);
+    const statusElement = fixture.nativeElement.querySelector('[tuiStatus]');
+    expect(statusElement).not.toBeNull();
+    expect(statusElement.getAttribute('appearance')).toBe(appearance);
   });
 });

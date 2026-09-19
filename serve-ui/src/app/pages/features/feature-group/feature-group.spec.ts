@@ -5,6 +5,10 @@ import { FeatureGroup } from './feature-group';
 describe('FeatureGroup', () => {
   it('renders assertions and proposes in source order', async () => {
     const fixture = TestBed.createComponent(FeatureGroup);
+    fixture.componentRef.setInput('feature', {
+      code: 'test-feature', title: 'Test feature', groups: [], attributes: {},
+      fileName: 'test.spec.yml', filePath: 'test.spec.yml', gitStatus: 'clean',
+    });
     fixture.componentRef.setInput('group', {
       title: 'Поток',
       assertions: [

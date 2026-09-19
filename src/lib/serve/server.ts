@@ -1,6 +1,7 @@
 import { existsSync, FSWatcher, watch } from 'node:fs';
+import { readFile, realpath, stat } from 'node:fs/promises';
 import { createServer, Server } from 'node:http';
-import { basename, dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 import express from 'express';
 
@@ -66,6 +67,7 @@ export const startServer = async ({
   git = gitAdapter,
   readOnly = false,
 }: StartServerOptions): Promise<RunningServer> => {
+  const fileRoot = await realpath(projectRoot);
   const app = express();
   const clients = new Set<import('express').Response>();
   let unsubscribe: (() => void) | undefined;
@@ -133,6 +135,30 @@ export const startServer = async ({
     return next(error);
   });
   app.get('/api/project', (_req, res) => res.json(service.snapshot));
+  app.get('/api/files', async (req, res) => {
+    const fail = (status: number, code: string, message: string) =>
+      res.status(status).json({ errors: [{ code, message, path: '/path' }] });
+    const path = req.query.path;
+    if (typeof path !== 'string' || !path || isAbsolute(path) || /^[a-z]:/i.test(path)
+      || /[\\\0]/.test(path) || path.split('/').includes('..')) {
+      return fail(400, 'invalid-request', 'Некорректный относительный путь');
+    }
+    try {
+      const target = await realpath(resolve(fileRoot, path));
+      const withinRoot = relative(fileRoot, target);
+      if (isAbsolute(withinRoot) || withinRoot === '..' || withinRoot.startsWith(`..${sep}`)) {
+        return fail(403, 'forbidden', 'Доступ к файлу запрещён');
+      }
+      if (!(await stat(target)).isFile()) return fail(404, 'not-found', 'Файл не найден');
+      const bytes = await readFile(target);
+      return res.type(extname(path).toLowerCase() || 'application/octet-stream').send(bytes);
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === 'EACCES' || code === 'EPERM') return fail(403, 'forbidden', 'Доступ к файлу запрещён');
+      if (code === 'ENOENT' || code === 'ENOTDIR' || code === 'ELOOP') return fail(404, 'not-found', 'Файл не найден');
+      return fail(500, 'internal-error', 'Не удалось прочитать файл');
+    }
+  });
   const features = refreshable ? new FeatureService(service as never) : undefined;
   if (service instanceof Object && 'subscribe' in service) {
     unsubscribe = (service as { subscribe(listener: (snapshot: ProjectSnapshot) => void): () => void }).subscribe(({ revision }) => {

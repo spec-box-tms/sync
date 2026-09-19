@@ -1,0 +1,59 @@
+feature: GET /api/files
+code: serve-file-get
+description: |-
+  Возвращает исходные байты файла по пути относительно рабочего каталога,
+  из которого запущена команда serve. Корень фиксируется при запуске сервера;
+  projectPath из .tms.json не изменяет его. Доступ не ограничен YAML-файлами
+  или шаблонами yml.files.
+
+  Модели запроса и ответа TypeScript:
+  ```ts
+  interface GetFileRequest {
+    query: { path: string };
+  }
+  type GetFileResponse = Uint8Array;
+  interface ErrorResponse {
+    errors: Array<{ code: string; message: string; path: string }>;
+  }
+  ```
+
+  path — единственное строковое значение относительного пути с разделителем /,
+  переданное с URL-кодированием. Сервер декодирует его один раз. Абсолютные пути,
+  обратные слеши, нулевые байты и сегменты .. не допускаются.
+  Ошибки возвращаются как application/json в формате ErrorResponse;
+  path ошибки равен /path. Ответы не раскрывают абсолютные пути файловой системы.
+definitions:
+  tool:
+    - serve
+  module:
+    - backend
+specs-unit:
+  Успешный ответ:
+    - assert: GET /api/files с допустимым path существующего обычного файла внутри корня возвращает HTTP 200 и исходные байты файла без преобразований
+    - assert: GET /api/files для пустого файла возвращает HTTP 200 и пустое тело
+    - assert: GET /api/files разрешает path относительно каталога запуска serve независимо от projectPath в .tms.json и шаблонов yml.files
+    - assert: 'GET /api/files с URL-кодированным относительным путём, содержащим пробелы, кириллицу или символы #, ? и %, возвращает HTTP 200 и байты соответствующего файла после однократного декодирования path'
+    - assert: GET /api/files по симлинку на обычный файл внутри корня возвращает HTTP 200 и байты целевого файла
+    - assert: GET /api/files с допустимым path существующего файла в режиме --read-only возвращает HTTP 200 и исходные байты файла
+  MIME-тип ответа:
+    - assert: GET /api/files для существующего файла с расширением .html в декодированном path возвращает HTTP 200 и Content-Type text/html
+    - assert: GET /api/files для существующего файла с расширением .css в декодированном path возвращает HTTP 200 и Content-Type text/css
+    - assert: GET /api/files для существующего файла с расширением .json в декодированном path возвращает HTTP 200 и Content-Type application/json
+    - assert: GET /api/files для существующего файла с расширением .txt в декодированном path возвращает HTTP 200 и Content-Type text/plain
+    - assert: GET /api/files для существующего файла с расширением .png в декодированном path возвращает HTTP 200 и Content-Type image/png
+    - assert: GET /api/files для существующего файла с расширением .jpg в декодированном path возвращает HTTP 200 и Content-Type image/jpeg
+    - assert: GET /api/files для существующего файла с расширением .jpeg в декодированном path возвращает HTTP 200 и Content-Type image/jpeg
+    - assert: GET /api/files для существующего файла с расширением .svg в декодированном path возвращает HTTP 200 и Content-Type image/svg+xml
+    - assert: GET /api/files для существующего файла с расширением .pdf в декодированном path возвращает HTTP 200 и Content-Type application/pdf
+    - assert: GET /api/files для существующего файла определяет MIME-тип без учёта регистра расширения и возвращает HTTP 200 с одинаковым MIME-типом для .png и .PNG
+    - assert: GET /api/files для существующего файла без расширения возвращает HTTP 200 и Content-Type application/octet-stream
+    - assert: GET /api/files для существующего файла с неизвестным расширением возвращает HTTP 200 и Content-Type application/octet-stream
+  Проверка запроса:
+    - assert: GET /api/files без path, с пустым path либо с несколькими или нестроковыми значениями path возвращает HTTP 400 и ErrorResponse с code invalid-request
+    - assert: GET /api/files с абсолютным путём, включая Windows-путь с буквой диска, обратным слешем, нулевым байтом или сегментом .. после декодирования возвращает HTTP 400 и ErrorResponse с code invalid-request
+  Границы доступа:
+    - assert: GET /api/files с путём, чей файл или родительский каталог является симлинком за пределы корня, возвращает HTTP 403 и ErrorResponse с code forbidden без содержимого целевого файла
+    - assert: GET /api/files для файла внутри корня, недоступного серверу для чтения из-за прав файловой системы, возвращает HTTP 403 и ErrorResponse с code forbidden
+  Отсутствующий файл:
+    - assert: GET /api/files с допустимым путём к отсутствующему файлу или оборванному симлинку внутри корня возвращает HTTP 404 и ErrorResponse с code not-found
+    - assert: GET /api/files с допустимым путём к каталогу или другому объекту, не являющемуся обычным файлом, внутри корня возвращает HTTP 404 и ErrorResponse с code not-found без списка содержимого каталога
