@@ -19,8 +19,6 @@ import { Markdown } from '../../../ui/markdown/markdown.component';
     TuiStatus,
     TuiIcon,
     TuiButton,
-    TuiExpand,
-    TuiItem,
     TuiHint,
   ],
 })

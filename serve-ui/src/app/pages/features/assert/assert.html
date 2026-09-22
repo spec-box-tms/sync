@@ -53,8 +53,8 @@
     Описание
   </div>
   <div class="description">
-    <tui-expand [expanded]="expanded()">
-      <markdown *tuiItem [value]="_description" />
-    </tui-expand>
+    @if(expanded()) {
+      <markdown [value]="_description" />
+    }
   </div>
 }
