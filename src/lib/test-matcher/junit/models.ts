@@ -18,13 +18,14 @@ const junitTestCaseStatusDecoder = d.partial({
   skipped: singleItemOrArray(d.union(d.string, d.UnknownRecord)),
   failed: d.string,
   failure: singleItemOrArray(d.union(d.string, d.UnknownRecord)),
+  error: singleItemOrArray(d.union(d.string, d.UnknownRecord)),
 });
 
 export type JUnitTestCaseStatus = d.TypeOf<typeof junitTestCaseStatusDecoder>;
 
 const mapStatus = (testCase: JUnitTestCaseStatus): JUnitStatuses => {
-  const { skipped, failed, failure } = testCase;
-  if (failed !== undefined || failure !== undefined) {
+  const { skipped, failed, failure, error } = testCase;
+  if (failed !== undefined || failure !== undefined || error !== undefined) {
     return 'failed';
   }
   if (skipped !== undefined) {
